@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">foto-capacitor</string>
+    <string name="title_activity_main">foto-capacitor</string>
+    <string name="package_name">foto.capacitor</string>
+    <string name="custom_url_scheme">foto.capacitor</string>
+</resources>
