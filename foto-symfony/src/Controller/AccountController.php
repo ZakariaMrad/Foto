@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use App\Service\JsonValidationService;
 
 
 
@@ -43,19 +44,40 @@ class AccountController extends AbstractController
             'roles' => $user->getRoles(),
         ]);
     }
+
     #[Route('/account/register', name: 'app_account_register')]
-public function register(Request $request, ManagerRegistry $doctrine,UserPasswordHasherInterface $userPasswordHasher,): JsonResponse
-{
-    $em = $doctrine->getManager();
-    $data = json_decode($request->getContent(), true); // Decode JSON data from the request
+    public function register(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $userPasswordHasher): JsonResponse
+    {
+        $em = $doctrine->getManager();
+        $data = json_decode($request->getContent(), true); // Decode JSON data from the request
 
-    $user = new User();
-    $form = $this->createForm(RegistrationFormType::class, $user);
+        $user = new User();
+        $form = $this->createForm(RegistrationFormType::class, $user);
 
-    // Remove the 'submit' method and replace it with 'submitForm'
-    $form->submit($data); // Submit form with JSON data
+        // Submit form with JSON data
+        $form->submit($data);
 
-    if ($form->isSubmitted() && $form->isValid()) {
+        if (!$form->isSubmitted()) {
+            return $this->json([
+                'error' => 'The form was not submitted.',
+            ], 400); // Return a JSON error response with a 400 status code
+        }
+
+        if (!$form->isValid()) {
+            // Handle form validation errors and return error response
+            $errors = [];
+            foreach ($form->getErrors(true, true) as $error) {
+                $fieldName = $error->getOrigin() ? $error->getOrigin()->getName() : '_global';
+                $errors[$fieldName][] = $error->getMessage();
+            }
+
+            return $this->json([
+                'errors' => $errors,
+                'csrf_token' => $form->createView()->children['_token']->vars['value']
+            ], 400); // Return a JSON error response with a 400 status code
+        }
+
+        // Rest of the code for successful registration
         $user->setPassword(
             $userPasswordHasher->hashPassword(
                 $user,
@@ -68,27 +90,20 @@ public function register(Request $request, ManagerRegistry $doctrine,UserPasswor
         return $this->json([
             'message' => 'User registered successfully.'
         ]);
-    } else {
-        return $this->json([
-            'errors' => $this->getFormErrors($form),
-            'csrf_token' => $form->createView()->children['_token']->vars['value']
-        ], 400);
     }
-}
 
 
-
-private function getFormErrors($form)
-{
-    $errors = [];
-    foreach ($form->getErrors(true,true) as $error) {
-        if ($error->getOrigin()) {
-            $fieldName = $error->getOrigin()->getName();
-            $errors[$fieldName][] = $error->getMessage();
-        } else {
-            $errors['_global'][] = $error->getMessage();
+    private function getFormErrors($form)
+    {
+        $errors = [];
+        foreach ($form->getErrors(true, true) as $error) {
+            if ($error->getOrigin()) {
+                $fieldName = $error->getOrigin()->getName();
+                $errors[$fieldName][] = $error->getMessage();
+            } else {
+                $errors['_global'][] = $error->getMessage();
+            }
         }
+        return $errors;
     }
-    return $errors;
-}
 }

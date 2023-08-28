@@ -26,6 +26,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180, unique: true, name: 'email')]
     #[Assert\Email(message: "Your email address ( {{ value }} ) is invalid")]
+    #[Assert\NotBlank]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -34,17 +35,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'lastName')]
     #[Assert\Length(min: 2, minMessage: "Your last name must contain at least 2 characters")]
     #[Assert\Length(max: 30, maxMessage: "Your last name must contain at most 30 characters")]
+    #[Assert\NotBlank]
     private ?string $lastName = null;
 
     #[ORM\Column(name: 'firstName')]
     #[Assert\Length(min: 2, minMessage: "Your first name must contain at least 2 characters")]
     #[Assert\Length(max: 30, maxMessage: "Your first name must contain at most 30 characters")]
+    #[Assert\NotBlank]
     private ?string $firstName = null;
 
 
     #[ORM\Column(name: 'userName')]
-    #[Assert\Length(min: 2, minMessage: "Your username must contain at least 1 characters")]
+    #[Assert\Length(min: 1, minMessage: "Your username must contain at least 1 characters")]
     #[Assert\Length(max: 30, maxMessage: "Your username must contain at most 50 characters")]
+    #[Assert\NotBlank]
     private ?string $userName = null;
     /**
      * @var string The hashed password
