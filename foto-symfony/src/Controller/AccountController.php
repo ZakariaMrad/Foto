@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\LoginFormType;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -11,45 +12,88 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use App\Service\JsonValidationService;
-
-
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 
 class AccountController extends AbstractController
 {
     private $em = null;
+    private $jwtEncoder;
 
-    #[Route('/account', name: 'app_account', methods: ['GET,POST'])]
+    public function __construct(JWTEncoderInterface $jwtEncoder)
+    {
+        $this->jwtEncoder = $jwtEncoder;
+    }
+
+    #[Route('/account', name: 'app_account', methods: ['POST'])]
     public function index(Request $request, ManagerRegistry $doctrine, EntityManagerInterface $entityManager): JsonResponse
     {
-        $this->em = $doctrine->getManager();
+        $em = $doctrine->getManager();
 
-        if (!$this->getUser()) {
-            return $this->redirectToRoute('app_register');
+        $data = json_decode($request->getContent(), true);
+        $token = $data['jwt_token'] ?? null;
+
+        if (!$token) {
+            return $this->json([
+                'error' => 'JWT token not provided.',
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+        try {
+            $decodedJWTToken = $this->jwtEncoder->decode($token);
+        } catch (JWTDecodeFailureException $e) {
+            // Handle token decode failure
+            return $this->json([
+                'error' => 'Invalid token',
+            ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
+        if (!$decodedJWTToken) {
+            return $this->json([
+                'error' => 'Invalid JWT token.',
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $username = $decodedJWTToken['username'] ?? 'Unknown User';
+
         return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/AccountController.php',
+            'completeToken' => $decodedJWTToken,
+            'user' => $username,
         ]);
     }
 
     #[Route('/account/login', name: 'app_account_login', methods: ['POST'])]
-    public function login(Request $request, ManagerRegistry $doctrine,): JsonResponse
+    public function login(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $jwtManager): JsonResponse
     {
-        $user = $this->getUser();
+        $em = $doctrine->getManager();
+        $data = json_decode($request->getContent(), true);
+
+        // Get username and password from JSON data
+        $username = $data['username'];
+        $password = $data['password'];
+
+        // Find the user by username (you might want to adjust this based on your User entity)
+        $user = $em->getRepository(User::class)->findOneBy(['userName' => $username]);
+
+        if (!$user || !$passwordHasher->isPasswordValid($user, $password)) {
+            return $this->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        // Generate a JWT token
+        $jwt_token = $jwtManager->create($user);
 
         return $this->json([
-            'username' => $user->getEmail(),
-            'roles' => $user->getRoles(),
+            'username' => $user->getUsername(),
+            'jwt_token' => $jwt_token
         ]);
     }
 
     #[Route('/account/register', name: 'app_account_register')]
-    public function register(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $userPasswordHasher): JsonResponse
+    public function register(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $userPasswordHasher, JWTTokenManagerInterface $jwtManager): JsonResponse
     {
         $em = $doctrine->getManager();
         $data = json_decode($request->getContent(), true); // Decode JSON data from the request
+        $needCSRTToken = $request->query->get("need-csrf-token") == "true";
 
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -57,13 +101,12 @@ class AccountController extends AbstractController
         // Submit form with JSON data
         $form->submit($data);
 
-        if (!$form->isSubmitted()) {
+        if ($needCSRTToken) {
             return $this->json([
-                'error' => 'The form was not submitted.',
-            ], 400); // Return a JSON error response with a 400 status code
+                'csrf_token' => $form->createView()->children['_token']->vars['value']
+            ], 200); // Return a JSON error response with a 400 status code
         }
-
-        if (!$form->isValid()) {
+        if (!$form->isSubmitted() || !$form->isValid()) {
             // Handle form validation errors and return error response
             $errors = [];
             foreach ($form->getErrors(true, true) as $error) {
@@ -87,8 +130,12 @@ class AccountController extends AbstractController
         $em->persist($user); // Persist user to the database
         $em->flush(); // Save changes
 
+        // Generate a JWT token
+        $jwt_token = $jwtManager->create($user);
+
         return $this->json([
-            'message' => 'User registered successfully.'
+            'message' => 'User registered successfully.',
+            'jwt_token' => $jwt_token
         ]);
     }
 
