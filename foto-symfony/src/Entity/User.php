@@ -2,63 +2,173 @@
 
 namespace App\Entity;
 
-use App\Core\Constants;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
-
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
-
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: "idUser")]
+    #[ORM\Column(name: 'idUser')]
     private ?int $idUser = null;
 
-    #[ORM\Column(length: 180, unique: true, name: 'email')]
-    #[Assert\Email(message: "Your email address ( {{ value }} ) is invalid")]
-    #[Assert\NotBlank]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
     #[ORM\Column]
     private array $roles = [];
 
-    #[ORM\Column(name: 'lastName')]
-    #[Assert\Length(min: 2, minMessage: "Your last name must contain at least 2 characters")]
-    #[Assert\Length(max: 30, maxMessage: "Your last name must contain at most 30 characters")]
-    #[Assert\NotBlank]
-    private ?string $lastName = null;
-
-    #[ORM\Column(name: 'firstName')]
-    #[Assert\Length(min: 2, minMessage: "Your first name must contain at least 2 characters")]
-    #[Assert\Length(max: 30, maxMessage: "Your first name must contain at most 30 characters")]
-    #[Assert\NotBlank]
-    private ?string $firstName = null;
-
-
-    #[ORM\Column(name: 'userName')]
-    #[Assert\Length(min: 1, minMessage: "Your username must contain at least 1 characters")]
-    #[Assert\Length(max: 30, maxMessage: "Your username must contain at most 50 characters")]
-    #[Assert\NotBlank]
-    private ?string $userName = null;
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
     private ?string $password = null;
 
+    #[ORM\Column(length: 255, name: 'banState')]
+    private ?string $banState = null;
+
+    #[ORM\Column(length: 255, name: 'picturePath')]
+    private ?string $picturePath = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $location = null;
+
+    #[ORM\Column(length: 1024)]
+    private ?string $bio = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $name = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, name: 'birthDate')]
+    private ?\DateTimeInterface $birthDate = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, name: 'creationDate')]
+    private ?\DateTimeInterface $creationDate = null;
+
+    #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'collaborators')]
+    private Collection $collaboretedAlbums;
+
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Album::class)]
+    private Collection $ownedAlbums;
+
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Post::class)]
+    private Collection $posts;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Like::class)]
+    private Collection $likes;
+
+    #[ORM\OneToMany(mappedBy: 'User', targetEntity: Comment::class)]
+    private Collection $comments;
+
+    #[ORM\ManyToMany(targetEntity: Chat::class, inversedBy: 'User')]
+    private Collection $chats;
+
+    #[ORM\OneToMany(mappedBy: 'User', targetEntity: Message::class)]
+    private Collection $messages;
+
+    public function __construct()
+    {
+        $this->collaboretedAlbums = new ArrayCollection();
+        $this->ownedAlbums = new ArrayCollection();
+        $this->posts = new ArrayCollection();
+        $this->likes = new ArrayCollection();
+        $this->comments = new ArrayCollection();
+        $this->chats = new ArrayCollection();
+        $this->messages = new ArrayCollection();
+    }
+
     public function getIdUser(): ?int
     {
         return $this->idUser;
+    }
+
+    public function getBanState(): ?string
+    {
+        return $this->banState;
+    }
+
+    public function setBanState(string $banState): static
+    {
+        $this->banState = $banState;
+
+        return $this;
+    }
+
+    public function getPicturePath(): ?string
+    {
+        return $this->picturePath;
+    }
+
+    public function setPicturePath(string $picturePath): static
+    {
+        $this->picturePath = $picturePath;
+
+        return $this;
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function setLocation(string $location): static
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+
+    public function setBio(string $bio): static
+    {
+        $this->bio = $bio;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+
+    public function getBirthDate(): ?\DateTimeInterface
+    {
+        return $this->birthDate;
+    }
+
+    public function setBirthDate(\DateTimeInterface $birthDate): static
+    {
+        $this->birthDate = $birthDate;
+
+        return $this;
+    }
+
+    public function getCreationDate(): ?\DateTimeInterface
+    {
+        return $this->creationDate;
+    }
+
+    public function setCreationDate(\DateTimeInterface $creationDate): static
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
     }
 
     public function getEmail(): ?string
@@ -117,39 +227,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getLastName(): string
-    {
-        return $this->lastName;
-    }
-    public function setLastName(string $lastName): self
-    {
-        $this->lastName = $lastName;
-
-        return $this;
-    }
-
-
-    public function getFirstName(): string
-    {
-        return $this->firstName;
-    }
-    public function setFirstName(string $firstName): self
-    {
-        $this->firstName = $firstName;
-
-        return $this;
-    }
-    public function getUserName(): string
-    {
-        return $this->userName;
-    }
-    public function setUserName(string $userName): self
-    {
-        $this->userName = $userName;
-
-        return $this;
-    }
-
     /**
      * @see UserInterface
      */
@@ -157,5 +234,209 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Album>
+     */
+    public function getCollaboretedAlbums(): Collection
+    {
+        return $this->collaboretedAlbums;
+    }
+
+    public function addCollaboretedAlbum(Album $collaboretedAlbum): static
+    {
+        if (!$this->collaboretedAlbums->contains($collaboretedAlbum)) {
+            $this->collaboretedAlbums->add($collaboretedAlbum);
+            $collaboretedAlbum->addCollaborator($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCollaboretedAlbum(Album $collaboretedAlbum): static
+    {
+        if ($this->collaboretedAlbums->removeElement($collaboretedAlbum)) {
+            $collaboretedAlbum->removeCollaborator($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Album>
+     */
+    public function getOwnedAlbums(): Collection
+    {
+        return $this->ownedAlbums;
+    }
+
+    public function addOwnedAlbum(Album $ownedAlbum): static
+    {
+        if (!$this->ownedAlbums->contains($ownedAlbum)) {
+            $this->ownedAlbums->add($ownedAlbum);
+            $ownedAlbum->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOwnedAlbum(Album $ownedAlbum): static
+    {
+        if ($this->ownedAlbums->removeElement($ownedAlbum)) {
+            // set the owning side to null (unless already changed)
+            if ($ownedAlbum->getOwner() === $this) {
+                $ownedAlbum->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Post>
+     */
+    public function getPosts(): Collection
+    {
+        return $this->posts;
+    }
+
+    public function addPost(Post $post): static
+    {
+        if (!$this->posts->contains($post)) {
+            $this->posts->add($post);
+            $post->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removePost(Post $post): static
+    {
+        if ($this->posts->removeElement($post)) {
+            // set the owning side to null (unless already changed)
+            if ($post->getOwner() === $this) {
+                $post->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Like>
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(Like $like): static
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes->add($like);
+            $like->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLike(Like $like): static
+    {
+        if ($this->likes->removeElement($like)) {
+            // set the owning side to null (unless already changed)
+            if ($like->getUser() === $this) {
+                $like->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): static
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): static
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getUser() === $this) {
+                $comment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Chat>
+     */
+    public function getChats(): Collection
+    {
+        return $this->chats;
+    }
+
+    public function addChat(Chat $chat): static
+    {
+        if (!$this->chats->contains($chat)) {
+            $this->chats->add($chat);
+            $chat->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChat(Chat $chat): static
+    {
+        if ($this->chats->removeElement($chat)) {
+            $chat->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): static
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): static
+    {
+        if ($this->messages->removeElement($message)) {
+            // set the owning side to null (unless already changed)
+            if ($message->getUser() === $this) {
+                $message->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
