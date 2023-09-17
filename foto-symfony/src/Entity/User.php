@@ -50,6 +50,9 @@ class User
     private ?\DateTimeInterface $creationDate = null;
 
     #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'collaborators')]
+    #[ORM\JoinTable(name: 'users_albums',
+        joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')])]
     private Collection $collaboretedAlbums;
 
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Album::class)]
@@ -65,6 +68,9 @@ class User
     private Collection $comments;
 
     #[ORM\ManyToMany(targetEntity: Chat::class, inversedBy: 'User')]
+    #[ORM\JoinTable(name: 'users_chats',
+        joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idChat', referencedColumnName: 'idChat')])]
     private Collection $chats;
 
     #[ORM\OneToMany(mappedBy: 'User', targetEntity: Message::class)]

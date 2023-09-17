@@ -10,7 +10,7 @@ class Comment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name:'idcomment')]
+    #[ORM\Column(name:'idComment')]
     private ?int $idComment = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
