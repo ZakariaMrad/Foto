@@ -401,7 +401,7 @@ class User
     {
         if (!$this->chats->contains($chat)) {
             $this->chats->add($chat);
-            $chat->addUser($this);
+            $chat->addUsers($this);
         }
 
         return $this;
@@ -410,7 +410,7 @@ class User
     public function removeChat(Chat $chat): static
     {
         if ($this->chats->removeElement($chat)) {
-            $chat->removeUser($this);
+            $chat->removeUsers($this);
         }
 
         return $this;
