@@ -12,6 +12,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: 'users')]
 class User implements PasswordAuthenticatedUserInterface,UserInterface
 {
     #[ORM\Id]
@@ -30,9 +31,6 @@ class User implements PasswordAuthenticatedUserInterface,UserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
-
-    #[ORM\Column(length: 255, name: 'banState')]
-    private ?string $banState = '';
 
     #[ORM\Column(length: 255, name: 'picturePath')]
     private ?string $picturePath = '';
@@ -79,6 +77,10 @@ class User implements PasswordAuthenticatedUserInterface,UserInterface
     #[ORM\OneToMany(mappedBy: 'User', targetEntity: Message::class)]
     private Collection $messages;
 
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\JoinColumn(name: 'idBanState', referencedColumnName: 'idBanState')]
+    private ?BanState $banState = null;
+
     public function __construct()
     {
         $this->collaboretedAlbums = new ArrayCollection();
@@ -95,7 +97,6 @@ class User implements PasswordAuthenticatedUserInterface,UserInterface
             'idUser'=>$this->idUser,
             'email'=>$this->email,
             'roles'=>$this->roles,
-            'banState'=>$this->banState,
             'picturePath'=>$this->picturePath,
             'location'=>$this->location,
             'bio'=>$this->bio,
@@ -108,7 +109,8 @@ class User implements PasswordAuthenticatedUserInterface,UserInterface
             'likes'=>$this->likes,
             'comments'=>$this->comments,
             'chats'=>$this->chats,
-            'messages'=>$this->messages
+            'messages'=>$this->messages,
+            'banState'=>$this->banState
         ];
     }
 
@@ -117,17 +119,6 @@ class User implements PasswordAuthenticatedUserInterface,UserInterface
         return $this->idUser;
     }
 
-    public function getBanState(): ?string
-    {
-        return $this->banState;
-    }
-
-    public function setBanState(string $banState): static
-    {
-        $this->banState = $banState;
-
-        return $this;
-    }
 
     public function getPicturePath(): ?string
     {
@@ -467,6 +458,18 @@ class User implements PasswordAuthenticatedUserInterface,UserInterface
                 $message->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBanState(): ?BanState
+    {
+        return $this->banState;
+    }
+
+    public function setBanState(?BanState $banState): static
+    {
+        $this->banState = $banState;
 
         return $this;
     }

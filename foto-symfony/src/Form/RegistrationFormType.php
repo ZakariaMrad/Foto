@@ -16,18 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class RegistrationFormType extends AbstractType
 {
-    static public function getEveryFields(): array
-    {
 
-        return [
-            '_token',
-            'name',
-            'email',
-            'password',
-            'location',
-            'birthDate',
-        ];
-    }
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
