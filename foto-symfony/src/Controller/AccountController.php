@@ -3,9 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\FormHandler;
 use App\Form\LoginFormType;
 use App\Form\RegistrationFormType;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Jwt\JWTHandler;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,138 +20,100 @@ use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 class AccountController extends AbstractController
 {
     private $em = null;
-    private $jwtEncoder;
+    private $jwtHandler;
 
-    public function __construct(JWTEncoderInterface $jwtEncoder)
+    public function __construct(JWTEncoderInterface $jwtEncoder, ManagerRegistry $doctrine,)
     {
-        $this->jwtEncoder = $jwtEncoder;
+        $this->em = $doctrine->getManager();
+        $this->jwtHandler = new JWTHandler($jwtEncoder);
     }
 
     #[Route('/account', name: 'app_account', methods: ['POST'])]
-    public function index(Request $request, ManagerRegistry $doctrine, EntityManagerInterface $entityManager): JsonResponse
+    public function account(Request $request): JsonResponse
     {
-        $em = $doctrine->getManager();
-
         $data = json_decode($request->getContent(), true);
-        $token = $data['jwt_token'] ?? null;
 
-        if (!$token) {
+        
+        if ($this->jwtHandler->handle($data)) {
             return $this->json([
-                'error' => 'JWT token not provided.',
-            ], JsonResponse::HTTP_BAD_REQUEST);
-        }
-        try {
-            $decodedJWTToken = $this->jwtEncoder->decode($token);
-        } catch (JWTDecodeFailureException $e) {
-            // Handle token decode failure
-            return $this->json([
-                'error' => 'Invalid token',
-            ], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        if (!$decodedJWTToken) {
-            return $this->json([
-                'error' => 'Invalid JWT token.',
+                'message' => $this->jwtHandler->error,
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
-
-        $username = $decodedJWTToken['username'] ?? 'Unknown User';
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => $this->jwtHandler->decodedJWTToken['email']]);
 
         return $this->json([
-            'completeToken' => $decodedJWTToken,
-            'user' => $username,
-        ]);
+            'decoded' => $this->jwtHandler->decodedJWTToken['email'],
+            'user' => $user->getAll()
+
+        ], JsonResponse::HTTP_OK);
     }
 
     #[Route('/account/login', name: 'app_account_login', methods: ['POST'])]
-    public function login(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $jwtManager): JsonResponse
+    public function login(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
-        $em = $doctrine->getManager();
-        $data = json_decode($request->getContent(), true);
+        $form = $this->createForm(LoginFormType::class);
+        $formHandler = new FormHandler($form);
 
-        // Get username and password from JSON data
-        $username = $data['username'];
-        $password = $data['password'];
-
-        // Find the user by username (you might want to adjust this based on your User entity)
-        $user = $em->getRepository(User::class)->findOneBy(['userName' => $username]);
-
-        if (!$user || !$passwordHasher->isPasswordValid($user, $password)) {
-            return $this->json(['message' => 'Invalid credentials'], 401);
+        if ($formHandler->handleCSRF($request)) {
+            return $this->json($formHandler->errors, JsonResponse::HTTP_OK);
         }
 
-        // Generate a JWT token
-        $jwt_token = $jwtManager->create($user);
+        $data = json_decode($request->getContent(), true); // Decode JSON data from the request
+        if ($formHandler->handle($data) == false) {
+            return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
+        }
 
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => $form->get('email')->getData()]);
+        if (!$user) {
+            return $this->json([
+                'message' => 'Wrong email/password combination.',
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+        if(!$passwordHasher->isPasswordValid($user, $form->get('password')->getData())) {
+            return $this->json([
+                'message' => 'Wrong email/password combination.',
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
         return $this->json([
-            'username' => $user->getUsername(),
-            'jwt_token' => $jwt_token
+            "message" => "User logged in successfully.",
+            "jwt_token" => $this->jwtHandler->create($user)
         ]);
     }
 
     #[Route('/account/register', name: 'app_account_register')]
-    public function register(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $userPasswordHasher, JWTTokenManagerInterface $jwtManager): JsonResponse
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher): JsonResponse
     {
-        $em = $doctrine->getManager();
-        $data = json_decode($request->getContent(), true); // Decode JSON data from the request
-        $needCSRTToken = $request->query->get("need-csrf-token") == "true";
-
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
+        $formHandler = new FormHandler($form);
 
-        // Submit form with JSON data
-        $form->submit($data);
-
-        if ($needCSRTToken) {
-            return $this->json([
-                'csrf_token' => $form->createView()->children['_token']->vars['value']
-            ], 200); // Return a JSON error response with a 400 status code
-        }
-        if (!$form->isSubmitted() || !$form->isValid()) {
-            // Handle form validation errors and return error response
-            $errors = [];
-            foreach ($form->getErrors(true, true) as $error) {
-                $fieldName = $error->getOrigin() ? $error->getOrigin()->getName() : '_global';
-                $errors[$fieldName][] = $error->getMessage();
-            }
-
-            return $this->json([
-                'errors' => $errors,
-                'csrf_token' => $form->createView()->children['_token']->vars['value']
-            ], 400); // Return a JSON error response with a 400 status code
+        if ($formHandler->handleCSRF($request)) {
+            return $this->json($formHandler->errors, JsonResponse::HTTP_OK);
         }
 
-        // Rest of the code for successful registration
+        $data = json_decode($request->getContent(), true); // Decode JSON data from the request
+        if ($formHandler->handle($data) == false) {
+            return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
+        }
+
+
         $user->setPassword(
             $userPasswordHasher->hashPassword(
                 $user,
                 $form->get('password')->getData()
             )
         );
-        $em->persist($user); // Persist user to the database
-        $em->flush(); // Save changes
-
+        $user->setCreationDate(new \DateTime());
+        
         // Generate a JWT token
-        $jwt_token = $jwtManager->create($user);
+        $jwt_token = $this->jwtHandler->create($user);
+
+        $this->em->persist($user); // Persist user to the database
+        $this->em->flush(); // Save changes
 
         return $this->json([
             'message' => 'User registered successfully.',
             'jwt_token' => $jwt_token
         ]);
-    }
-
-
-    private function getFormErrors($form)
-    {
-        $errors = [];
-        foreach ($form->getErrors(true, true) as $error) {
-            if ($error->getOrigin()) {
-                $fieldName = $error->getOrigin()->getName();
-                $errors[$fieldName][] = $error->getMessage();
-            } else {
-                $errors['_global'][] = $error->getMessage();
-            }
-        }
-        return $errors;
     }
 }

@@ -3,13 +3,16 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User implements PasswordAuthenticatedUserInterface,UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -29,25 +32,25 @@ class User
     private ?string $password = null;
 
     #[ORM\Column(length: 255, name: 'banState')]
-    private ?string $banState = null;
+    private ?string $banState = '';
 
     #[ORM\Column(length: 255, name: 'picturePath')]
-    private ?string $picturePath = null;
+    private ?string $picturePath = '';
 
     #[ORM\Column(length: 255)]
-    private ?string $location = null;
+    private ?string $location = '';
 
     #[ORM\Column(length: 1024)]
-    private ?string $bio = null;
+    private ?string $bio = '';
 
     #[ORM\Column(length: 50)]
-    private ?string $name = null;
+    private ?string $name = '';
 
     #[ORM\Column(type: Types::DATE_MUTABLE, name: 'birthDate')]
     private ?\DateTimeInterface $birthDate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, name: 'creationDate')]
-    private ?\DateTimeInterface $creationDate = null;
+    private ?\DateTimeInterface $creationDate =null;
 
     #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'collaborators')]
     #[ORM\JoinTable(name: 'users_albums',
@@ -85,6 +88,28 @@ class User
         $this->comments = new ArrayCollection();
         $this->chats = new ArrayCollection();
         $this->messages = new ArrayCollection();
+    }
+
+    public function getAll(){
+        return [
+            'idUser'=>$this->idUser,
+            'email'=>$this->email,
+            'roles'=>$this->roles,
+            'banState'=>$this->banState,
+            'picturePath'=>$this->picturePath,
+            'location'=>$this->location,
+            'bio'=>$this->bio,
+            'name'=>$this->name,
+            'birthDate'=>$this->birthDate,
+            'creationDate'=>$this->creationDate,
+            'collaboretedAlbums'=>$this->collaboretedAlbums,
+            'ownedAlbums'=>$this->ownedAlbums,
+            'posts'=>$this->posts,
+            'likes'=>$this->likes,
+            'comments'=>$this->comments,
+            'chats'=>$this->chats,
+            'messages'=>$this->messages
+        ];
     }
 
     public function getIdUser(): ?int
