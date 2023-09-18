@@ -4,9 +4,8 @@ import App from "./App.vue";
 import router from './router'
 
 
-createApp(App).mount("#app");
+const app = createApp(App);
 
-App.use(router)
+app.use(router);
 
-App.mount('#app')
-//   .$nextTick(() => postMessage({ payload: 'removeLoading' }, '*'))
+app.mount('#app')

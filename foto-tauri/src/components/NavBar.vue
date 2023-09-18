@@ -12,9 +12,6 @@
                         <li class="nav-item">
                             <router-link class="nav-link" :to="{ name: 'home' }">Acceuil</router-link>
                         </li>
-                        <li class="nav-item">
-                            <router-link class="nav-link" :to="{ name: 'planets' }">Planets</router-link> 
-                        </li>
                     </ul>
                 </div>
             </div>
