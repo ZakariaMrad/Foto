@@ -19,12 +19,12 @@
             </div>
         </nav>
     </header>
-    <Login :activate="activateLogin" @isActivated="(value)=>activateLogin= value"/>
+    <LoginRegister :activate="activateLogin" @isActivated="(value)=>activateLogin= value"/>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import Login from './Login.vue';
+import LoginRegister from './LoginRegister.vue';
 
 const activateLogin = ref(false);
 </script>

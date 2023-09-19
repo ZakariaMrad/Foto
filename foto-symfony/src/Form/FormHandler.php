@@ -28,7 +28,7 @@ class FormHandler
     {
         $needCSRTToken = $request->query->get("need-csrf-token") == "true";
         if ($needCSRTToken) {
-            $this->errors = ['csrf_token' => $this->form->createView()->children['_token']->vars['value']];
+            $this->errors = ['_token' => $this->form->createView()->children['_token']->vars['value']];
             return true;
         }
         return false;
