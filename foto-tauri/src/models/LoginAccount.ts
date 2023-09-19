@@ -1,6 +1,5 @@
-import { FormObject } from "./FormObject";
 
-export class LoginAccount extends FormObject{
+export class LoginAccount{
     public email: string = '';
     public password: string = '';
 }

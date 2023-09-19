@@ -9,7 +9,9 @@
             <input type="password" id="password" class="form-control" v-bind="register('password')" />
             <label class="form-label" for="password">Password</label>
         </div>
-        <p class="text-danger">error</p>
+        <p class="text-danger" v-for="error in errors">{{ error.propertyName }} : {{ error.message }}</p>
+
+        <p class="text-success">{{ message }}</p>
         <button class="btn btn-danger" @click="closeDialog()">Close Dialog</button>
         <div class="btn-group float-right">
             <button class="btn btn-outline-primary">Register</button>
@@ -22,10 +24,19 @@
 import { useFormHandler } from 'vue-form-handler'
 import AccountRepository from '../repositories/AccountRepository'
 import { LoginAccount } from '../models/LoginAccount';
+import { ref } from 'vue'
+import { APIError } from '../core/API/APIError';
 
-const emit = defineEmits(['isActivated'])
+const emit = defineEmits(['isActivated', 'loggedIn'])
+
+const errors = ref<APIError[]>([])
+const message = ref<string>('')
+
 function closeDialog() {
     emit('isActivated', false);
+}
+function sendLoggedIn() {
+    emit('loggedIn', true);
 }
 
 const { register, handleSubmit, formState } = useFormHandler({
@@ -33,10 +44,17 @@ const { register, handleSubmit, formState } = useFormHandler({
 })
 
 const successFn = async (form: any) => {
-    //do anything with form
-    let a = await AccountRepository.login(form as LoginAccount)
-    console.log(a)
-    console.log(form as LoginAccount)
+    let apiResult = await AccountRepository.login(form as LoginAccount)
+    errors.value = []
+    message.value = ''
+
+    if (!apiResult.success) {
+        errors.value = apiResult.errors
+        return
+    }
+    message.value = apiResult.data.message
+    sendLoggedIn();
+    closeDialog();
 }
 const submitFn = () => {
     try {
@@ -50,4 +68,8 @@ const submitFn = () => {
 
 </script>
 
-<style scoped></style>
+<style scoped>
+p::first-letter {
+    text-transform: capitalize;
+}
+</style>

@@ -54,10 +54,6 @@ class AccountController extends AbstractController
         $form = $this->createForm(LoginFormType::class);
         $formHandler = new FormHandler($form);
 
-        if ($formHandler->handleCSRF($request)) {
-            return $this->json($formHandler->errors, JsonResponse::HTTP_OK);
-        }
-
         $data = json_decode($request->getContent(), true); // Decode JSON data from the request
         if ($formHandler->handle($data) == false) {
             return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
@@ -66,12 +62,12 @@ class AccountController extends AbstractController
         $user = $this->em->getRepository(User::class)->findOneBy(['email' => $form->get('email')->getData()]);
         if (!$user) {
             return $this->json([
-                'message' => 'Wrong email/password combination.',
+                'error' => ['Wrong email/password combination.'],
             ], JsonResponse::HTTP_NOT_FOUND);
         }
         if (!$passwordHasher->isPasswordValid($user, $form->get('password')->getData())) {
             return $this->json([
-                'message' => 'Wrong email/password combination.',
+                'error' => ['Wrong email/password combination.'],
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
         return $this->json([
@@ -86,10 +82,6 @@ class AccountController extends AbstractController
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $formHandler = new FormHandler($form);
-
-        if ($formHandler->handleCSRF($request)) {
-            return $this->json($formHandler->errors, JsonResponse::HTTP_OK);
-        }
 
         $data = json_decode($request->getContent(), true); // Decode JSON data from the request
         

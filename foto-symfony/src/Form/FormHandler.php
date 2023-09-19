@@ -24,16 +24,6 @@ class FormHandler
         return $fields;
     }
 
-    public function handleCSRF($request): bool
-    {
-        $needCSRTToken = $request->query->get("need-csrf-token") == "true";
-        if ($needCSRTToken) {
-            $this->errors = ['_token' => $this->form->createView()->children['_token']->vars['value']];
-            return true;
-        }
-        return false;
-    }
-
     public function handle($data): bool
     {
         if ($data == null) {
@@ -48,7 +38,6 @@ class FormHandler
                 $fieldName = $error->getOrigin() ? $error->getOrigin()->getName() : '_global';
                 $this->errors[$fieldName][] = $error->getMessage();
             }
-            $this->errors['csrf_token'] = $this->form->createView()->children['_token']->vars['value'];
             return false;
         }
         return true;

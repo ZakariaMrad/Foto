@@ -13,20 +13,38 @@
                 </ul>
                 <ul class="nav">
                     <li class="nav-item">
-                        <button class="nav-link link-dark btn" @click="activateLogin=true">Login</button>
+                        <button v-if="!userConnected" class="nav-link link-dark btn" @click="activateLogin = true">Login</button>
+                        <button v-else class="nav-link link-dark btn" @click="logout()">Logout</button>
                     </li>
                 </ul>
             </div>
         </nav>
     </header>
-    <LoginRegister :activate="activateLogin" @isActivated="(value)=>activateLogin= value"/>
+    <LoginRegister :activate="activateLogin" @isActivated="(value) => activateLogin = value" @loggedIn="userConnected=true" />
 </template>
 
 <script setup lang="ts">
+import AccountRepository from '../repositories/AccountRepository'
+
 import { ref } from 'vue'
 import LoginRegister from './LoginRegister.vue';
+import { onMounted } from 'vue';
 
 const activateLogin = ref(false);
+const userConnected = ref<boolean>(false);
+
+const logout = async () => {
+    await AccountRepository.logout();
+    userConnected.value = false;
+    console.log(userConnected.value);
+}
+
+onMounted(async () => {
+    userConnected.value= await AccountRepository.isConnected();
+    console.log(userConnected.value);
+    
+})
+
 </script>
 
 <style scoped></style>

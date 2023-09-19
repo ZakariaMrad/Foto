@@ -4,7 +4,7 @@
       <v-card-text>
         <h3 class="text-center">Login</h3>
         <div class="container">
-          <Login @isActivated="()=>closeDialog()" />
+          <Login @isActivated="()=>closeDialog()" @loggedIn="()=>sendLoggedIn()" />
         </div>
       </v-card-text>
     </v-card>
@@ -17,10 +17,13 @@ import Login from './Login.vue'
 const props = defineProps({
   activate: Boolean
 })
-const emit = defineEmits(['isActivated'])
+const emit = defineEmits(['isActivated', 'loggedIn'])
 
 function closeDialog() {
   emit('isActivated', false);
+}
+function sendLoggedIn() {
+  emit('loggedIn', true);
 }
 
 </script>
