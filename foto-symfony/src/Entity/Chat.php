@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChatRepository::class)]
+#[ORM\Table(name: 'chats')]
 class Chat
 {
     #[ORM\Id]
@@ -27,6 +28,9 @@ class Chat
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, name: 'creationDate')]
     private ?\DateTimeInterface $creationDate = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $title = null;
 
     public function __construct()
     {
@@ -102,6 +106,18 @@ class Chat
     public function setCreationDate(\DateTimeInterface $creationDate): static
     {
         $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): static
+    {
+        $this->title = $title;
 
         return $this;
     }

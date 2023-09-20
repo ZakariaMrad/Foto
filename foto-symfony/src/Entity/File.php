@@ -6,6 +6,7 @@ use App\Repository\FileRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FileRepository::class)]
+#[ORM\Table(name: 'files')]
 class File
 {
     #[ORM\Id]

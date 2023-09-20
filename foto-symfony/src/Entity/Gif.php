@@ -6,6 +6,7 @@ use App\Repository\GifRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GifRepository::class)]
+#[ORM\Table(name: 'gifs')]
 class Gif
 {
     #[ORM\Id]

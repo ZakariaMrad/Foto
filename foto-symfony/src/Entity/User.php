@@ -3,13 +3,17 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+#[ORM\Table(name: 'users')]
+class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -28,20 +32,17 @@ class User
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255, name: 'banState')]
-    private ?string $banState = null;
-
     #[ORM\Column(length: 255, name: 'picturePath')]
-    private ?string $picturePath = null;
+    private ?string $picturePath = '';
 
     #[ORM\Column(length: 255)]
-    private ?string $location = null;
+    private ?string $location = '';
 
     #[ORM\Column(length: 1024)]
-    private ?string $bio = null;
+    private ?string $bio = '';
 
     #[ORM\Column(length: 50)]
-    private ?string $name = null;
+    private ?string $name = '';
 
     #[ORM\Column(type: Types::DATE_MUTABLE, name: 'birthDate')]
     private ?\DateTimeInterface $birthDate = null;
@@ -50,9 +51,11 @@ class User
     private ?\DateTimeInterface $creationDate = null;
 
     #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'collaborators')]
-    #[ORM\JoinTable(name: 'users_albums',
+    #[ORM\JoinTable(
+        name: 'users_albums',
         joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
-        inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')])]
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
+    )]
     private Collection $collaboretedAlbums;
 
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Album::class)]
@@ -68,13 +71,19 @@ class User
     private Collection $comments;
 
     #[ORM\ManyToMany(targetEntity: Chat::class, inversedBy: 'User')]
-    #[ORM\JoinTable(name: 'users_chats',
+    #[ORM\JoinTable(
+        name: 'users_chats',
         joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
-        inverseJoinColumns: [new ORM\JoinColumn(name: 'idChat', referencedColumnName: 'idChat')])]
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idChat', referencedColumnName: 'idChat')]
+    )]
     private Collection $chats;
 
     #[ORM\OneToMany(mappedBy: 'User', targetEntity: Message::class)]
     private Collection $messages;
+
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\JoinColumn(name: 'idBanState', referencedColumnName: 'idBanState')]
+    private ?BanState $banState = null;
 
     public function __construct()
     {
@@ -87,22 +96,34 @@ class User
         $this->messages = new ArrayCollection();
     }
 
+    public function getAll()
+    {
+        return [
+            'idUser' => $this->idUser,
+            'email' => $this->email,
+            'roles' => $this->roles,
+            'picturePath' => $this->picturePath,
+            'location' => $this->location,
+            'bio' => $this->bio,
+            'name' => $this->name,
+            'birthDate' => $this->birthDate,
+            'creationDate' => $this->creationDate,
+            'collaboretedAlbums' => $this->collaboretedAlbums,
+            'ownedAlbums' => $this->ownedAlbums,
+            'posts' => $this->posts,
+            'likes' => $this->likes,
+            'comments' => $this->comments,
+            'chats' => $this->chats,
+            'messages' => $this->messages,
+            'banState' => $this->banState
+        ];
+    }
+
     public function getIdUser(): ?int
     {
         return $this->idUser;
     }
 
-    public function getBanState(): ?string
-    {
-        return $this->banState;
-    }
-
-    public function setBanState(string $banState): static
-    {
-        $this->banState = $banState;
-
-        return $this;
-    }
 
     public function getPicturePath(): ?string
     {
@@ -158,7 +179,7 @@ class User
         return $this->birthDate;
     }
 
-    public function setBirthDate(\DateTimeInterface $birthDate): static
+    public function setBirthDate(?\DateTimeInterface $birthDate): static
     {
         $this->birthDate = $birthDate;
 
@@ -442,6 +463,18 @@ class User
                 $message->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBanState(): ?BanState
+    {
+        return $this->banState;
+    }
+
+    public function setBanState(?BanState $banState): static
+    {
+        $this->banState = $banState;
 
         return $this;
     }
