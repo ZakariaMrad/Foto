@@ -1,14 +1,15 @@
 <template>
-    <div>
-        <NavBar/>
+    <v-app>
+        <NavBar />
+        <SideBar />
         <slot></slot>
-    </div>
+    </v-app>
 </template>
 
 <script setup lang="ts">
-import NavBar from '../../components/NavBar.vue' 
+import SideBar from "../../components/SideBar.vue";
+import NavBar from "../../components/NavBar.vue";
+
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

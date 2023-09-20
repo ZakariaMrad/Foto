@@ -1,6 +1,5 @@
 <template>
     <DefaultLayout>
-        <p>Page d'acceuil</p>
 
     </DefaultLayout>
 </template>
