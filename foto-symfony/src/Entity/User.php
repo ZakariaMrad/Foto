@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
-class User implements PasswordAuthenticatedUserInterface,UserInterface
+class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -48,12 +48,14 @@ class User implements PasswordAuthenticatedUserInterface,UserInterface
     private ?\DateTimeInterface $birthDate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, name: 'creationDate')]
-    private ?\DateTimeInterface $creationDate =null;
+    private ?\DateTimeInterface $creationDate = null;
 
     #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'collaborators')]
-    #[ORM\JoinTable(name: 'users_albums',
+    #[ORM\JoinTable(
+        name: 'users_albums',
         joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
-        inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')])]
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
+    )]
     private Collection $collaboretedAlbums;
 
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Album::class)]
@@ -69,9 +71,11 @@ class User implements PasswordAuthenticatedUserInterface,UserInterface
     private Collection $comments;
 
     #[ORM\ManyToMany(targetEntity: Chat::class, inversedBy: 'User')]
-    #[ORM\JoinTable(name: 'users_chats',
+    #[ORM\JoinTable(
+        name: 'users_chats',
         joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
-        inverseJoinColumns: [new ORM\JoinColumn(name: 'idChat', referencedColumnName: 'idChat')])]
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idChat', referencedColumnName: 'idChat')]
+    )]
     private Collection $chats;
 
     #[ORM\OneToMany(mappedBy: 'User', targetEntity: Message::class)]
@@ -92,25 +96,26 @@ class User implements PasswordAuthenticatedUserInterface,UserInterface
         $this->messages = new ArrayCollection();
     }
 
-    public function getAll(){
+    public function getAll()
+    {
         return [
-            'idUser'=>$this->idUser,
-            'email'=>$this->email,
-            'roles'=>$this->roles,
-            'picturePath'=>$this->picturePath,
-            'location'=>$this->location,
-            'bio'=>$this->bio,
-            'name'=>$this->name,
-            'birthDate'=>$this->birthDate,
-            'creationDate'=>$this->creationDate,
-            'collaboretedAlbums'=>$this->collaboretedAlbums,
-            'ownedAlbums'=>$this->ownedAlbums,
-            'posts'=>$this->posts,
-            'likes'=>$this->likes,
-            'comments'=>$this->comments,
-            'chats'=>$this->chats,
-            'messages'=>$this->messages,
-            'banState'=>$this->banState
+            'idUser' => $this->idUser,
+            'email' => $this->email,
+            'roles' => $this->roles,
+            'picturePath' => $this->picturePath,
+            'location' => $this->location,
+            'bio' => $this->bio,
+            'name' => $this->name,
+            'birthDate' => $this->birthDate,
+            'creationDate' => $this->creationDate,
+            'collaboretedAlbums' => $this->collaboretedAlbums,
+            'ownedAlbums' => $this->ownedAlbums,
+            'posts' => $this->posts,
+            'likes' => $this->likes,
+            'comments' => $this->comments,
+            'chats' => $this->chats,
+            'messages' => $this->messages,
+            'banState' => $this->banState
         ];
     }
 
@@ -174,7 +179,7 @@ class User implements PasswordAuthenticatedUserInterface,UserInterface
         return $this->birthDate;
     }
 
-    public function setBirthDate(\DateTimeInterface $birthDate): static
+    public function setBirthDate(?\DateTimeInterface $birthDate): static
     {
         $this->birthDate = $birthDate;
 

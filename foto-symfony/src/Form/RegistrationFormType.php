@@ -110,9 +110,8 @@ class RegistrationFormType extends AbstractType
                 'constraints' => [
                     new Assert\NotBlank([
                         'message' => 'Please enter your birth date',
-                    ]),
-                ],
-            ]);
+                    ])
+            ]]);
             // $builder->get('birthDate')->addModelTransformer(new CallbackTransformer(
             //     function ($dateAsString) {
             //         // transform the string to a DateTime object

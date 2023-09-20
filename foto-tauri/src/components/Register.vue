@@ -60,11 +60,11 @@ function isRegister() {
 const { register, handleSubmit, formState } = useFormHandler({ validationMode: 'always'})
 
 const successFn = async (form: any) => {
+    console.log(form);
+    
     let registrationAccount = new RegistrationAccount(form.name, form.location, form.birthDate, form.email, form.passwordFirst, form.passwordSecond)
     
-    let apiResult = await AccountRepository.register(registrationAccount)
-    console.log(apiResult);
-    
+    let apiResult = await AccountRepository.register(registrationAccount)    
     errors.value = []
     message.value = ''
 
