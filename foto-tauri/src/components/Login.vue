@@ -1,7 +1,7 @@
 <template>
     <form class="form-group" @submit.prevent="submitFn">
         <div class="form-outline mb-4">
-            <input type="email" id="email" class="form-control" v-bind="register('email')" />
+            <input type="email" id="email" class="form-control" v-bind="register('email')"/>
             <label class="form-label" for="email">Email address</label>
         </div>
 
@@ -14,7 +14,7 @@
         <p class="text-success">{{ message }}</p>
         <button class="btn btn-danger" @click="closeDialog()">Close Dialog</button>
         <div class="btn-group float-right">
-            <button class="btn btn-outline-primary">Register</button>
+            <button class="btn btn-outline-primary" @click="isRegister()">Register</button>
             <input type="submit" class="btn btn-success text-white" />
         </div>
     </form>
@@ -27,7 +27,7 @@ import { LoginAccount } from '../models/LoginAccount';
 import { ref } from 'vue'
 import { APIError } from '../core/API/APIError';
 
-const emit = defineEmits(['isActivated', 'loggedIn'])
+const emit = defineEmits(['isActivated', 'loggedIn', 'isRegister'])
 
 const errors = ref<APIError[]>([])
 const message = ref<string>('')
@@ -37,6 +37,9 @@ function closeDialog() {
 }
 function sendLoggedIn() {
     emit('loggedIn', true);
+}
+function isRegister() {
+    emit('isRegister', true);
 }
 
 const { register, handleSubmit, formState } = useFormHandler({

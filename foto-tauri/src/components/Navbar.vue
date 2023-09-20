@@ -13,8 +13,8 @@
                 </ul>
                 <ul class="nav">
                     <li class="nav-item">
-                        <button v-if="!userConnected" class="nav-link link-dark btn" @click="activateLogin = true">Login</button>
-                        <button v-else class="nav-link link-dark btn" @click="logout()">Logout</button>
+                        <button v-if="!userConnected" class="nav-link link-dark btn btn-primary" @click="activateLogin = true">Login</button>
+                        <button v-else class="nav-link link-dark btn btn-danger" @click="logout()">Logout</button>
                     </li>
                 </ul>
             </div>

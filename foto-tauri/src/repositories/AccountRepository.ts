@@ -5,6 +5,7 @@ import { getClient, Body, ResponseType } from '@tauri-apps/api/http';
 import { APIError } from '../core/API/APIError';
 import { Repository } from './Repository';
 import AccountDatastore from './datastore/AccountDatastore';
+import RegistraionAccount from '../models/RegistrationAccount';
 
 //TODO: remove the hard coded url
 
@@ -33,9 +34,32 @@ class AccountRepository extends Repository {
         }
     }
 
+    public async register(registrationAccount: RegistraionAccount): Promise<APIResult<JWTToken>> {
+        try {
+            const response = await client.post(`${url}/account/register`, Body.json(registrationAccount), { responseType: ResponseType.JSON });
+            console.log(response);
+            
+            let data = response.data as JWTToken;
+
+            if (response.status === 200) {
+                await AccountDatastore.setJWTToken(data);
+                return { data: data, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+
+        } catch (error) {
+            // Handle any network or request-related errors here and return an Error object
+            console.log(error);
+            
+            return { errors: error as [APIError], success: false };
+        }
+    }
     public async isConnected(): Promise<boolean> {
         let jtw = await AccountDatastore.getJWTToken()
-        return (!jtw || !jtw.jwtToken)
+        console.log(jtw);
+
+        return !(!jtw || !jtw.jwtToken)
     }
 
     private async getJWTToken(): Promise<APIResult<JWTToken>> {

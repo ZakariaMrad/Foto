@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -46,23 +47,42 @@ class RegistrationFormType extends AbstractType
                     ]),
                     new Assert\Email([
                         'message' => 'The email "{{ value }}" is not a valid email.',
-                    ]),
+                    ])
                 ],
             ])
-            ->add('password', PasswordType::class, [
+            ->add('password', RepeatedType::class,[
+                'type' => PasswordType::class,
+                'invalid_message' => 'The password fields must match.',
                 'required' => true,
-                'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'Please enter your password',
-                    ]),
-                    new Assert\Length([
-                        'min' => 6,
-                        'minMessage' => 'Your password should be at least {{ limit }} characters',
-                    ]),
-                    new Assert\Length([
-                        'max' => 50,
-                        'maxMessage' => 'Your password should be no more than {{ limit }} characters',
-                    ]),
+                'first_options'  => [
+                    'constraints' => [
+                        new Assert\NotBlank([
+                            'message' => 'Please enter your password',
+                        ]),
+                        new Assert\Length([
+                            'min' => 6,
+                            'minMessage' => 'Your password should be at least {{ limit }} characters',
+                        ]),
+                        new Assert\Length([
+                            'max' => 50,
+                            'maxMessage' => 'Your password should be no more than {{ limit }} characters',
+                        ]),
+                    ],
+                ],
+                'second_options' => [
+                    'constraints' => [
+                        new Assert\NotBlank([
+                            'message' => 'Please repeat your password',
+                        ]),
+                        new Assert\Length([
+                            'min' => 6,
+                            'minMessage' => 'Your password should be at least {{ limit }} characters',
+                        ]),
+                        new Assert\Length([
+                            'max' => 50,
+                            'maxMessage' => 'Your password should be no more than {{ limit }} characters',
+                        ]),
+                    ],
                 ],
             ])
             ->add('location', TextType::class, [
