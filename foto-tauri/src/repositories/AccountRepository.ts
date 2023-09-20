@@ -18,6 +18,8 @@ class AccountRepository extends Repository {
 
     public async login(loginAccount: LoginAccount): Promise<APIResult<JWTToken>> {
         try {
+            console.log("login");
+            
             const response = await client.post(`${url}/account/login`, Body.json(loginAccount), { responseType: ResponseType.JSON });
             let data = response.data as JWTToken;
 
@@ -36,6 +38,8 @@ class AccountRepository extends Repository {
 
     public async register(registrationAccount: RegistraionAccount): Promise<APIResult<JWTToken>> {
         try {
+            console.log('register');
+            
             const response = await client.post(`${url}/account/register`, Body.json(registrationAccount), { responseType: ResponseType.JSON });
             console.log(response);
             
