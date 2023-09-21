@@ -1,36 +1,21 @@
 <template>
     <form class="form-group" @submit.prevent="submitFn">
-        <div class="form-outline mb-4">
-            <input type="text" id="name" class="form-control" v-bind="register('name')" />
-            <label class="form-label" for="name">Name</label>
-        </div>
-        <div class="form-outline mb-4">
-            <input type="text" id="location" class="form-control" v-bind="register('location')" />
-            <label class="form-label" for="location">Adress</label>
-        </div>
-        <div class="form-outline mb-4">
-            <input type="email" id="email" class="form-control" v-bind="register('email')" />
-            <label class="form-label" for="email">Email address</label>
-        </div>
-        <div class="form-outline mb-4">
-            <input type="password" id="passwordFirst" class="form-control" v-bind="register('passwordFirst')" />
-            <label class="form-label" for="passwordFirst">Password</label>
-        </div>
-        <div class="form-outline mb-4">
-            <input type="password" id="passwordSecond" class="form-control" v-bind="register('passwordSecond')" />
-            <label class="form-label" for="passwordSecond">Password Confirmation</label>
-        </div>
-        <div class="form-outline mb-4">
-            <input type="date" id="birthDate" class="form-control" v-bind="register('birthDate')" />
-            <label class="form-label" for="birthDate">Birth Date</label>
-        </div>
+
+        <v-text-field v-bind="register('name')" type="text" label="Name" required></v-text-field>
+        <v-text-field v-bind="register('location')" type="text" label="Adress" required></v-text-field>
+        <v-text-field v-bind="register('email')" type="email" label="Email" required></v-text-field>
+        <v-text-field v-bind="register('passwordFirst')" type="password" label="Password" required></v-text-field>
+        <v-text-field v-bind="register('passwordSecond')" type="password" label="Password Confirmation"
+        required></v-text-field>
+        <v-text-field v-bind="register('birthDate')" type="date" label="Birth Date" required></v-text-field>
+
         <p class="text-danger" v-for="error in errors">{{ error.propertyName }} : {{ error.message }}</p>
 
         <p class="text-success">{{ message }}</p>
-        <button class="btn btn-danger" @click="closeDialog()">Close Dialog</button>
-        <div class="btn-group float-right">
-            <button class="btn btn-outline-primary" @click="isRegister()">Login</button>
-            <input type="submit" class="btn btn-success text-white" />
+        <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Close Dialog</v-btn>
+        <div class="float-right">
+            <v-btn class="text-white me-1" color="blue-accent-3" variant="outlined" @click="toggleRegister()">Login</v-btn>
+            <v-btn type="submit" class="text-white" color="green-darken-3" text="Submit" />
         </div>
     </form>
 </template>
@@ -53,18 +38,18 @@ function closeDialog() {
 function sendLoggedIn() {
     emit('loggedIn', true);
 }
-function isRegister() {
+function toggleRegister() {
     emit('isRegister', true);
 }
 
-const { register, handleSubmit, formState } = useFormHandler({ validationMode: 'always'})
+const { register, handleSubmit, formState } = useFormHandler({ validationMode: 'always' })
 
 const successFn = async (form: any) => {
     console.log(form);
-    
+
     let registrationAccount = new RegistrationAccount(form.name, form.location, form.birthDate, form.email, form.passwordFirst, form.passwordSecond)
-    
-    let apiResult = await AccountRepository.register(registrationAccount)    
+
+    let apiResult = await AccountRepository.register(registrationAccount)
     errors.value = []
     message.value = ''
 

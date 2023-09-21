@@ -1,21 +1,16 @@
 <template>
     <form class="form-group" @submit.prevent="submitFn">
-        <div class="form-outline mb-4">
-            <input type="email" id="email" class="form-control" v-bind="register('email')"/>
-            <label class="form-label" for="email">Email address</label>
-        </div>
+        <v-text-field v-bind="register('email')" type="email" label="Email" required></v-text-field>
 
-        <div class="form-outline mb-4">
-            <input type="password" id="password" class="form-control" v-bind="register('password')" />
-            <label class="form-label" for="password">Password</label>
-        </div>
+        <v-text-field v-bind="register('password')" type="password" label="Password" required></v-text-field>
         <p class="text-danger" v-for="error in errors">{{ error.propertyName }} : {{ error.message }}</p>
 
         <p class="text-success">{{ message }}</p>
-        <button class="btn btn-danger" @click="closeDialog()">Close Dialog</button>
-        <div class="btn-group float-right">
-            <button class="btn btn-outline-primary" @click="isRegister()">Register</button>
-            <input type="submit" class="btn btn-success text-white" />
+        <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Close Dialog</v-btn>
+        <div class="float-right">
+            <v-btn class="text-white me-1" color="blue-accent-3" variant="outlined"
+                @click="toggleRegister()">Register</v-btn>
+            <v-btn type="submit" class="text-white" color="green-darken-3" text="Submit" />
         </div>
     </form>
 </template>
@@ -38,7 +33,7 @@ function closeDialog() {
 function sendLoggedIn() {
     emit('loggedIn', true);
 }
-function isRegister() {
+function toggleRegister() {
     emit('isRegister', true);
 }
 
@@ -47,6 +42,8 @@ const { register, handleSubmit, formState } = useFormHandler({
 })
 
 const successFn = async (form: any) => {
+    console.log(form);
+
     let apiResult = await AccountRepository.login(form as LoginAccount)
     errors.value = []
     message.value = ''
@@ -56,6 +53,9 @@ const successFn = async (form: any) => {
         return
     }
     message.value = apiResult.data.message
+    console.log(apiResult);
+    return;
+
     sendLoggedIn();
     closeDialog();
 }
