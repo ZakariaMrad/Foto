@@ -1,17 +1,9 @@
 <template>
   <v-dialog width="500" v-model="props.activate">
     <v-card>
-      <v-card-text v-if="isLogin">
-        <h3 class="text-center">Login</h3>
-        <div class="container">
-          <Login @isActivated="() => closeDialog()" @loggedIn="() => sendLoggedIn()" @isRegister="toggleLogin()" />
-        </div>
-      </v-card-text>
-      <v-card-text v-else>
-        <h3 class="text-center">Register</h3>
-        <div class="container">
-          <Register @isActivated="() => closeDialog()" @loggedIn="() => sendLoggedIn()" @isRegister="toggleLogin()" />
-        </div>
+      <v-card-text >
+          <Login v-if="isLogin" @isActivated="() => closeDialog()" @loggedIn="() => sendLoggedIn()" @isRegister="toggleLogin()" />
+          <Register v-else @isActivated="() => closeDialog()" @loggedIn="() => sendLoggedIn()" @isRegister="toggleLogin()" />
       </v-card-text>
     </v-card>
 

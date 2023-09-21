@@ -1,6 +1,6 @@
 <template>
+    <h3 class="text-center">Create an account</h3>
     <form class="form-group" @submit.prevent="submitFn">
-
         <v-text-field v-bind="register('name')" type="text" label="Name" required></v-text-field>
         <v-text-field v-bind="register('location')" type="text" label="Adress" required></v-text-field>
         <v-text-field v-bind="register('email')" type="email" label="Email" required></v-text-field>
