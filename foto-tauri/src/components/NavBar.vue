@@ -1,10 +1,7 @@
 <template>
-    <nav class="navbar bg-body-tertiary">
-        <div class="container-fluid">
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
-        </div>
-    </nav>
+    <div class="ml-12 dflex w-25 align-start" height="auto">
+            <h4>Foto</h4>
+            <v-text-field class="ml-12" v-model="search" append-icon="mdi-magnify" label="Search" single-line
+                hide-details></v-text-field>
+    </div>
 </template>
