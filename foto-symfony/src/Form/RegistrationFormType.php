@@ -112,19 +112,6 @@ class RegistrationFormType extends AbstractType
                         'message' => 'Please enter your birth date',
                     ])
             ]]);
-            // $builder->get('birthDate')->addModelTransformer(new CallbackTransformer(
-            //     function ($dateAsString) {
-            //         // transform the string to a DateTime object
-            //         return new \DateTime($dateAsString);
-            //     },
-            //     function ($dateAsDateTime) {
-            //         // transform the DateTime object back to a string
-            //         if ($dateAsDateTime instanceof \DateTimeInterface) {
-            //             return $dateAsDateTime->format('Y-m-d');
-            //         }
-            //         return null; // Handle cases where $dateAsDateTime is not a DateTimeInterface
-            //     }
-            // ));
             
     }
 

@@ -32,15 +32,7 @@ class LoginFormType extends AbstractType
                 'constraints' => [
                     new Assert\NotBlank([
                         'message' => 'Please enter your password',
-                    ]),
-                    new Assert\Length([
-                        'min' => 6,
-                        'minMessage' => 'Your password should be at least {{ limit }} characters',
-                    ]),
-                    new Assert\Length([
-                        'max' => 50,
-                        'maxMessage' => 'Your password should be no more than {{ limit }} characters',
-                    ]),
+                    ])
                 ],
             ])
         ;
