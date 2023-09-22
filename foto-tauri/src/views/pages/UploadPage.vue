@@ -17,11 +17,11 @@
 
         <v-container>
             <v-row justify="center">
-                <v-col v-for="(file) in files">
+                <v-col v-for="(file, index) in files">
                     <v-card>
                         <v-img
                             height="200"
-                            :src="imgSrc"
+                            :src="imgSrc[index]"
                             cover
                             >
                             <v-toolbar
@@ -48,22 +48,23 @@ import DefaultLayout from '../layouts/DefaultLayout.vue';
 import { ref } from 'vue';
 
 
-const imgSrc = ref();
+const imgSrc = ref<Array<string | null | ArrayBuffer>>([]);
 const files = ref([]);
 
 function printFiles() {
     console.log(files.value);
-    const file = files.value[0];
-    let reader = new FileReader();
-    reader.onloadend = function() {
-        imgSrc.value = reader.result?.toString();
-    }
 
-    if (file) {
-        reader.readAsDataURL(file);
-    } else {
-        imgSrc.value = "";
-    }
+    files.value.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onloadend = function() {
+            imgSrc.value[index] = reader.result;
+        }
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            imgSrc.value[index] = "";
+        }
+    })
 }
 
 function removeFromFiles(file: File)
