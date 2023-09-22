@@ -30,7 +30,7 @@ import RegistrationAccount from '../models/RegistrationAccount';
 const emit = defineEmits(['isActivated', 'loggedIn', 'isRegister'])
 
 const errors = ref<APIError[]>([])
-const message = ref<string>('')
+const message = ref<string | undefined>('')
 
 function closeDialog() {
     emit('isActivated', false);

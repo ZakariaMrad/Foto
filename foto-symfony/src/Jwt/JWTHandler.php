@@ -18,9 +18,9 @@ class JWTHandler
         $this->error=null;
     }
 
-    public function handle($data): bool
+    public function handle($data): bool|string
     {
-        $token = $data['jwt_token'] ?? null;
+        $token = $data['jwtToken'] ?? null;
         if (!$token) {
             $this->error = 'JWT token not provided.';
             return true;
@@ -35,14 +35,21 @@ class JWTHandler
             $this->error = 'Invalid JWT token.';
             return true;
         }
+        if($this->decodedJWTToken['exp'] < (new \DateTime())->getTimestamp()){
+            $this->error = 'JWT token expired.';
+            return true;
+        }
+        if($this->decodedJWTToken['exp'] < (new \DateTime())->getTimestamp()+$_ENV['JWT_REFRESH_DELAY']){
+            return $this->create($this->decodedJWTToken['email']);
+        }
         return false;
     }
 
-    public function create($user)
+    public function create(string $email)
     {
         $payload = [
-            'email' => $user->getEmail(),
-            'exp' => (new \DateTime())->modify('+1 day')->getTimestamp(),
+            'email' => $email,
+            'exp' => (new \DateTime())->getTimestamp()+$_ENV['JWT_TTL'],
         ];
         return $this->jwtEncoder->encode($payload);
     }

@@ -26,7 +26,7 @@ import { APIError } from '../core/API/APIError';
 const emit = defineEmits(['isActivated', 'loggedIn', 'isRegister'])
 
 const errors = ref<APIError[]>([])
-const message = ref<string>('')
+const message = ref<string | undefined>('')
 
 function closeDialog() {
     emit('isActivated', false);
@@ -54,9 +54,6 @@ const successFn = async (form: any) => {
         return
     }
     message.value = apiResult.data.message
-    console.log(apiResult);
-    return;
-
     sendLoggedIn();
     closeDialog();
 }

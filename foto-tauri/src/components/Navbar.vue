@@ -36,12 +36,10 @@ const userConnected = ref<boolean>(false);
 const logout = async () => {
     await AccountRepository.logout();
     userConnected.value = false;
-    console.log(userConnected.value);
 }
 
 onMounted(async () => {
     userConnected.value= await AccountRepository.isConnected();
-    console.log(userConnected.value);
     
 })
 

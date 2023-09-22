@@ -33,18 +33,20 @@ class AccountController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-
-        if ($this->jwtHandler->handle($data)) {
+        $jwtResponse = $this->jwtHandler->handle($data);
+        if (is_string($jwtResponse)) $data['jwt_token'] = $jwtResponse;
+        if (is_bool($jwtResponse) && $jwtResponse == true) {
             return $this->json([
-                'message' => $this->jwtHandler->error,
+                'error' => $this->jwtHandler->error,
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
+
         $user = $this->em->getRepository(User::class)->findOneBy(['email' => $this->jwtHandler->decodedJWTToken['email']]);
 
         return $this->json([
             'decoded' => $this->jwtHandler->decodedJWTToken['email'],
-            'user' => $user->getAll()
-
+            'user' => $user->getAll(),
+            'jwtToken' => $data['jwtToken']
         ], JsonResponse::HTTP_OK);
     }
 
@@ -72,7 +74,7 @@ class AccountController extends AbstractController
         }
         return $this->json([
             "message" => "User logged in successfully.",
-            "jwt_token" => $this->jwtHandler->create($user)
+            "jwtToken" => $this->jwtHandler->create($user->getEmail())
         ]);
     }
 
@@ -84,7 +86,7 @@ class AccountController extends AbstractController
         $formHandler = new FormHandler($form);
 
         $data = json_decode($request->getContent(), true); // Decode JSON data from the request
-        
+
         if ($formHandler->handle($data) == false) {
             return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
         }
@@ -99,14 +101,14 @@ class AccountController extends AbstractController
         $user->setCreationDate(new \DateTime());
 
         // Generate a JWT token
-        $jwt_token = $this->jwtHandler->create($user);
+        $jwtToken = $this->jwtHandler->create($user->getEmail());
 
         $this->em->persist($user); // Persist user to the database
         $this->em->flush(); // Save changes
 
         return $this->json([
             'message' => 'User registered successfully.',
-            'jwt_token' => $jwt_token
+            'jwtToken' => $jwtToken
         ]);
     }
 }

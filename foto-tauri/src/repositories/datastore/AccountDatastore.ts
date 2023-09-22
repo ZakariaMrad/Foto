@@ -10,18 +10,19 @@ class AccountDatastore {
     }
 
     public async setJWTToken(jwtToken: JWTToken) {
-        try {           
+        try {  
+            delete jwtToken.message;
             await accountStore.set('jwt_token', jwtToken);
-            await accountStore.save();
+            await accountStore.save();            
         } catch (error) {
             console.log(error);
         }
 
     }
     public async getJWTToken(): Promise<JWTToken | undefined> {
-        let jwtToken = await accountStore.get<string>('jwt_token');
+        let jwtToken = await accountStore.get<JWTToken>('jwt_token');
         if (!jwtToken) return undefined;
-        return new JWTToken(jwtToken);
+        return jwtToken;
     }
 }
 export default new AccountDatastore();
