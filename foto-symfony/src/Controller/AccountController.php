@@ -33,9 +33,8 @@ class AccountController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $jwtResponse = $this->jwtHandler->handle($data);
-        if (is_string($jwtResponse)) $data['jwt_token'] = $jwtResponse;
-        if (is_bool($jwtResponse) && $jwtResponse == true) {
+        [$hasSucceded, $data] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
             return $this->json([
                 'error' => $this->jwtHandler->error,
             ], JsonResponse::HTTP_UNAUTHORIZED);

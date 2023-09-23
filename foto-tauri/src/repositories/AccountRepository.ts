@@ -54,22 +54,24 @@ class AccountRepository extends Repository {
             return { errors: error as [APIError], success: false };
         }
     }
+
     public async isConnected(): Promise<boolean> {
         let jtw = await AccountDatastore.getJWTToken()
 
         return (!!jtw)
     }
+
     public async getAccount(): Promise<APIResult<Account>> {
         let jwt = await this.getJWTToken();
-        if (!jwt.success) return { errors: jwt.errors, success: false };        
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+
         try {
             const response = await client.post(`${url}/account`, Body.json(jwt.data), { responseType: ResponseType.JSON });
             let data = response.data as Account;
 
             if (response.status === 200) {
-                let jwtToken = new JWTToken(data.jwtToken);
+                this.handleJWT(response.data as JWTToken);
                 
-                await AccountDatastore.setJWTToken(jwtToken);
                 return { data: data, success: true };
             }
             // If there is an unexpected response or error status code, return an Error object
@@ -82,16 +84,7 @@ class AccountRepository extends Repository {
 
     }
 
-    private async getJWTToken(): Promise<APIResult<JWTToken>> {
-        try {
-            let jwtToken = await AccountDatastore.getJWTToken();     
-            if (!jwtToken) return { errors: [new APIError('JWT', 'Token not found.')], success: false };
-            return { data: jwtToken, success: true };
-        } catch (error) {
-            // Handle any network or request-related errors here and return an Error object
-            return { errors: error as APIError[], success: false };
-        }
-    }
+    
 }
 
 

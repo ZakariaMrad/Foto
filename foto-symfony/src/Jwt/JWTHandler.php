@@ -15,41 +15,41 @@ class JWTHandler
     public function __construct(JWTEncoderInterface $jwtEncoder)
     {
         $this->jwtEncoder = $jwtEncoder;
-        $this->error=null;
+        $this->error = null;
     }
 
-    public function handle($data): bool|string
+    public function handle($data)
     {
         $token = $data['jwtToken'] ?? null;
         if (!$token) {
             $this->error = 'JWT token not provided.';
-            return true;
+            return [false, $data];
         }
         try {
             $this->decodedJWTToken = $this->jwtEncoder->decode($token);
         } catch (JWTDecodeFailureException $e) {
             $this->error = 'JWT token not decodable.';
-            return true;
+            return [false, $data];
         }
         if (!$this->decodedJWTToken) {
             $this->error = 'Invalid JWT token.';
-            return true;
+            return [false, $data];
         }
-        if($this->decodedJWTToken['exp'] < (new \DateTime())->getTimestamp()){
+        if ($this->decodedJWTToken['exp'] < (new \DateTime())->getTimestamp()) {
             $this->error = 'JWT token expired.';
-            return true;
+            return [false, $data];
         }
-        if($this->decodedJWTToken['exp'] < (new \DateTime())->getTimestamp()+$_ENV['JWT_REFRESH_DELAY']){
-            return $this->create($this->decodedJWTToken['email']);
+        if ($this->decodedJWTToken['exp'] < (new \DateTime())->getTimestamp() + $_ENV['JWT_REFRESH_DELAY']) {
+            $data['jwtToken'] = $this->create($this->decodedJWTToken['email']);
         }
-        return false;
+        return [true, $data];
     }
 
     public function create(string $email)
     {
         $payload = [
             'email' => $email,
-            'exp' => (new \DateTime())->getTimestamp()+$_ENV['JWT_TTL'],
+            'exp' => (new \DateTime())->getTimestamp() + $_ENV['JWT_TTL'],
         ];
         return $this->jwtEncoder->encode($payload);
     }
