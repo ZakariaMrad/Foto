@@ -15,7 +15,7 @@
         <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Close Dialog</v-btn>
         <div class="float-right">
             <v-btn class="text-white me-1" color="blue-accent-3" variant="outlined" @click="toggleRegister()">Login</v-btn>
-            <v-btn type="submit" class="text-white" color="green-darken-3" text="Submit" />
+            <v-btn type="submit" class="text-white" color="green-darken-3" text="Submit" :loading="loading"/>
         </div>
     </form>
 </template>
@@ -31,6 +31,7 @@ const emit = defineEmits(['isActivated', 'loggedIn', 'isRegister'])
 
 const errors = ref<APIError[]>([])
 const message = ref<string | undefined>('')
+const loading = ref<boolean>(false)
 
 function closeDialog() {
     emit('isActivated', false);
@@ -46,10 +47,11 @@ const { register, handleSubmit, formState } = useFormHandler({ validationMode: '
 
 const successFn = async (form: any) => {
     console.log(form);
-
+    loading.value = true
     let registrationAccount = new RegistrationAccount(form.name, form.location, form.birthDate, form.email, form.passwordFirst, form.passwordSecond)
 
     let apiResult = await AccountRepository.register(registrationAccount)
+    loading.value = false
     errors.value = []
     message.value = ''
 

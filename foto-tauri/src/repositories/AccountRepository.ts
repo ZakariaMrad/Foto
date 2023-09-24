@@ -13,6 +13,15 @@ import { Account } from '../models/Account';
 const url = 'http://localhost:8000';
 const client = await getClient();
 class AccountRepository extends Repository {
+
+    async startConnectionFlow(func: (value:boolean) => void, interval: number) {
+        while (true) {
+            await new Promise((resolve) => setTimeout(resolve, interval)); // Wait for the specified interval
+            func(await this.isConnected());
+        }
+    }
+
+
     async logout() {
         await AccountDatastore.removeJWTToken();
     }
@@ -23,7 +32,7 @@ class AccountRepository extends Repository {
             let data = response.data as JWTToken;
 
             if (response.status === 200) {
-                await AccountDatastore.setJWTToken(data);
+                this.handleJWT(response.data as JWTToken);
                 return { data: data, success: true };
             }
             // If there is an unexpected response or error status code, return an Error object
@@ -41,7 +50,7 @@ class AccountRepository extends Repository {
             let data = response.data as JWTToken;
 
             if (response.status === 200) {
-                await AccountDatastore.setJWTToken(data);
+                this.handleJWT(response.data as JWTToken);
                 return { data: data, success: true };
             }
             // If there is an unexpected response or error status code, return an Error object
@@ -56,9 +65,10 @@ class AccountRepository extends Repository {
     }
 
     public async isConnected(): Promise<boolean> {
-        let jtw = await AccountDatastore.getJWTToken()
+        let account = await this.getAccount();
+        if (!account.success) this.logout();
+        return account.success;
 
-        return (!!jtw)
     }
 
     public async getAccount(): Promise<APIResult<Account>> {
@@ -71,7 +81,7 @@ class AccountRepository extends Repository {
 
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
-                
+
                 return { data: data, success: true };
             }
             // If there is an unexpected response or error status code, return an Error object
@@ -84,7 +94,7 @@ class AccountRepository extends Repository {
 
     }
 
-    
+
 }
 
 

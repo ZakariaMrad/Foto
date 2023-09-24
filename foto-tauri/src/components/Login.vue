@@ -1,9 +1,9 @@
 <template>
     <h3 class="text-center">Login</h3>
     <form class="form-group" @submit.prevent="submitFn">
-        <v-text-field v-bind="register('email')" type="email" label="Email" required></v-text-field>
+        <v-text-field v-bind="register('email')" type="email" label="Email" required :loading="loading"></v-text-field>
 
-        <v-text-field v-bind="register('password')" type="password" label="Password" required></v-text-field>
+        <v-text-field v-bind="register('password')" type="password" label="Password" required :loading="loading"></v-text-field>
         <p class="text-danger" v-for="error in errors">{{ error.propertyName }} : {{ error.message }}</p>
 
         <p class="text-success">{{ message }}</p>
@@ -11,7 +11,7 @@
         <div class="float-right">
             <v-btn class="text-white me-1" color="blue-accent-3" variant="outlined"
                 @click="toggleRegister()">Create Account</v-btn>
-            <v-btn type="submit" class="text-white" color="green-darken-3" text="Submit" />
+            <v-btn type="submit" class="text-white" color="green-darken-3" text="Submit" :loading="loading"/>
         </div>
     </form>
 </template>
@@ -27,6 +27,7 @@ const emit = defineEmits(['isActivated', 'loggedIn', 'isRegister'])
 
 const errors = ref<APIError[]>([])
 const message = ref<string | undefined>('')
+const loading = ref<boolean>(false)
 
 function closeDialog() {
     emit('isActivated', false);
@@ -44,10 +45,11 @@ const { register, handleSubmit, formState } = useFormHandler({
 
 const successFn = async (form: any) => {
     console.log(form);
-
+    loading.value = true
     let apiResult = await AccountRepository.login(form as LoginAccount)
     errors.value = []
     message.value = ''
+    loading.value = false
 
     if (!apiResult.success) {
         errors.value = apiResult.errors
