@@ -40,6 +40,12 @@
                 </v-col>
             </v-row>
         </v-container>
+        <div class="d-flex align-center justify-center mt-5">
+            <v-btn v-if="files.length !== 0">
+                Téléverser
+            </v-btn>
+        </div>
+        
     </DefaultLayout>
 </template>
 
