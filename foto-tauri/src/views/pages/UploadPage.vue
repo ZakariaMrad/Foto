@@ -69,7 +69,9 @@ function printFiles() {
 
 function removeFromFiles(file: File)
 {
+    const index = files.value.findIndex((f) => f === file);
     files.value = files.value.filter((f) => f !== file);
+    imgSrc.value = imgSrc.value.filter((_, imgIndex) => imgIndex !== index)
 }
 
 </script>
