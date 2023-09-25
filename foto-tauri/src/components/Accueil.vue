@@ -1,5 +1,5 @@
 <template>
-    Bonjour Page d'acceuil
+    Bonjour Page d'accueil
 </template>
 
 <script setup lang="ts">

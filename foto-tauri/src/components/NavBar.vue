@@ -8,8 +8,8 @@
                 <div class="text-center ma-2 pa-2">
                     <v-menu open-on-hover>
                         <template v-slot:activator="{ props }">
-                            <v-btn color="primary" v-bind="props">
-                                |||
+                            <v-btn color="primary" v-bind="props" icon="mdi-menu">
+                                
                             </v-btn>
                         </template>
 

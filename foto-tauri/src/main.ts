@@ -12,12 +12,15 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
 // Material design
-import 'material-design-icons-iconfont/dist/material-design-icons.css'
+import '@mdi/font/css/materialdesignicons.css'
 
 
 const vuetify = createVuetify({
   components,
   directives,
+  icons: {
+    defaultSet: 'mdi',
+  }
 })
 
 loadFonts()
