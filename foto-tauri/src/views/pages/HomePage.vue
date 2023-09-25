@@ -1,6 +1,6 @@
 <template>
     <DefaultLayout>
-
+        test
     </DefaultLayout>
 </template>
 
@@ -9,3 +9,4 @@ import DefaultLayout from "../layouts/DefaultLayout.vue";
 </script>
 
 <style scoped></style>
+
