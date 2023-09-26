@@ -5,11 +5,12 @@
                 <span class="font-weight-bold ma-2 pa-2">Foto</span>
             </v-toolbar-title>
             <v-spacer></v-spacer>
+            <v-btn color="grey">Se connecter</v-btn>
+
             <div class="text-center ma-2 pa-2">
                 <v-menu open-on-hover>
                     <template v-slot:activator="{ props }">
                         <v-btn color="primary" v-bind="props" icon="mdi-menu">
-
                         </v-btn>
                     </template>
 
