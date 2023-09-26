@@ -1,14 +1,16 @@
 <template>
     <DefaultLayout>
-        <Home />
+        <Profile />
     </DefaultLayout>
 </template>
 
 <script setup lang="ts">
 import DefaultLayout from "../layouts/DefaultLayout.vue";
-import Home from "../../components/Home.vue";
+import Profile from "../../components/Profile.vue";
 
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>
 

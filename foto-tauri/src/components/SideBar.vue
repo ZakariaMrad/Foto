@@ -9,9 +9,10 @@
                 <v-divider></v-divider>
 
                 <v-list density="compact" nav>
-                    <v-list-item prepend-icon="mdi-folder" title="Acceuil" value="myfiles"></v-list-item>
-                    <v-list-item prepend-icon="mdi-account-multiple" title="Populaire" value="shared"></v-list-item>
-                    <v-list-item prepend-icon="mdi-star" title="Mon profil" value="starred"></v-list-item>
+                    <v-list-item prepend-icon="mdi-home" title="Acceuil" :to="{name:'home'}" value="myfiles"></v-list-item>
+                    <v-list-item prepend-icon="mdi-magnify" title="Recherche" value="starred"></v-list-item>
+                    <v-list-item prepend-icon="mdi-star" title="Populaire" value="shared"></v-list-item>
+                    <v-list-item prepend-icon="mdi-account" title="Mon profil" :to="{name:'profil'}" value="starred"></v-list-item>
                 </v-list>
             </v-navigation-drawer>
             <div class="mx-16 my-1">
