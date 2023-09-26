@@ -19,7 +19,7 @@
                 <slot></slot>
             </div>
 
-            <!--v-dialog width="500">
+            <v-dialog width="500">
                 <template v-slot:activator="{ props }">
                     <v-btn v-bind="props" text="Open Dialog"> </v-btn>
                 </template>
@@ -38,6 +38,6 @@
                         </v-card-actions>
                     </v-card>
                 </template>
-            </v-dialog-->
+            </v-dialog>
         </v-main>
 </template>
