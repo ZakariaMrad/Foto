@@ -23,17 +23,16 @@ import { LoginAccount } from '../models/LoginAccount';
 import { ref } from 'vue'
 import { APIError } from '../core/API/APIError';
 
-const emit = defineEmits(['isActivated', 'loggedIn', 'isRegister'])
+const emit = defineEmits(['closeDialog', 'isRegister'])
 
 const errors = ref<APIError[]>([])
 const message = ref<string | undefined>('')
 const loading = ref<boolean>(false)
 
-function closeDialog() {
-    emit('isActivated', false);
-}
-function sendLoggedIn() {
-    emit('loggedIn', true);
+function closeDialog(val: boolean = false) {
+    emit('closeDialog', val);
+    console.log(val, 'val');
+    
 }
 function toggleRegister() {
     emit('isRegister', true);
@@ -56,8 +55,7 @@ const successFn = async (form: any) => {
         return
     }
     message.value = apiResult.data.message
-    sendLoggedIn();
-    closeDialog();
+    closeDialog(true);
 }
 const submitFn = () => {
     try {

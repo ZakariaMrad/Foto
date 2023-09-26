@@ -77,12 +77,12 @@ class AccountRepository extends Repository {
 
         try {
             const response = await client.post(`${url}/account`, Body.json(jwt.data), { responseType: ResponseType.JSON });
-            let data = response.data as Account;
-
+            let data = response.data as any;
+            
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
 
-                return { data: data, success: true };
+                return { data: data.user as Account, success: true };
             }
             // If there is an unexpected response or error status code, return an Error object
             return { errors: this.getAPIError(response.data), success: false };
