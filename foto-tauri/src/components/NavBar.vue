@@ -50,6 +50,7 @@ const links = ref([
                 { icon: 'mdi-account-plus', text: `S'inscrire`, route: '' },
                 { icon: 'mdi-cog-outline', text: 'Paramètres', route: '' },
                 { icon: 'mdi-card-account-phone-outline', text: 'Nous contacter', route: '' },
+                { icon: 'mdi-logout', text: 'Se déconnecter', route: ''}
             ]);
 
 onMounted(async () => {
