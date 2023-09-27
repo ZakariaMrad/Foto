@@ -63,16 +63,16 @@ class AccountController extends AbstractController
         $user = $this->em->getRepository(User::class)->findOneBy(['email' => $form->get('email')->getData()]);
         if (!$user) {
             return $this->json([
-                'error' => ['Wrong email/password combination.'],
+                'error' => ['Courriel ou mot de passe incorrect.'],
             ], JsonResponse::HTTP_NOT_FOUND);
         }
         if (!$passwordHasher->isPasswordValid($user, $form->get('password')->getData())) {
             return $this->json([
-                'error' => ['Wrong email/password combination.'],
+                'error' => ['Courriel ou mot de passe incorrect.'],
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
         return $this->json([
-            "message" => "User logged in successfully.",
+            "message" => "Compte connecté avec succès.",
             "jwtToken" => $this->jwtHandler->create($user->getEmail())
         ]);
     }
@@ -106,7 +106,7 @@ class AccountController extends AbstractController
         $this->em->flush(); // Save changes
 
         return $this->json([
-            'message' => 'User registered successfully.',
+            'message' => 'Compte créé avec succès.',
             'jwtToken' => $jwtToken
         ]);
     }

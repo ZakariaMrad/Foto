@@ -23,93 +23,95 @@ class RegistrationFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Name',
+                'label' => 'Nom',
                 'required' => true,
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Please enter your name',
+                        'message' => 'Nom: Veuillez entrer votre nom.',
                     ]),
                     new Assert\Length([
                         'min' => 2,
-                        'minMessage' => 'Your name should be at least {{ limit }} characters',
+                        'minMessage' => 'Nom: Votre nom doit contenir au moins {{ limit }} caractères.',
                     ]),
                     new Assert\Length([
                         'max' => 50,
-                        'maxMessage' => 'Your name should be no more than {{ limit }} characters',
+                        'maxMessage' => 'Nom: Votre nom doit contenir au maximum {{ limit }} caractères.',
                     ]),
                 ],
             ])
             ->add('email', EmailType::class, [
-                'label' => 'Email',
+                'label' => 'Courriel',
                 'required' => true,
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Please enter your email',
+                        'message' => 'Courriel: Veuillez entrer votre courriel.',
                     ]),
                     new Assert\Email([
-                        'message' => 'The email "{{ value }}" is not a valid email.',
+                        'message' => 'Courriel: Le courriel {{ value }} n\'est pas valide.',
                     ])
                 ],
             ])
             ->add('password', RepeatedType::class,[
                 'type' => PasswordType::class,
-                'invalid_message' => 'The password fields must match.',
+                'label' => 'Mot de passe',
+                'invalid_message' => 'Mot de passe: Les mots de passe doivent correspondre.',
                 'required' => true,
                 'first_options'  => [
                     'constraints' => [
                         new Assert\NotBlank([
-                            'message' => 'Please enter your password',
+                            'message' => 'Mot de passe: Veuillez entrer votre mot de passe.',
                         ]),
                         new Assert\Length([
                             'min' => 6,
-                            'minMessage' => 'Your password should be at least {{ limit }} characters',
+                            'minMessage' => 'Mot de passe: Votre mot de passe doit contenir au moins {{ limit }} caractères.',
                         ]),
                         new Assert\Length([
                             'max' => 50,
-                            'maxMessage' => 'Your password should be no more than {{ limit }} characters',
+                            'maxMessage' => 'Mot de passe: Votre mot de passe doit contenir au maximum {{ limit }} caractères.',
                         ]),
                     ],
                 ],
                 'second_options' => [
                     'constraints' => [
                         new Assert\NotBlank([
-                            'message' => 'Please repeat your password',
+                            'message' => 'Confirmation mot de passe: Veuillez reentrer votre mot de passe.',
                         ]),
                         new Assert\Length([
                             'min' => 6,
-                            'minMessage' => 'Your password should be at least {{ limit }} characters',
+                            'minMessage' => 'Confirmation mot de passe: Votre mot de passe doit contenir au moins {{ limit }} caractères.',
                         ]),
                         new Assert\Length([
                             'max' => 50,
-                            'maxMessage' => 'Your password should be no more than {{ limit }} characters',
+                            'maxMessage' => 'Confirmation mot de passe: Votre mot de passe doit contenir au maximum {{ limit }} caractères.',
                         ]),
                     ],
                 ],
             ])
             ->add('location', TextType::class, [
-                'label' => 'Location',
+                'label' => 'Adresse',
                 'required' => true,
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Please enter your location',
+                        'message' => 'Adresse: Veuillez entrer votre adresse.',
                     ]),
                     new Assert\Length([
                         'min' => 2,
-                        'minMessage' => 'Your location should be at least {{ limit }} characters',
+                        'minMessage' => 'Adresse: Votre adresse doit contenir au moins {{ limit }} caractères',
                     ]),
                     new Assert\Length([
                         'max' => 255,
-                        'maxMessage' => 'Your location should be no more than {{ limit }} characters',
+                        'maxMessage' => 'Adresse: Votre adresse doit contenir au maximum {{ limit }} caractères',
                     ]),
                 ],
             ])
             ->add('birthDate', DateType::class, [
                 'required' => true,
+                'label' => 'Date de naissance',
                 'widget' => 'single_text',
                 'format' => 'yyyy-MM-dd',
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Please enter your birth date',
+                        'message' => 'Date de naissance: Veuillez entrer votre date de naissance.',
                     ])
             ]]);
             
@@ -122,7 +124,7 @@ class RegistrationFormType extends AbstractType
             'constraints' => [
                 new UniqueEntity([
                     'fields' => ['email'],
-                    'message' => 'This email is already in use.',
+                    'message' => 'Cette adresse courriel est déjà utilisée.',
                 ]),
             ],
         ]);

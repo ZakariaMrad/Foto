@@ -22,21 +22,21 @@ class JWTHandler
     {
         $token = $data['jwtToken'] ?? null;
         if (!$token) {
-            $this->error = 'JWT token not provided.';
+            $this->error = 'Jeton JWT manquant.';
             return [false, $data];
         }
         try {
             $this->decodedJWTToken = $this->jwtEncoder->decode($token);
         } catch (JWTDecodeFailureException $e) {
-            $this->error = 'JWT token not decodable.';
+            $this->error = 'Impossible de décoder le jeton JWT.';
             return [false, $data];
         }
         if (!$this->decodedJWTToken) {
-            $this->error = 'Invalid JWT token.';
+            $this->error = 'Jeton JWT invalide.';
             return [false, $data];
         }
         if ($this->decodedJWTToken['exp'] < (new \DateTime())->getTimestamp()) {
-            $this->error = 'JWT token expired.';
+            $this->error = 'Jeton JWT expiré.';
             return [false, $data];
         }
         if ($this->decodedJWTToken['exp'] < (new \DateTime())->getTimestamp() + $_ENV['JWT_REFRESH_DELAY']) {

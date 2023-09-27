@@ -1,22 +1,22 @@
 <template>
-    <h3 class="text-center">Create an account</h3>
+    <h3 class="text-center">Créer un compte</h3>
     <form class="form-group" @submit.prevent="submitFn">
-        <v-text-field v-bind="register('name')" type="text" label="Name" required></v-text-field>
-        <v-text-field v-bind="register('location')" type="text" label="Adress" required></v-text-field>
-        <v-text-field v-bind="register('email')" type="email" label="Email" required></v-text-field>
-        <v-text-field v-bind="register('passwordFirst')" type="password" label="Password" required></v-text-field>
-        <v-text-field v-bind="register('passwordSecond')" type="password" label="Password Confirmation"
-        required></v-text-field>
-        <v-text-field v-bind="register('birthDate')" type="date" label="Birth Date" required></v-text-field>
+        <v-text-field v-bind="register('name')" type="text" label="Nom" required/>
+            <v-text-field v-bind="register('location')" type="text" label="Adresse" required />
+            <v-text-field v-bind="register('email')" type="email" label="Courriel" required />
+            <v-text-field v-bind="register('passwordFirst')" type="password" label="Mot de passe" required />
+            <v-text-field v-bind="register('passwordSecond')" type="password" label="Confirmation du mot de passe" required />
+            <v-text-field v-bind="register('birthDate')" type="date" label="Date de naissance" required/>
 
-        <p class="text-danger" v-for="error in errors">{{ error.propertyName }} : {{ error.message }}</p>
+            <p class="text-danger" v-for="error in errors">{{ error.message }}</p>
 
-        <p class="text-success">{{ message }}</p>
-        <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Close Dialog</v-btn>
-        <div class="float-right">
-            <v-btn class="text-white me-1" color="blue-accent-3" variant="outlined" @click="toggleRegister()">Login</v-btn>
-            <v-btn type="submit" class="text-white" color="green-darken-3" text="Submit" :loading="loading"/>
-        </div>
+            <p class="text-success">{{ message }}</p>
+            <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
+            <div class="float-right">
+                <v-btn class="text-white me-1" color="blue-accent-3" variant="outlined"
+                    @click="toggleRegister()">Connexion</v-btn>
+                <v-btn type="submit" class="text-white" color="green-darken-3" text="Créer" :loading="loading" />
+            </div>
     </form>
 </template>
 

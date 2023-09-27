@@ -1,5 +1,5 @@
 <template>
-  <v-dialog width="500" v-model="props.activate">
+  <v-dialog width="50%" v-model="props.activate">
     <v-card>
       <v-card-text >
           <Login v-if="isLogin" @isActivated="() => closeDialog()" @loggedIn="() => sendLoggedIn()" @isRegister="toggleLogin()" />
