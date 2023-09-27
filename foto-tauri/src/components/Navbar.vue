@@ -13,8 +13,8 @@
                 </ul>
                 <ul class="nav">
                     <li class="nav-item">
-                        <button v-if="!userConnected" class="nav-link link-dark btn btn-primary" @click="activateLogin = true">Login</button>
-                        <button v-else class="nav-link link-dark btn btn-danger" @click="logout()">Logout</button>
+                        <button v-if="!userConnected" class="nav-link link-dark btn btn-primary" @click="activateLogin = true">Connexion</button>
+                        <button v-else class="nav-link link-dark btn btn-danger" @click="logout()">Deconnexion</button>
                     </li>
                 </ul>
             </div>
@@ -36,12 +36,10 @@ const userConnected = ref<boolean>(false);
 const logout = async () => {
     await AccountRepository.logout();
     userConnected.value = false;
-    console.log(userConnected.value);
 }
 
 onMounted(async () => {
     userConnected.value= await AccountRepository.isConnected();
-    console.log(userConnected.value);
     
 })
 

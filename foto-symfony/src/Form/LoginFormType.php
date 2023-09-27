@@ -18,29 +18,23 @@ class LoginFormType extends AbstractType
         $builder
             ->add('email',EmailType::class,[
                 'required' => true,
+                'property_path' => 'email',
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Please enter your email',
+                        'message' => 'Courriel: Veuillez entrer votre courriel.',
                     ]),
                     new Assert\Email([
-                        'message' => 'The email "{{ value }}" is not a valid email.',
+                        'message' => 'Courriel: Le courriel {{ value }} n\'est pas valide.',
                     ]),
                 ],
             ])
             ->add('password',PasswordType::class,[
                 'required' => true,
+                'label' => 'Mot de passe',
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Please enter your password',
-                    ]),
-                    new Assert\Length([
-                        'min' => 6,
-                        'minMessage' => 'Your password should be at least {{ limit }} characters',
-                    ]),
-                    new Assert\Length([
-                        'max' => 50,
-                        'maxMessage' => 'Your password should be no more than {{ limit }} characters',
-                    ]),
+                        'message' => 'Mot de passe:Veuillez entrer votre mot de passe.',
+                    ])
                 ],
             ])
         ;

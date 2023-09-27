@@ -1,9 +1,9 @@
 import { APIResponse } from "../core/API/APIResponse";
 
-export class JWTToken extends APIResponse {
+export class JWTToken implements APIResponse{
     jwtToken:string = '';
+    message?: string;
     constructor(jwtToken: string) {
-        super();
         this.jwtToken = jwtToken;
     }
 }

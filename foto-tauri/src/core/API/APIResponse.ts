@@ -1,3 +1,3 @@
-export class APIResponse{
-    message: string='';
+export interface APIResponse{
+    message?: string;
 }
