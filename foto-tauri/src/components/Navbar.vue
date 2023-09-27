@@ -6,7 +6,7 @@
                     <li class="nav-item">
                         <router-link class="nav-link link-dark" :to="{ name: 'home' }">Accueil</router-link>
                     </li>
-                    <li class="nav-item"><a href="#" class="nav-link link-dark px-2">Features</a></li>
+                    <li class="nav-item"><router-link :to="{ name: 'upload' }" class="nav-link link-dark px-2">Features</router-link></li>
                     <li class="nav-item"><a href="#" class="nav-link link-dark px-2">Pricing</a></li>
                     <li class="nav-item"><a href="#" class="nav-link link-dark px-2">FAQs</a></li>
                     <li class="nav-item"><a href="#" class="nav-link link-dark px-2">About</a></li>
