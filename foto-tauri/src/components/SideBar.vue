@@ -9,7 +9,7 @@
             <v-divider></v-divider>
 
             <v-list density="compact" nav>
-                <v-list-item prepend-icon="mdi-home" title="Acceuil" :to="{ name: 'home' }" value="myfiles"></v-list-item>
+                <v-list-item prepend-icon="mdi-home" title="Acceuil" :to="{ name: 'home' }"></v-list-item>
                 <v-dialog width="500">
                     <template v-slot:activator="{ props }">
                         <v-list-item v-bind="props" prepend-icon="mdi-magnify" title="Recherche"
@@ -29,9 +29,9 @@
                         </v-card>
                     </template>
                 </v-dialog>
-                <v-list-item prepend-icon="mdi-star" title="Populaire" value="shared"></v-list-item>
-                <v-list-item prepend-icon="mdi-account" title="Mon profil" :to="{ name: 'profil' }"
-                    value="starred"></v-list-item>
+                <v-list-item prepend-icon="mdi-star" title="Populaire"></v-list-item>
+                <v-list-item prepend-icon="mdi-account" title="Mon profil" :to="{ name: 'profil' }"></v-list-item>
+                <v-list-item prepend-icon="mdi-upload" title="Téléverser" :to="{ name: 'upload' }"></v-list-item>
             </v-list>
         </v-navigation-drawer>
         <div class="mx-16 my-1">
