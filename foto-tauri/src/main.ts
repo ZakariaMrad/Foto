@@ -2,6 +2,8 @@ import { createApp } from "vue";
 import "./styles.css";
 import App from "./App.vue";
 import router from "./router";
+import { loadFonts } from './plugins/webfontloader'
+
 // Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
@@ -26,6 +28,7 @@ const vuetify = createVuetify({
 
 const app = createApp(App);
 
+loadFonts()
 
 app.use(router);
 app.use(vuetify);
