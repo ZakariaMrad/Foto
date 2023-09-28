@@ -10,25 +10,6 @@
 
             <v-list density="compact" nav>
                 <v-list-item prepend-icon="mdi-home" title="Acceuil" :to="{ name: 'home' }"></v-list-item>
-                <v-dialog width="500">
-                    <template v-slot:activator="{ props }">
-                        <v-list-item v-bind="props" prepend-icon="mdi-magnify" title="Recherche"
-                            value="starred"></v-list-item>
-                    </template>
-
-                    <template v-slot:default="{ isActive }">
-                        <v-card title="Rechercher">
-                            <v-text-field v-model="search" class="pa-5" append-icon="mdi-magnify" label="Search" single-line
-                                hide-details></v-text-field>
-
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-
-                                <v-btn text="Fermer" @click="isActive.value = false"></v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </template>
-                </v-dialog>
                 <v-list-item prepend-icon="mdi-star" title="Populaire"></v-list-item>
                 <v-list-item prepend-icon="mdi-account" title="Mon profil" :to="{ name: 'profil' }"></v-list-item>
                 <v-list-item prepend-icon="mdi-upload" title="Téléverser" :to="{ name: 'upload' }"></v-list-item>
