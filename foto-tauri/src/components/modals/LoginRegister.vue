@@ -24,7 +24,6 @@ const emit = defineEmits(['closeDialog'])
 function closeDialog(val: boolean) {
   emit('closeDialog', val);
   console.log(val, 'val');
-  
 }
 
 function toggleLogin() {

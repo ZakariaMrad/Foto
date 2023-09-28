@@ -2,11 +2,11 @@ import { ref } from "vue";
 const bus = ref(new Map());
 
 export enum Events {
-    test = 'test',
     LOGIN='LOGIN',
     LOGOUT='LOGOUT',
     CONNECTED_ACCOUNT='CONNECTED_ACCOUNT',
-    CREATE_POST='CREATE_POST', 
+    CREATE_POST='CREATE_POST',
+    OPEN_SEARCH_MODAL='OPEN_SEARCH_MODAL',
 };
 
 export function EventsBus(){

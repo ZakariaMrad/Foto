@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Foto;
 use App\Entity\User;
+use App\Form\CreateFotoFormType;
 use App\Form\FormHandler;
 use App\Jwt\JWTHandler;
 use Doctrine\Persistence\ManagerRegistry;

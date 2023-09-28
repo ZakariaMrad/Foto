@@ -14,6 +14,7 @@
             <v-list density="compact" nav>
                 <v-list-item prepend-icon="mdi-folder" title="Acceuil" value="myfiles" />
                 <v-list-item prepend-icon="mdi-account-multiple" title="Populaire" value="shared" />
+                <v-list-item prepend-icon="mdi-glasses" title="Ouvrir le modal" @click="openSearchModal" />
                 <v-list-item prepend-icon="mdi-plus-box" title="Create a post" @click="createPost" />
                 <v-list-item v-if="account" prepend-icon="mdi-logout-variant" title="Logout" @click="logout" />
             </v-list>
@@ -54,5 +55,8 @@ async function logout() {
 
 function createPost() {
     eventBusEmit(Events.CREATE_POST)
+}
+function openSearchModal() {
+    eventBusEmit(Events.OPEN_SEARCH_MODAL)
 }
 </script>
