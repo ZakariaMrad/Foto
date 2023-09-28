@@ -90,11 +90,7 @@ class AccountRepository extends Repository {
             console.log(error);
             return { errors: error as [APIError], success: false };
         }
-
-
     }
-
-
 }
 
 

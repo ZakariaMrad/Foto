@@ -85,6 +85,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\JoinColumn(name: 'idBanState', referencedColumnName: 'idBanState')]
     private ?BanState $banState = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Foto::class)]
+    private Collection $fotos;
+
     public function __construct()
     {
         $this->collaboretedAlbums = new ArrayCollection();
@@ -94,12 +97,12 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->comments = new ArrayCollection();
         $this->chats = new ArrayCollection();
         $this->messages = new ArrayCollection();
+        $this->fotos = new ArrayCollection();
     }
 
     public function getAll()
     {
         return [
-            'idUser' => $this->idUser,
             'email' => $this->email,
             'roles' => $this->roles,
             'picturePath' => $this->picturePath,
@@ -108,14 +111,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             'name' => $this->name,
             'birthDate' => $this->birthDate,
             'creationDate' => $this->creationDate,
-            'collaboretedAlbums' => $this->collaboretedAlbums,
-            'ownedAlbums' => $this->ownedAlbums,
-            'posts' => $this->posts,
-            'likes' => $this->likes,
-            'comments' => $this->comments,
-            'chats' => $this->chats,
-            'messages' => $this->messages,
-            'banState' => $this->banState
+            'fotos' => $this->fotos
+
         ];
     }
 
@@ -475,6 +472,36 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function setBanState(?BanState $banState): static
     {
         $this->banState = $banState;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Foto>
+     */
+    public function getFotos(): Collection
+    {
+        return $this->fotos;
+    }
+
+    public function addFoto(Foto $foto): static
+    {
+        if (!$this->fotos->contains($foto)) {
+            $this->fotos->add($foto);
+            $foto->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFoto(Foto $foto): static
+    {
+        if ($this->fotos->removeElement($foto)) {
+            // set the owning side to null (unless already changed)
+            if ($foto->getUser() === $this) {
+                $foto->setUser(null);
+            }
+        }
 
         return $this;
     }

@@ -2,7 +2,6 @@ import { APIResponse } from "../core/API/APIResponse";
 import { JWTToken } from "./JWTToken";
 
 export class Account extends JWTToken implements APIResponse{
-    public idUser: number = 0;
     public email: string = '';
     public name: string = '';
     public picturePath: string = '';
@@ -13,9 +12,8 @@ export class Account extends JWTToken implements APIResponse{
 
     declare public message?: string;
 
-    public constructor(idUser: number, name: string, picturePath: string, location: string, bio: string, birthDate: Date, creationDate: Date, email: string, jwtToken: string){
+    public constructor( name: string, picturePath: string, location: string, bio: string, birthDate: Date, creationDate: Date, email: string, jwtToken: string){
         super(jwtToken);
-        this.idUser = idUser;
         this.email = email;
         this.name = name;
         this.picturePath = picturePath;

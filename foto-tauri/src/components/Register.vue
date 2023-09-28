@@ -9,7 +9,7 @@
         required></v-text-field>
         <v-text-field v-bind="register('birthDate')" type="date" label="Birth Date" required></v-text-field>
 
-        <p class="text-danger" v-for="error in errors">{{ error.propertyName }} : {{ error.message }}</p>
+        <p class="text-danger" v-for="error in errors">{{ error.message }}</p>
 
         <p class="text-success">{{ message }}</p>
         <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Close Dialog</v-btn>
@@ -44,7 +44,6 @@ function toggleRegister() {
 const { register, handleSubmit, formState } = useFormHandler({ validationMode: 'always' })
 
 const successFn = async (form: any) => {
-    console.log(form);
     loading.value = true
     let registrationAccount = new RegistrationAccount(form.name, form.location, form.birthDate, form.email, form.passwordFirst, form.passwordSecond)
 
