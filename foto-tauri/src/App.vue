@@ -1,6 +1,6 @@
 <template>
   <RouterView />
-  <LoginRegister :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginDialog(val)" />
+  <LoginRegister :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
   <CreatePost :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
   <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
 </template>
@@ -30,7 +30,7 @@ watch(() => bus.value.get(Events.CREATE_POST), () => {
   activateCreatePost.value = true;
 })
 watch(() => bus.value.get(Events.OPEN_SEARCH_MODAL), () => {
-  
+
   activateSearch.value = true;
 })
 
@@ -44,7 +44,7 @@ function closeSearchDialog() {
   activateSearch.value = false;
 }
 
-async function closeLoginDialog(val: boolean) {
+async function closeLoginRegisterDialog(val: boolean) {
   activateLogin.value = false;
   if (!val) return;
   await getAccount();

@@ -30,9 +30,7 @@ const message = ref<string | undefined>('')
 const loading = ref<boolean>(false)
 
 function closeDialog(val: boolean = false) {
-    emit('closeDialog', val);
-    console.log(val, 'val');
-    
+    emit('closeDialog', val);  
 }
 function toggleRegister() {
     emit('isRegister', true);
