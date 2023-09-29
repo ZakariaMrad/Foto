@@ -5,6 +5,7 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
+    "types": ["vue"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -22,6 +23,6 @@
     "noImplicitReturns": true,
     "allowJs": true,
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/core/extension/*.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/core/extension/*.d.ts", "src/core/eventBus.js"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

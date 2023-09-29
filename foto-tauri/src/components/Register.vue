@@ -27,18 +27,16 @@ import { ref } from 'vue'
 import { APIError } from '../core/API/APIError';
 import RegistrationAccount from '../models/RegistrationAccount';
 
-const emit = defineEmits(['isActivated', 'loggedIn', 'isRegister'])
+const emit = defineEmits(['closeDialog', 'isRegister'])
 
 const errors = ref<APIError[]>([])
 const message = ref<string | undefined>('')
 const loading = ref<boolean>(false)
 
-function closeDialog() {
-    emit('isActivated', false);
+function closeDialog(val: boolean = false) {
+    emit('closeDialog', val);
 }
-function sendLoggedIn() {
-    emit('loggedIn', true);
-}
+
 function toggleRegister() {
     emit('isRegister', true);
 }
@@ -46,7 +44,6 @@ function toggleRegister() {
 const { register, handleSubmit, formState } = useFormHandler({ validationMode: 'always' })
 
 const successFn = async (form: any) => {
-    console.log(form);
     loading.value = true
     let registrationAccount = new RegistrationAccount(form.name, form.location, form.birthDate, form.email, form.passwordFirst, form.passwordSecond)
 
@@ -60,8 +57,7 @@ const successFn = async (form: any) => {
         return
     }
     message.value = apiResult.data.message
-    sendLoggedIn();
-    closeDialog();
+    closeDialog(true);
 }
 const submitFn = () => {
     try {

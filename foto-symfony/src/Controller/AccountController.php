@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Foto;
 use App\Entity\User;
+use App\Form\CreateFotoFormType;
 use App\Form\FormHandler;
 use App\Form\LoginFormType;
 use App\Form\RegistrationFormType;
@@ -32,8 +34,7 @@ class AccountController extends AbstractController
     public function account(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
-        [$hasSucceded, $data] = $this->jwtHandler->handle($data);
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
         if (!$hasSucceded) {
             return $this->json([
                 'error' => $this->jwtHandler->error,
@@ -43,9 +44,8 @@ class AccountController extends AbstractController
         $user = $this->em->getRepository(User::class)->findOneBy(['email' => $this->jwtHandler->decodedJWTToken['email']]);
 
         return $this->json([
-            'decoded' => $this->jwtHandler->decodedJWTToken['email'],
             'user' => $user->getAll(),
-            'jwtToken' => $data['jwtToken']
+            'jwtToken' => $newJWT
         ], JsonResponse::HTTP_OK);
     }
 
@@ -72,8 +72,8 @@ class AccountController extends AbstractController
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
         return $this->json([
-            "message" => "Compte connecté avec succès.",
-            "jwtToken" => $this->jwtHandler->create($user->getEmail())
+            "message" => "User logged in successfully.",
+            "jwtToken" => $this->jwtHandler->create($user->getEmail(), $user->getIdUser())
         ]);
     }
 
@@ -86,7 +86,7 @@ class AccountController extends AbstractController
 
         $data = json_decode($request->getContent(), true); // Decode JSON data from the request
 
-        if ($formHandler->handle($data) == false) {
+        if (!$formHandler->handle($data)) {
             return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
         }
 
@@ -99,11 +99,11 @@ class AccountController extends AbstractController
         );
         $user->setCreationDate(new \DateTime());
 
-        // Generate a JWT token
-        $jwtToken = $this->jwtHandler->create($user->getEmail());
-
         $this->em->persist($user); // Persist user to the database
         $this->em->flush(); // Save changes
+        // Generate a JWT token
+        $jwtToken = $this->jwtHandler->create($user->getEmail(), $user->getIdUser());
+
 
         return $this->json([
             'message' => 'Compte créé avec succès.',
