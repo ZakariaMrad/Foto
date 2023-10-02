@@ -19,7 +19,8 @@
                 <v-list-item prepend-icon="mdi-folder" title="Mes Fichiers" value="myfiles" />
                 <v-list-item prepend-icon="mdi-account-multiple" title="Populaire" value="shared" />
                 <v-list-item prepend-icon="mdi-glasses" title="Ouvrir le modal" @click="openSearchModal" />
-                <v-list-item prepend-icon="mdi-plus-box" title="Create a post" @click="createPost" />
+                <v-list-item prepend-icon="mdi-plus-box" title="Créer un post" @click="createPost" />
+                <v-list-item prepend-icon=" mdi-album" title="Créer un album" @click="createAlbum" />
                 <v-list-item v-if="account" prepend-icon="mdi-logout-variant" title="Logout" @click="logout" />
             </v-list>
         </v-navigation-drawer>
@@ -64,5 +65,8 @@ function createPost() {
 }
 function openSearchModal() {
     eventBusEmit(Events.OPEN_SEARCH_MODAL)
+}
+function createAlbum() {
+    eventBusEmit(Events.CREATE_ALBUM)
 }
 </script>
