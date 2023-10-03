@@ -28,7 +28,7 @@
                                 color="rgba(0, 0, 0, 0)"
                             >
                                 <template v-slot:prepend>
-                                    <v-btn variant="tonal" icon="mdi-pencil"></v-btn>
+                                    <v-btn variant="tonal" icon="mdi-pencil" @click="openEditModal()"></v-btn>
                                 </template>
 
                                 <template v-slot:append>
@@ -52,7 +52,8 @@
 <script setup lang="ts">
 import DefaultLayout from '../layouts/DefaultLayout.vue';
 import { ref } from 'vue';
-
+import {EventsBus, Events} from '../../core/EventBus';
+const {eventBusEmit} = EventsBus();
 
 const imgSrc = ref<Array<string | null | ArrayBuffer>>([]);
 const files = ref([]);
@@ -80,6 +81,9 @@ function removeFromFiles(file: File)
     imgSrc.value = imgSrc.value.filter((_, imgIndex) => imgIndex !== index)
 }
 
+function openEditModal() {
+    eventBusEmit(Events.OPEN_EDIT_MODAL);
+}
 </script>
 
 <style scoped>

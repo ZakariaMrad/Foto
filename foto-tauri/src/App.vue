@@ -3,6 +3,7 @@
   <LoginRegister :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
   <CreatePost :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
   <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
+  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" />
 </template>
 
 <script setup lang="ts">
@@ -12,10 +13,12 @@ import LoginRegister from './components/modals/LoginRegister.vue';
 import AccountRepository from './repositories/AccountRepository';
 import CreatePost from './components/modals/CreatePost.vue';
 import Search from './components/modals/Search.vue';
+import EditPicture from './components/modals/EditPicture.vue';
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
 const activateSearch = ref<boolean>(false);
+const activateEdit = ref<boolean>(false);
 const { bus, eventBusEmit } = EventsBus();
 
 watch(() => bus.value.get(Events.LOGIN), () => {
@@ -30,15 +33,22 @@ watch(() => bus.value.get(Events.CREATE_POST), () => {
   activateCreatePost.value = true;
 })
 watch(() => bus.value.get(Events.OPEN_SEARCH_MODAL), () => {
-
   activateSearch.value = true;
 })
+
+watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), () => {
+    activateEdit.value = true;
+});
 
 onMounted(async () => {
   let isConnected = await AccountRepository.isConnected();
   if (!isConnected) return;
   await getAccount();
 })
+
+function closeEditDialog() {
+    activateEdit.value = false;
+}
 
 function closeSearchDialog() {
   activateSearch.value = false;

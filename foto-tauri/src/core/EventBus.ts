@@ -7,6 +7,7 @@ export enum Events {
     CONNECTED_ACCOUNT='CONNECTED_ACCOUNT',
     CREATE_POST='CREATE_POST',
     OPEN_SEARCH_MODAL='OPEN_SEARCH_MODAL',
+    OPEN_EDIT_MODAL='OPEN_EDIT_MODAL'
 };
 
 export function EventsBus(){
