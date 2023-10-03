@@ -1,2 +1,10 @@
 @import url(../node_modules/bootstrap/dist/css/bootstrap.css);
 @import url(./../node_modules/@vueform/vueform/themes/bootstrap/css/index.css/);
+
+body {
+    -webkit-user-drag: none; /* for WebKit-based browsers */
+    -webkit-user-select: none; /* for WebKit-based browsers */
+    -moz-user-select: none; /* for Firefox */
+    -ms-user-select: none; /* for Microsoft Edge */
+    user-select: none; /* for other browsers */
+  }

@@ -6,7 +6,7 @@
             <v-row>
               <v-col v-for="(item, i) in props.items" cols="12" md="4">
                 <v-card class="p-1" v-bind:class="{ 'bg-blue-darken-4': activeItemsId.includes(i) }" @click="setActive(i)">
-                  <v-img :src="item.path" aspect-ratio="1" />
+                  <v-img :src="item.path" aspect-ratio="1"  :draggable="true"/>
                 </v-card>
               </v-col>
             </v-row>

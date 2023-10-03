@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import AlbumGrid from '../AlbumGrid/AlbumGrid.vue';
+import AlbumGrid from '../AlbumGrid2/AlbumGrid.vue';
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
     activate: Boolean
