@@ -11,13 +11,13 @@
             <v-col cols="5">
                 <v-row cols="12" class="pa-2">
                     <v-col cols="6">
-                        <h2 colors="grey">Sandra Adams</h2>
+                        <h2 colors="grey">{{connectedAccount?.name}}</h2>
                     </v-col>
                     <v-col cols="6" class="text-lg-right">
                         <v-btn>Follow</v-btn>
                     </v-col>
                     <v-col cols="12">
-                        <p>sandra_a88@gmail.com</p>
+                        <p>{{connectedAccount?.email}}</p>
                     </v-col>
                 </v-row>
                 <v-row cols="12" class="pa-3 font-weight-bold">
@@ -54,11 +54,11 @@
         </v-row>
         <v-row justify="center">
             <v-col cols="10">
-                <v-tabs  color="deep-purple-accent-4" align-tabs="center">
+                <v-tabs color="deep-purple-accent-4" align-tabs="center">
                     <v-tab :value="1">Photos</v-tab>
                     <v-tab :value="2">Albums</v-tab>
                 </v-tabs>
-                <v-window >
+                <v-window>
                     <v-window-item v-for="n in 3" :key="n" :value="n">
                         <v-container fluid>
                             <v-row>
@@ -77,5 +77,19 @@
 </template>
 
 <script setup lang="ts">
+import { watch, ref } from 'vue';
+import { EventsBus, Events } from '../core/EventBus';
+import { Account } from '../models/Account';
+
+const { bus } = EventsBus();
+
+const connectedAccount = ref<Account>() 
+
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
+    if (!account)
+        return;
+
+    connectedAccount.value = account[0];
+})
 
 </script>
