@@ -1,8 +1,9 @@
 <template>
   <div>
+    <h1>Draggable</h1>
     <vue-draggable-next v-model="items" :item-key="'id'" @start="dragStart" @end="dragEnd">
       <div v-for="item in items" :key="item.id" @mouseover="selectItem(item.id)">
-        <v-img :src="item.path" @click="selectItem(item)" :class="{ selected: item.selected }" />
+        <v-img :src="item.path" @click="selectItem(item.id)" />
       </div>
     </vue-draggable-next>
   </div>
@@ -19,6 +20,7 @@ const items = ref([
 
 const selectionStart = ref<boolean>(false);
 const selectedItem = ref<{id:number,path:string}>();
+
 
 function dragStart(event:DragEvent) {
   console.log('Dragging started:', event);

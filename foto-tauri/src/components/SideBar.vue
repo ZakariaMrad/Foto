@@ -32,7 +32,7 @@
 </template>
 <script setup lang="ts">
 import {  ref, watch } from 'vue';
-import { Account } from '../models/Account';
+import  Account  from '../models/Account';
 import {EventsBus, Events} from '../core/EventBus';
 const {eventBusEmit,bus} = EventsBus();
 

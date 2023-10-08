@@ -4,13 +4,15 @@
 
             <v-col cols="7">
                 <h4 class="text-center">Grille</h4>
-                <v-table density="compact">
-                    <tr v-for="(_, y) in 4" no-gutters>
-                        <td class="ma-0 pa-0" v-for="(_, x) in 3">
-                            <AlbumGridCase :position="{ x, y }" :hoveredSidesOut="checkHoveredSides({ x, y })"
-                                @hovered="(hoveredSides) => hoverCards({ x, y }, hoveredSides)" />
-                        </td>
-                    </tr>
+                <v-table>
+                    <tbody>
+                        <tr v-for="(_, y) in 3" class="pa-0 ma-0">
+                            <td v-for="(_, x) in 3" class="pa-0 ma-0">
+                                <AlbumGridCase :position="{ x, y }" :hoveredSidesOut="checkHoveredSides({ x, y })"
+                                    @hovered="(hoveredSides) => hoverCards({ x, y }, hoveredSides)" />
+                            </td>
+                        </tr>
+                    </tbody>
                 </v-table>
             </v-col>
             <v-col cols="5">
@@ -24,10 +26,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import AlbumGridCase from './AlbumGridCase.vue';
-import FotoPicker from '../FotoPicker.vue';
 import Foto from '../../models/Foto';
 import FotoRepository from '../../repositories/FotoRepository';
 import HoveredCard from '../../models/HoveredCard';
+import FotoPicker from '../FotoPicker.vue';
 
 const fotos = ref<Foto[]>([]);
 const hoveredCards = ref<{ x: number, y: number, hoveredSides: HoveredCard }[]>([]);
@@ -36,6 +38,8 @@ onMounted(async () => {
     let apiResult = await FotoRepository.getFotos();
     if (!apiResult.success) return;
     fotos.value = apiResult.data;
+    console.log(fotos.value);
+    
 })
 
 function hoverCards(ownPosition: { x: number, y: number }, HoveredCardIn: HoveredCard) {
@@ -113,5 +117,4 @@ function checkHoveredSides(position: { x: number, y: number }): HoveredCard {
     return hoveredSides.hoveredSides;
 }
 </script>
-
 <style scoped></style>

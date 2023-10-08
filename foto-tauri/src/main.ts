@@ -40,7 +40,9 @@ loadFonts()
 const emitter = mitt();
 app.config.globalProperties.emitter = emitter;
 app.use(router);
+
 app.use(vuetify);
+
 app.use(vueTauriDraggable);
 
 app.mount("#app");

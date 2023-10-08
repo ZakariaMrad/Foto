@@ -1,5 +1,6 @@
 <template>
     <v-card class="max-height-60 my-3">
+      <v-card-title class="text-center">{{ props.title }}</v-card-title>
       <v-window>
         <v-window-item v-for="n in 3" :key="n" :value="n">
           <v-container fluid>
@@ -19,9 +20,9 @@
 <script setup lang="ts">
 import { onMounted, ref, } from 'vue';
 import Foto from '../models/Foto';
-const props = defineProps<{ items: Foto[], itemSize: number, multiple: boolean }>()
+const props = defineProps<{ items: Foto[], itemSize: number, multiple: boolean, unselectable: boolean, title:string }>()
 
-const emit = defineEmits(['itemsSelected'])
+const emit = defineEmits<{(event:'itemsSelected', items:Foto[]):void}>()
 const activeItemsId = ref<number[]>([]);
 let activeItems: Foto[] = [];
 onMounted(() => {
@@ -29,6 +30,7 @@ onMounted(() => {
 })
 
 function setActive(index: number) {
+  if (props.unselectable) return;
     if (!props.multiple) {
         activeItemsId.value = [];
         activeItemsId.value.push(index);
