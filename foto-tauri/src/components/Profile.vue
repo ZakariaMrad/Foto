@@ -12,7 +12,7 @@
                 <v-row cols="12" class="pa-2">
                     <v-col cols="6">
                         <h2 colors="grey">{{ connectedAccount?.name }}</h2>
-                        <p>{{ connectedAccount?.email }}</p>
+                        <p class="font-italic">{{ connectedAccount?.email }}</p>
                     </v-col>
                     <v-col cols="6" class="text-lg-right">
                        
