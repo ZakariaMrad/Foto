@@ -4,6 +4,7 @@ import { Account } from "../models/Account";
 import { APIResult } from "../core/API/APIResult";
 import { JWTToken } from "../models/JWTToken";
 import { APIError } from "../core/API/APIError";
+import AccountRepository from "./AccountRepository";
 
 
 const client = await getClient();
@@ -14,13 +15,14 @@ class ModifyProfileRepository extends Repository {
         if (!jwt.success) return { errors: jwt.errors, success: false };
         modifyAccount.jwtToken = jwt.data.jwtToken;
         try {
-            const response = await client.post(`${url}/post`, Body.json(modifyAccount), { responseType: ResponseType.JSON });
+            const response = await AccountRepository.updateAccount(modifyAccount)
+            // const response = await client.patch(`${url}/patch`, Body.json({ bio: ""  });
             let data = response.data as JWTToken;
             // console.log(response.data);
 
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
-                
+
                 return { data: data, success: true };
             }
             // If there is an unexpected response or error status code, return an Error object

@@ -14,7 +14,7 @@ const url = 'http://localhost:8000';
 const client = await getClient();
 class AccountRepository extends Repository {
 
-    async startConnectionFlow(func: (value:boolean) => void, interval: number) {
+    async startConnectionFlow(func: (value: boolean) => void, interval: number) {
         while (true) {
             await new Promise((resolve) => setTimeout(resolve, interval)); // Wait for the specified interval
             func(await this.isConnected());
@@ -78,7 +78,28 @@ class AccountRepository extends Repository {
         try {
             const response = await client.post(`${url}/account`, Body.json(jwt.data), { responseType: ResponseType.JSON });
             let data = response.data as any;
-            
+
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+
+                return { data: data.user as Account, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            console.log(error);
+            return { errors: error as [APIError], success: false };
+        }
+    }
+
+    public async updateAccount(personnalInfo : Account): Promise<APIResult<Account>> {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+
+        try {
+            const response = await client.post(`${url}/account`, Body.json(personnalInfo));
+            let data = response.data as any;
+
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
 
