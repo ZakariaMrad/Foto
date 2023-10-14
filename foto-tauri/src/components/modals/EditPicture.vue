@@ -5,12 +5,21 @@
                 <v-container>
                     <v-row>
                         <v-col cols="9">
-                            <p>Edit</p>
+                            <v-img
+                            class="foo"
+                            max-height="600"
+                            src="/Capture d’écran, le 2023-09-21 à 17.29.06.png"
+                            :style="{filter: 'saturate(' + saturation +'%) contrast(' + contrast +'%) brightness(' + exposure +'%)'}">
+                        
+                        </v-img>
                         </v-col>
                         <v-col cols="3">
-                            <v-slider></v-slider>
-                            <v-slider></v-slider>
-                            <v-slider></v-slider>
+                            <div class="text-caption">Exposition</div>
+                            <v-slider :max="max" :min="min" v-model="exposure"></v-slider>
+                            <div class="text-caption">Contraste</div>
+                            <v-slider :max="max" :min="min" v-model="contrast"></v-slider>
+                            <div class="text-caption">Saturation</div>
+                            <v-slider :max="max" :min="min" v-model="saturation"></v-slider>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -24,6 +33,15 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+
+const max = ref(200);
+const min = ref(0);
+const defaultValue = 100;
+
+const exposure = ref(defaultValue);
+const contrast = ref(defaultValue);
+const saturation = ref(defaultValue);
 
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
@@ -35,4 +53,8 @@ function closeDialog() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.foo {
+    filter: saturate(v-bind(saturation));
+}
+</style>
