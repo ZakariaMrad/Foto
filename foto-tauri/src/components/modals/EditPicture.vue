@@ -8,7 +8,7 @@
                             <v-img
                             class="foo"
                             max-height="600"
-                            src="/Capture d’écran, le 2023-09-21 à 17.29.06.png"
+                            :src="imgSrc"
                             :style="{filter: 'saturate(' + saturation +'%) contrast(' + contrast +'%) brightness(' + exposure +'%)'}">
                         
                         </v-img>
@@ -45,16 +45,17 @@ const saturation = ref(defaultValue);
 
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
-    activate: Boolean
+    activate: Boolean,
+    imgSrc: String
 })
 
 function closeDialog() {
+    exposure.value = defaultValue;
+    contrast.value = defaultValue;
+    saturation.value = defaultValue;
     emit('closeDialog');
 }
 </script>
 
 <style scoped>
-.foo {
-    filter: saturate(v-bind(saturation));
-}
 </style>

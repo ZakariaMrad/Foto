@@ -3,7 +3,7 @@
   <LoginRegister :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
   <CreatePost :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
   <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
-  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" />
+  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" :img-src="editImgSrc"/>
 </template>
 
 <script setup lang="ts">
@@ -19,6 +19,7 @@ const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
 const activateSearch = ref<boolean>(false);
 const activateEdit = ref<boolean>(false);
+const editImgSrc = ref<string>("");
 const { bus, eventBusEmit } = EventsBus();
 
 watch(() => bus.value.get(Events.LOGIN), () => {
@@ -36,8 +37,9 @@ watch(() => bus.value.get(Events.OPEN_SEARCH_MODAL), () => {
   activateSearch.value = true;
 })
 
-watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), () => {
+watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: string[]) => {
     activateEdit.value = true;
+    editImgSrc.value = value[0];
 });
 
 onMounted(async () => {

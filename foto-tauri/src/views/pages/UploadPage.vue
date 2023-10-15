@@ -21,14 +21,14 @@
                     <v-card>
                         <v-img
                             height="200"
-                            :src="imgSrc[index]"
+                            :src="(imgSrc[index] as string)"
                             cover
                             >
                             <v-toolbar
                                 color="rgba(0, 0, 0, 0)"
                             >
                                 <template v-slot:prepend>
-                                    <v-btn variant="tonal" icon="mdi-pencil" @click="openEditModal()"></v-btn>
+                                    <v-btn variant="tonal" icon="mdi-pencil" @click="openEditModal(index)"></v-btn>
                                 </template>
 
                                 <template v-slot:append>
@@ -81,8 +81,8 @@ function removeFromFiles(file: File)
     imgSrc.value = imgSrc.value.filter((_, imgIndex) => imgIndex !== index)
 }
 
-function openEditModal() {
-    eventBusEmit(Events.OPEN_EDIT_MODAL);
+function openEditModal(index: number) {
+    eventBusEmit(Events.OPEN_EDIT_MODAL, imgSrc.value[index]);
 }
 </script>
 
