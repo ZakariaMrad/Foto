@@ -6,11 +6,13 @@
                     <v-row>
                         <v-col>
                             <v-text-field class="mb-1" label="Titre" required v-bind="register('title')"
-                                :error-messages="titleErrorMessage"  />
-                            <v-textarea rows="4" v-bind="register('notes')" type="" label="Notes" />
+                                :error-messages="titleErrorMessage" />
+                            <v-switch hide-details color="blue"
+                                v-bind:input-value="register('isPublic', { defaultValue: true })" label="Public" />
+                            <v-textarea rows="2" v-bind="register('notes')" type="" label="Notes" />
                         </v-col>
                         <v-col>
-                            <v-textarea rows="7" v-bind="register('description')" type="" label="Description" />
+                            <v-textarea rows="8" v-bind="register('description')" type="" label="Description" />
                         </v-col>
                     </v-row>
                 </v-card-text>

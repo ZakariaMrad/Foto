@@ -13,16 +13,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Jwt\JWTHandler;
-
 
 class AlbumController extends AbstractController
 {
     private $em = null;
     private $jwtHandler;
 
-    public function __construct(JWTEncoderInterface $jwtEncoder, ManagerRegistry $doctrine,)
+    public function __construct(JWTEncoderInterface $jwtEncoder, ManagerRegistry $doctrine)
     {
         $this->em = $doctrine->getManager();
         $this->jwtHandler = new JWTHandler($jwtEncoder);
@@ -31,7 +31,7 @@ class AlbumController extends AbstractController
     public function getAlbum(): JsonResponse
     {
         $album = $this->getAlbumById(3);
-        dd($album);
+        // dd($album);
         return $this->json([
             'album' => $album->getAll(),
             'message' => 'Album créé avec succès.'
@@ -75,8 +75,10 @@ class AlbumController extends AbstractController
             $album->addSpectator($this->getUserById($spectator['idAccount']));
         }
         $album->setGrid($grid);
+        
         $this->em->persist($album);
         $this->em->flush();
+        dd($album);
 
         return $this->json([
             'jwtToken' => $newJWT,

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 #[ORM\Table(name: 'albums')]
@@ -30,7 +31,7 @@ class Album
     #[ORM\JoinTable(
         name: 'albumFotos',
         joinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')],
-        inverseJoinColumns: [new ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idfoto')]
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')]
     )]
     private Collection $fotos;
 

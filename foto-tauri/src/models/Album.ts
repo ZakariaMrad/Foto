@@ -9,6 +9,7 @@ export default class Album extends JWTToken implements APIResponse {
     title: string = '';
     description: string = '';
     notes: string = '';
+    isPublic: boolean = false;
     fotos: Foto[] = [];
     type: 'grid' | 'carousel' = 'grid';
     grid: AlbumGrid = new AlbumGrid();
