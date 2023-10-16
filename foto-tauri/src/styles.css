@@ -1,5 +1,6 @@
 @import url(../node_modules/bootstrap/dist/css/bootstrap.css);
 @import url(./../node_modules/@vueform/vueform/themes/bootstrap/css/index.css/);
+@import 'vue-tauri-draggable/style.css';
 
 body {
     -webkit-user-drag: none; /* for WebKit-based browsers */

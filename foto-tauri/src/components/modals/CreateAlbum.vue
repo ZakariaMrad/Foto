@@ -45,7 +45,6 @@
                         </v-card-text>
                     </v-card>
                 </v-responsive>
-
             </v-card-text>
         </v-card>
     </v-dialog>
@@ -100,6 +99,7 @@ function finalization(album: Partial<Album>) {
     disabledTabs.value = { fotos: true, display: true, collaboraters: true, finalization: true };
     console.log(album);
     albumInProgress.value = album;
+    
     emit('closeDialog');
 }
 function closeDialog() {

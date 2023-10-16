@@ -6,7 +6,7 @@
                     <v-row>
                         <v-col>
                             <v-text-field class="mb-1" label="Titre" required v-bind="register('title')"
-                                :error-messages="titleErrorMessage" />
+                                :error-messages="titleErrorMessage"  />
                             <v-textarea rows="4" v-bind="register('notes')" type="" label="Notes" />
                         </v-col>
                         <v-col>

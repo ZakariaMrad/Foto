@@ -32,9 +32,7 @@ const { register, handleSubmit, formState, unregister } = useFormHandler({
 })
 const successFn = async (partialAlbum: Partial<Album>)=> {
     loading.value = true;
-    const album: Partial<Album> = { ...props.album, ...partialAlbum };
-    console.log(album);
-    
+    const album: Partial<Album> = { ...props.album, ...partialAlbum };    
     emit('nextStep', album);
     loading.value = false;
 }
@@ -62,12 +60,12 @@ onMounted(async () => {
 })
 
 function addCollaboraters(colls: Account[]) {    
-    collaboraters.value = colls;
+    collaboraters.value = colls;    
     unregister('collaboraters');
     register('collaboraters', { defaultValue: collaboraters })
 }
 function addSpectators(spects: Account[]) {
-    spectators.value = spects;
+    spectators.value = spects;    
     unregister('spectators');
     register('spectators', { defaultValue: spectators })
 }

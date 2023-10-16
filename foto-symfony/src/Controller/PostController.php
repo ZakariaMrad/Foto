@@ -66,7 +66,7 @@ class PostController extends AbstractController
 
         return $this->json([
             'jwtToken' => $newJWT,
-            'message' => 'Post créée avec succès.'
+            'message' => 'Post créé avec succès.'
         ], JsonResponse::HTTP_OK);
     }
     private function getUserById(int $idUser): ?User

@@ -31,9 +31,11 @@
     "vue-draggable-next": "^2.2.1",
     "vue-final-modal": "^4.4.5",
     "vue-form-handler": "^0.5.0",
+    "vue-horizontal": "^1.0.2",
     "vue-router": "^4.2.4",
     "vue-tauri-draggable": "^0.2.0",
-    "vuedraggable": "^2.24.3",
+    "vue3-horizontal-list": "^0.0.3",
+    "vuedraggable": "^4.1.0",
     "vuetify": "^3.3.16",
     "webfontloader": "^1.0.0"
   },

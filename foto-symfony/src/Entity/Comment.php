@@ -14,11 +14,11 @@ class Comment
     #[ORM\Column(name:'idComment')]
     private ?int $idComment = null;
 
-    #[ORM\ManyToOne(inversedBy: 'comments')]
+    #[ORM\ManyToOne(inversedBy: 'comments', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idComment', referencedColumnName: 'idUser')]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'comments')]
+    #[ORM\ManyToOne(inversedBy: 'comments', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost')]
     private ?post $post = null;
 

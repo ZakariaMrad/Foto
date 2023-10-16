@@ -38,13 +38,18 @@ class Foto
     #[ORM\Column(name:'isNSFW')]
     private ?bool $isNSFW = null;
 
-    #[ORM\ManyToMany(targetEntity: Album::class, mappedBy: 'fotos')]
+    #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'fotos', cascade: ['persist'])]
+    #[ORM\JoinTable(
+        name: 'albumFotos',
+        joinColumns: [new ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
+    )]
     private Collection $albums;
 
-    #[ORM\OneToMany(mappedBy: 'foto', targetEntity: Post::class)]
+    #[ORM\OneToMany(mappedBy: 'foto', targetEntity: Post::class, cascade: ['persist'])]
     private Collection $posts;
 
-    #[ORM\ManyToOne(inversedBy: 'fotos')]
+    #[ORM\ManyToOne(inversedBy: 'fotos', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')]
     private ?User $user = null;
 

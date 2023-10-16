@@ -2,8 +2,9 @@
     <v-responsive aspect-ratio="3">
         <v-card height="100%" class="card-outter">
             <form @submit.prevent="submitFn">
+            {{ album }}
                 <v-card-text>
-                    <FinalizationPost :account="account" :album="album" />
+                    <FinalizationAlbum :account="account" :album="album" />
                 </v-card-text>
                 <v-card-actions align-end class="card-actions">
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
@@ -19,7 +20,7 @@
 import { onMounted, ref } from 'vue';
 import Album from '../../models/Album';
 import { useFormHandler } from 'vue-form-handler'
-import FinalizationPost from './FinalizationPost.vue';
+import FinalizationAlbum from './FinalizationAlbum.vue';
 import AccountRepository from '../../repositories/AccountRepository';
 import Account from '../../models/Account';
 
@@ -34,20 +35,11 @@ const { handleSubmit, formState, } = useFormHandler({
 onMounted(async () => {
     let apiResult = await AccountRepository.getAccount();
     if (!apiResult.success) return
-
     account.value = apiResult.data;
-    console.log(account.value);
-    
-
-    console.log(props.album);
-    
-
 })
 const successFn = async (partialAlbum: any) => {
     loading.value = true;
     const album: Partial<Album> = { ...props.album, ...partialAlbum };
-    console.log(album);
-
     emit('nextStep', album);
     loading.value = false;
 }

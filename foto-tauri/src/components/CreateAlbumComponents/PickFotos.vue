@@ -45,18 +45,15 @@ const successFn = async (partialAlbum: any) => {
     loading.value = true;
     errorMessage.value = undefined;
     const album: Partial<Album> = { ...props.album, ...partialAlbum };
-
-    if (album.fotos?.length === 0) {
+        
+    if (!album.fotos) {
         errorMessage.value = "Vous devez choisir au moins une foto";
         loading.value = false;
         return;
     }
-    console.log(album);
 
     emit('nextStep', album);
     loading.value = false;
-    console.log('success');
-
 }
 
 function registerItems(items: Foto[]) {
@@ -94,7 +91,6 @@ onMounted(async () => {
     if (!apiResponse.success) return
 
     fotos.value = apiResponse.data
-    console.log(props.album);
     registerItems([]);
 })
 

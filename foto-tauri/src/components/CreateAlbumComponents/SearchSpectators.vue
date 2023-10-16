@@ -48,7 +48,6 @@ const { register, handleSubmit, formState } = useFormHandler({ validationMode: '
 function submitFn() {
     try {
         emit('collaboraters', collaboraters.value)
-        
         emit('spectators', spectators.value)
         handleSubmit(successFn)
     } catch {
@@ -58,7 +57,7 @@ function submitFn() {
 }
 async function successFn(form: any) {
     loading.value = true
-    console.log(form.search || 'as');
+    console.log(form.search || '');
 
     let apiResult = await AccountRepository.searchUser(form.search || ' ');
     if (!apiResult.success) {
@@ -79,17 +78,14 @@ function isCollaborater(account: Account) {
 
 function addCollaborater(account: Account) {
     collaboraters.value.push(accounts.value.find((ac) => ac.idAccount === account.idAccount)!)
-    if (!spectators.value.find((ac) => ac.idAccount === account.idAccount)) {
-        addSpectator(account)
-
-    }
+    removeSpectator(account)
 }
 function removeCollaborater(account: Account) {
     collaboraters.value = collaboraters.value.filter((ac) => ac.idAccount !== account.idAccount)
     removeSpectator(account)
 }
 
-function addSpectator(account: Account) {
+function addSpectator(account: Account) {    
     spectators.value.push(accounts.value.find((ac) => ac.idAccount === account.idAccount)!)
 }
 function removeSpectator(account: Account) {
