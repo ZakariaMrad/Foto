@@ -12,14 +12,13 @@
             <v-divider></v-divider>
 
             <v-list density="compact" nav>
+                <v-list-item prepend-icon="mdi-glasses" title="Rechercher" @click="openSearchModal" />
                 <v-list-item prepend-icon="mdi-home" title="Accueil" :to="{ name: 'home' }"></v-list-item>
-                <v-list-item prepend-icon="mdi-star" title="Populaire"></v-list-item>
-                <v-list-item prepend-icon="mdi-account" title="Mon profil" :to="{ name: 'profil' }"></v-list-item>
-                <v-list-item prepend-icon="mdi-upload" title="Téléverser" :to="{ name: 'upload' }"></v-list-item>
-                <v-list-item prepend-icon="mdi-folder" title="Mes Fichiers" value="myfiles" />
-                <v-list-item prepend-icon="mdi-account-multiple" title="Populaire" value="shared" />
-                <v-list-item prepend-icon="mdi-glasses" title="Ouvrir le modal" @click="openSearchModal" />
-                <v-list-item prepend-icon="mdi-plus-box" title="Create a post" @click="createPost" />
+                <v-list-item prepend-icon="mdi-star" title="Populaire" value="shared" />
+                <v-list-item v-if="account" prepend-icon="mdi-account" title="Mon profil" :to="{ name: 'profil' }"></v-list-item>
+                <v-list-item v-if="account" prepend-icon="mdi-upload" title="Téléverser" :to="{ name: 'upload' }"></v-list-item>
+                <v-list-item v-if="account" prepend-icon="mdi-folder" title="Mes Fichiers" value="myfiles" />
+                <v-list-item v-if="account" prepend-icon="mdi-plus-box" title="Create a post" @click="createPost" />
                 <v-list-item v-if="account" prepend-icon="mdi-logout-variant" title="Logout" @click="logout" />
             </v-list>
         </v-navigation-drawer>

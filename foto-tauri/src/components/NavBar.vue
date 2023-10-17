@@ -39,7 +39,6 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefin
 const links = ref<{ icon: string, text: string, route: string }[]>(
     [
         { icon: 'mdi-theme-light-dark', text: 'Dark mode', route: '' },
-        { icon: 'mdi-account-plus-outline', text: `S'inscrire`, route: '' },
         { icon: 'mdi-cog-outline', text: 'Paramètres', route: '' },
         { icon: 'mdi-card-account-phone-outline', text: 'Nous contacter', route: '' },
     ]
