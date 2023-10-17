@@ -15,6 +15,7 @@
                     </v-col>
                     <v-col cols="6" class="text-lg-right">
                         <v-btn>Follow</v-btn>
+                        <v-btn color="red" v-if="user.isAdmin">Admin</v-btn>
                     </v-col>
                     <v-col cols="12">
                         <p>sandra_a88@gmail.com</p>

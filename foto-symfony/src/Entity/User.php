@@ -88,6 +88,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Foto::class)]
     private Collection $fotos;
 
+    #[ORM\Column(name:'isAdmin')]
+    private ?bool $isAdmin = false;
+
     public function __construct()
     {
         $this->collaboretedAlbums = new ArrayCollection();
@@ -502,6 +505,18 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
                 $foto->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isIsAdmin(): ?bool
+    {
+        return $this->isAdmin;
+    }
+
+    public function setIsAdmin(bool $isAdmin): static
+    {
+        $this->isAdmin = $isAdmin;
 
         return $this;
     }
