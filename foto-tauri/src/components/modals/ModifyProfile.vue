@@ -6,7 +6,8 @@
                 <v-row cols="12" class="pa-2">
                     <v-col cols="6">
                         <p class="ml-10">Choisir une photo de profile</p>
-                        <AssetPicker :itemSize="2" :items="fotos" :multiple="false" @items-selected="(items) => setItems(items)" label="Choisir une photo"></AssetPicker>
+                        <AssetPicker :itemSize="2" :items="fotos" :multiple="false"
+                            @items-selected="(items) => setItems(items)" label="Choisir une photo"></AssetPicker>
                     </v-col>
                     <v-col cols="6">
                         <p>Ajouter une bio</p>
@@ -26,12 +27,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { APIError } from '../../core/API/APIError';
 import { useFormHandler } from 'vue-form-handler';
-import ModifyProfileRepository from '../../repositories/ModifyProfileRepository';
 import Foto from '../../models/Foto';
 import AssetPicker from '../AssetPicker.vue';
+import AccountRepository from '../../repositories/AccountRepository';
+import { Account } from '../../models/Account';
+import { Events, EventsBus } from '../../core/EventBus';
 
 
 
@@ -42,12 +45,26 @@ const errors = ref<APIError[]>([])
 const message = ref<string | undefined>('')
 const emit = defineEmits(['closeDialog'])
 const fotos = ref<Foto[]>([])
+const { eventBusEmit, bus } = EventsBus();
+
+
 let choosenFotoId: number | undefined = undefined
+let account: Account | undefined;
+
+
 const { register, handleSubmit, formState } = useFormHandler({
     validationMode: 'always',
 })
 
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefined) => {
+    console.log(value);
 
+    if (!value) {
+        account = undefined;
+        return;
+    }
+    account = value[0];
+})
 
 const props = defineProps({
     activate: Boolean
@@ -60,13 +77,18 @@ function setItems(items: Foto[]) {
     console.log(choosenFotoId);
 }
 
-async function successFn(form: any) {
+async function successFn(form: Partial<Account>) {
     loading.value = true
     // form.id = choosenFotoId;
-    form.isFoto = 'true';
-    console.log('form', form);
+    console.log('form', form, account);
 
-    let apiResult = await ModifyProfileRepository.modifyAccount(form)
+    let completedAccount = { ...account, ...form }
+
+    console.log(completedAccount);
+
+
+
+    let apiResult = await AccountRepository.updateAccount(completedAccount as Account)
     loading.value = false
     errors.value = []
     message.value = ''
@@ -75,8 +97,13 @@ async function successFn(form: any) {
         return
     }
     loading.value = false
+    console.log(apiResult);
 
     message.value = apiResult.data.message
+    // message.value = "Compte modifié avec succès"
+
+    eventBusEmit(Events.CONNECTED_ACCOUNT, apiResult.data)
+
     closeDialog();
 }
 

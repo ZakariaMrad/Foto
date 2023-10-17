@@ -49,9 +49,7 @@
                     </v-col>
                 </v-row>
                 <v-sheet class="pa-2 ma-2">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur molestias, obcaecati fugiat unde
-                    aliquid illum quibusdam quo error similique quae sit aut placeat doloremque ipsam? Ipsa delectus ipsum
-                    repellendus nihil.
+                    {{ connectedAccount?.bio }}
                 </v-sheet>
             </v-col>
         </v-row>
