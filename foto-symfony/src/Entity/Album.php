@@ -7,6 +7,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\InverseJoinColumn;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\JoinTable;
 use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
@@ -27,20 +30,23 @@ class Album
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, name: 'modificationDate')]
     private ?\DateTimeInterface $modificationDate = null;
 
-    #[ORM\ManyToMany(targetEntity: Foto::class, mappedBy: 'albums', cascade: ['persist'])]
-    #[ORM\JoinTable(
-        name: 'albumFotos',
-        joinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')],
-        inverseJoinColumns: [new ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')]
-    )]
+    // #[ORM\JoinTable(
+    //     name: 'albumFotos',
+    //     joinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')],
+    //     inverseJoinColumns: [new ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')]
+    // )]
+    #[ORM\JoinTable(name:'albumFotos')]
+    #[ORM\JoinColumn(name:'idAlbum',referencedColumnName:'idAlbum')]
+    #[ORM\InverseJoinColumn(name:'idFoto',referencedColumnName:'idFoto')]
+    #[ORM\ManyToMany(targetEntity: Foto::class, inversedBy: 'albums', cascade: ['persist'])]
     private Collection $fotos;
 
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'collaboretedAlbums', cascade: ['persist'])]
     #[ORM\JoinTable(
         name: 'albumCollaborators',
         joinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')],
         inverseJoinColumns: [new ORM\JoinColumn(name: 'idCollaborator', referencedColumnName: 'idUser')]
     )]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'collaboretedAlbums', cascade: ['persist'])]
     private Collection $collaborators;
 
     #[ORM\ManyToOne(inversedBy: 'ownedAlbums', cascade: ['persist'])]
@@ -62,7 +68,7 @@ class Album
     #[ORM\Column(length: 10)]
     private ?string $type = null;
 
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'spectatedAlbums', cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'spectatedAlbums', cascade: ['persist'])]
     #[ORM\JoinTable(
         name: 'albumSpectators',
         joinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')],

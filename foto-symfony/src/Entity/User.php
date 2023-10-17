@@ -50,9 +50,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: Types::DATETIME_MUTABLE, name: 'creationDate')]
     private ?\DateTimeInterface $creationDate = null;
 
-    #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'collaborators', cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: Album::class, mappedBy: 'collaborators', cascade: ['persist'])]
     #[ORM\JoinTable(
-        name: 'users_albums',
+        name: 'collaboratedAlbums',
         joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
         inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
     )]
@@ -88,9 +88,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Foto::class, cascade: ['persist'])]
     private Collection $fotos;
 
-    #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'spectators', cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: Album::class, mappedBy: 'spectators', cascade: ['persist'])]
     #[ORM\JoinTable(
-        name: 'users_spectated_albums',
+        name: 'spectatedAlbums',
         joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
         inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
     )]
