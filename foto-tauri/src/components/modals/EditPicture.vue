@@ -25,6 +25,7 @@
                 </v-container>
                 <div class="d-flex justify-space-between">
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
+                    <v-btn class="btn" @click="resetSliders()">Retour à l'original</v-btn>
                     <v-btn class="btn btn-success" @click="closeDialog()" color="green-darken-3">Sauvegarder</v-btn>
                 </div>
             </v-card-text>
@@ -50,10 +51,14 @@ const props = defineProps({
 })
 
 function closeDialog() {
+    resetSliders();
+    emit('closeDialog');
+}
+
+function resetSliders() {
     exposure.value = defaultValue;
     contrast.value = defaultValue;
     saturation.value = defaultValue;
-    emit('closeDialog');
 }
 </script>
 
