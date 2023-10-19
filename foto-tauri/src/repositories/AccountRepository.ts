@@ -21,6 +21,24 @@ class AccountRepository extends Repository {
         }
     }
 
+    async isAdmin(): Promise<APIResult<boolean>> {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+        try {
+            const response = await client.get(`${url}/account/isAdmin?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            let data = response.data as any;
+
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+                return { data: data.isAdmin, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            return { errors: error as [APIError], success: false };
+        }
+    }
+
     async searchUser(search: any) {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };

@@ -96,6 +96,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     )]
     private Collection $spectatedAlbums;
 
+    #[ORM\Column(name: 'isAdmin')]
+    private ?bool $isAdmin = false;
+
     public function __construct()
     {
         $this->collaboretedAlbums = new ArrayCollection();
@@ -539,6 +542,18 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
             $spectatedAlbum->removeSpectator($this);
         }
+
+        return $this;
+    }
+
+    public function isIsAdmin(): ?bool
+    {
+        return $this->isAdmin;
+    }
+
+    public function setIsAdmin(bool $isAdmin): static
+    {
+        $this->isAdmin = $isAdmin;
 
         return $this;
     }

@@ -22,7 +22,7 @@
 import { onMounted, ref, } from 'vue';
 import Foto from '../models/Foto';
 import Album from '../models/Album';
-const props = defineProps<{ items: (Foto[] | Album[]), itemSize: number, multiple: boolean, unselectable?: boolean, title: string }>()
+const props = defineProps<{ items: (Foto[] | Album[]), itemSize: number, multiple: boolean, unselectable?: boolean, title?: string }>()
 
 const emit = defineEmits<{ (event: 'itemsSelected', items: typeof props.items[number][]): void }>()
 const activeItemsId = ref<number[]>([]);
