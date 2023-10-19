@@ -58,10 +58,12 @@ class FotoController extends AbstractController
         $foto->setUser($user);
 
         $base64String = $data['base64image'];
+        list($type, $base64String) = explode(';', $base64String);
+        list(, $base64String)      = explode(',', $base64String);
         $fotoImage = base64_decode($base64String);
 
         $safeFilename = $slugger->slug($data['name']);
-        $newFilename = $safeFilename . "-" . uniqid() . "." . explode('/', mime_content_type($base64String))[1];
+        $newFilename = $safeFilename . "-" . uniqid() . "." . explode('/', $type)[1];
         $path = $this->getParameter('foto_image_directory') . "/" . $newFilename;
         $success = file_put_contents($path, $fotoImage);
 
@@ -94,6 +96,7 @@ class FotoController extends AbstractController
         }
         $fotos = $user->getFotos();
         $fotosArray = [];
+
 
         foreach ($fotos as $foto) {
             $fotosArray[] = $foto->getAll();

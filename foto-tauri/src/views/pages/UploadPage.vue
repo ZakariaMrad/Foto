@@ -93,8 +93,8 @@ function uploadFotos() {
         let foto = new Foto();
         foto.name = "test" + index;
         foto.base64image = imgSrc as string;
+        console.log(imgSrc);
 
-        console.log(foto);
         await FotoRepository.uploadFotos(foto);
     })
     

@@ -66,6 +66,7 @@ const fotos = ref<Foto[]>([])
 let choosenFotoId: number | undefined = undefined
 onMounted(async () => {
     let apiResponse = await FotoRepository.getFotos()
+    console.log(apiResponse);
     if (!apiResponse.success) return
 
     fotos.value = apiResponse.data
