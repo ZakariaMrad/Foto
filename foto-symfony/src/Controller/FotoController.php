@@ -67,7 +67,8 @@ class FotoController extends AbstractController
         $path = $this->getParameter('foto_image_directory') . "/" . $newFilename;
         $success = file_put_contents($path, $fotoImage);
 
-        $foto->setPath("https://localhost:8000/img/foto/".$newFilename);
+        $foto->setPath($_ENV['BASE_URL']."/img/foto/".$newFilename);
+        
         $this->em->persist($foto);
         $this->em->flush();
 
