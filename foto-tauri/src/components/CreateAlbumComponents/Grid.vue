@@ -21,7 +21,7 @@
                         <td v-for="(_, x) in nbColumns" class="pa-1">
                             <v-responsive aspect-ratio="1">
                                 <VueDraggableNext @drop="onDrop(y * nbColumns + x)" style="height: 100%;">
-                                    <v-card v-if="(y * nbColumns + x) < nbFotos" height="100%" class="bg-primary"
+                                    <v-card v-if="(y * nbColumns + x) < nbFotos" height="100%"
                                         @click="removeFoto(y * nbColumns + x)">
                                         <v-img :src="getPath(y * nbColumns + x)" aspect-ratio="1" />
                                     </v-card>

@@ -22,7 +22,7 @@
                                     <td v-for="(_, x) in album.grid?.nbCols" class="pa-1">
                                         <v-responsive aspect-ratio="1"
                                             v-if="(y * album.grid!.nbCols + x) < album.grid?.fotosPosition.length!">
-                                            <v-card height="100%" class="bg-primary">
+                                            <v-card height="100%">
                                                 <v-img :src="getPath(y * album.grid!.nbCols + x)" aspect-ratio="1" />
                                             </v-card>
                                         </v-responsive>
