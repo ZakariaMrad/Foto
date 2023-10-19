@@ -15,20 +15,21 @@
                         <p class="font-italic">{{ connectedAccount?.email }}</p>
                     </v-col>
                     <v-col cols="6" class="text-lg-right">
-                       
-                            <v-menu open-on-hover>
-                                <template v-slot:activator="{ props }">
-                                    <v-btn color="primary" icon="mdi-dots-horizontal" v-bind="props">
-                                    </v-btn>
-                                </template>
 
-                                <v-list>
-                                    <v-list-item v-for="profileLink in profileLinks" :prepend-icon="profileLink.icon" :key="profileLink.text" 
-                                        @click="profileLink.click">
-                                        <v-list-item-title>{{ profileLink.text }}</v-list-item-title>
-                                    </v-list-item>
-                                </v-list>
-                            </v-menu>
+                        <v-menu open-on-hover>
+                            <template v-slot:activator="{ props }">
+                                <v-btn color="primary" icon="mdi-dots-horizontal" v-bind="props">
+                                </v-btn>
+                                <v-btn class="ms-2" color="red-darken-3" v-if="isAdmin" @click="openAdminPage()">Admin</v-btn>
+                            </template>
+
+                            <v-list>
+                                <v-list-item v-for="profileLink in profileLinks" :prepend-icon="profileLink.icon"
+                                    :key="profileLink.text" @click="profileLink.click">
+                                    <v-list-item-title>{{ profileLink.text }}</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
                     </v-col>
                 </v-row>
                 <v-row cols="12" class="pa-3 font-weight-bold">
@@ -83,13 +84,21 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from 'vue';
+import { watch, ref, onMounted } from 'vue';
 import { EventsBus, Events } from '../core/EventBus';
-import { Account } from '../models/Account';
+import Account from '../models/Account';
+import AccountRepository from '../repositories/AccountRepository';
 
 const { eventBusEmit, bus } = EventsBus();
 
 const connectedAccount = ref<Account>()
+const isAdmin = ref<boolean>(false)
+
+onMounted(async () => {
+    let apiResponse = await AccountRepository.isAdmin()
+    if (!apiResponse.success) return;
+    isAdmin.value = apiResponse.data
+})
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
     if (!account)
@@ -98,11 +107,18 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undef
     connectedAccount.value = account[0];
 })
 
-const profileLinks = ref<{ icon: string, text: string, click:any }[]>(
+const profileLinks = ref<{ icon: string, text: string, click: any }[]>(
     [
         { icon: 'mdi-pencil-outline', text: 'Modifier le profil', click: openProfileModificationModal },
     ]
 )
+
+async function openAdminPage() {
+    let apiResponse = await AccountRepository.isAdmin()
+    if (!apiResponse.success) return;
+    isAdmin.value = apiResponse.data
+    eventBusEmit(Events.OPEN_ADMIN_PANEL)
+}
 
 function openProfileModificationModal() {
     eventBusEmit(Events.OPEN_MODIFY_PROFILE_MODAL)
