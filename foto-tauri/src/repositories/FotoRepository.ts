@@ -15,8 +15,8 @@ class FotoRepository extends Repository {
         foto.jwtToken = jwt.data.jwtToken;
         try {
             const response = await client.post(`${url}/foto`, Body.json(foto),{ responseType: ResponseType.JSON });
-            console.log(response);
             if (response.status === 200) {
+                return { success: true };
             }
             // If there is an unexpected response or error status code, return an Error object
             return { errors: this.getAPIError(response.data), success: false };

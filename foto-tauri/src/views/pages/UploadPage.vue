@@ -17,10 +17,10 @@
 
         <v-container>
             <v-row justify="center">
-                <v-col v-for="(file, index) in files">
+                <v-col cols="3" v-for="(file, index) in files">
                     <v-card>
                         <v-img
-                            height="200"
+                            height="300"
                             :src="(imgSrc[index] as string)"
                             cover
                             >
@@ -61,8 +61,6 @@ const imgSrc = ref<Array<string | null | ArrayBuffer>>([]);
 const files = ref([]);
 
 function printFiles() {
-    console.log(files.value);
-
     files.value.forEach((file, index) => {
         const reader = new FileReader();
         reader.onloadend = function() {
@@ -83,6 +81,12 @@ function removeFromFiles(file: File)
     imgSrc.value = imgSrc.value.filter((_, imgIndex) => imgIndex !== index)
 }
 
+function removeAllFiles()
+{
+    files.value = [];
+    imgSrc.value = [];
+}
+
 function openEditModal(index: number) {
     eventBusEmit(Events.OPEN_EDIT_MODAL, imgSrc.value[index]);
 }
@@ -93,9 +97,10 @@ function uploadFotos() {
         let foto = new Foto();
         foto.name = "test" + index;
         foto.base64image = imgSrc as string;
-        console.log(imgSrc);
 
-        await FotoRepository.uploadFotos(foto);
+        let response = await FotoRepository.uploadFotos(foto);
+        if (response.success)
+            removeAllFiles();
     })
     
 }
