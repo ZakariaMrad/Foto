@@ -4,7 +4,12 @@ import App from "./App.vue";
 import router from "./router";
 import { loadFonts } from './plugins/webfontloader'
 
+//draggable items
+import vueTauriDraggable from 'vue-tauri-draggable';
+
+//Event emitter
 import mitt from 'mitt';
+
 // Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
@@ -35,6 +40,9 @@ loadFonts()
 const emitter = mitt();
 app.config.globalProperties.emitter = emitter;
 app.use(router);
+
 app.use(vuetify);
+
+app.use(vueTauriDraggable);
 
 app.mount("#app");

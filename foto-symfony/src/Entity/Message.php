@@ -17,11 +17,11 @@ class Message
     #[ORM\Column(name: 'idMessage')]
     private ?int $idMessage = null;
 
-    #[ORM\ManyToOne(inversedBy: 'messages')]
+    #[ORM\ManyToOne(inversedBy: 'messages', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idChat', referencedColumnName: 'idChat')]
     private ?chat $chat = null;
 
-    #[ORM\ManyToOne(inversedBy: 'messages')]
+    #[ORM\ManyToOne(inversedBy: 'messages', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')]
     private ?User $user = null;
 
@@ -33,7 +33,12 @@ class Message
     #[ORM\JoinColumn(name: 'idGif', referencedColumnName: 'idGif')]
     private ?Gif $gif = null;
 
-    #[ORM\ManyToMany(targetEntity: Foto::class, mappedBy: 'messages')]
+    #[ORM\ManyToMany(targetEntity: Foto::class, cascade: ['persist'])]
+    #[ORM\JoinTable(
+        name: 'messageFotos',
+        joinColumns: [new ORM\JoinColumn(name: 'idMessage', referencedColumnName: 'idMessage')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')]
+    )]
     private Collection $foto;
 
     #[ORM\Column(length: 1024)]

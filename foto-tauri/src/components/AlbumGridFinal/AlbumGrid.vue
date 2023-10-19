@@ -1,0 +1,120 @@
+<template>
+    <v-container class="mb-1">
+        <v-row>
+
+            <v-col cols="7">
+                <h4 class="text-center">Grille</h4>
+                <v-table>
+                    <tbody>
+                        <tr v-for="(_, y) in 3" class="pa-0 ma-0">
+                            <td v-for="(_, x) in 3" class="pa-0 ma-0">
+                                <AlbumGridCase :position="{ x, y }" :hoveredSidesOut="checkHoveredSides({ x, y }) as HoveredCard"
+                                    @hovered="(hoveredSides) => hoverCards({ x, y }, hoveredSides)" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </v-table>
+            </v-col>
+            <v-col cols="5">
+                <h4 class="text-center">Fotos</h4>
+                <FotoPicker :items="fotos" :itemSize="3" :multiple="true" />
+            </v-col>
+        </v-row>
+    </v-container>
+</template>
+
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import AlbumGridCase from './AlbumGridCase.vue';
+import Foto from '../../models/Foto';
+import FotoRepository from '../../repositories/FotoRepository';
+import HoveredCard from '../../models/HoveredCard';
+import FotoPicker from '../FotoPicker.vue';
+
+const fotos = ref<Foto[]>([]);
+const hoveredCards = ref<{ x: number, y: number, hoveredSides: HoveredCard }[]>([]);
+
+onMounted(async () => {
+    let apiResult = await FotoRepository.getFotos();
+    if (!apiResult.success) return;
+    fotos.value = apiResult.data;
+    console.log(fotos.value);
+    
+})
+
+function hoverCards(ownPosition: { x: number, y: number }, HoveredCardIn: HoveredCard) {
+    hoveredCards.value = [];
+    console.log(HoveredCardIn);
+
+    switch (true) {
+        case HoveredCardIn.topLeft:
+            hoveredCards.value = [
+                { x: ownPosition.x - 1, y: ownPosition.y - 1, hoveredSides: HoveredCard.onlyBottomRight() },
+                { x: ownPosition.x - 1, y: ownPosition.y, hoveredSides: HoveredCard.onlyTopRight() },
+                { x: ownPosition.x, y: ownPosition.y - 1, hoveredSides: HoveredCard.onlyBottomLeft() },
+                { x: ownPosition.x, y: ownPosition.y, hoveredSides: HoveredCard.onlyBottomRight() },
+            ];
+            break;
+        case HoveredCardIn.topRight:
+            hoveredCards.value = [
+                { x: ownPosition.x, y: ownPosition.y - 1, hoveredSides: HoveredCard.onlyBottomRight() },
+                { x: ownPosition.x, y: ownPosition.y, hoveredSides: HoveredCard.onlyTopRight() },
+                { x: ownPosition.x + 1, y: ownPosition.y - 1, hoveredSides: HoveredCard.onlyBottomLeft() },
+                { x: ownPosition.x + 1, y: ownPosition.y, hoveredSides: HoveredCard.onlyTopLeft() },
+            ];
+            break;
+        case HoveredCardIn.bottomLeft:
+            hoveredCards.value = [
+                { x: ownPosition.x - 1, y: ownPosition.y, hoveredSides: HoveredCard.onlyBottomRight() },
+                { x: ownPosition.x - 1, y: ownPosition.y + 1, hoveredSides: HoveredCard.onlyTopRight() },
+                { x: ownPosition.x, y: ownPosition.y, hoveredSides: HoveredCard.onlyBottomLeft() },
+                { x: ownPosition.x, y: ownPosition.y + 1, hoveredSides: HoveredCard.onlyTopLeft() },
+            ];
+            break;
+        case HoveredCardIn.bottomRight:
+            hoveredCards.value = [
+                { x: ownPosition.x, y: ownPosition.y, hoveredSides: HoveredCard.onlyBottomRight() },
+                { x: ownPosition.x, y: ownPosition.y + 1, hoveredSides: HoveredCard.onlyTopRight() },
+                { x: ownPosition.x + 1, y: ownPosition.y, hoveredSides: HoveredCard.onlyBottomLeft() },
+                { x: ownPosition.x + 1, y: ownPosition.y + 1, hoveredSides: HoveredCard.onlyTopLeft() },
+            ];
+            break;
+        case HoveredCardIn.top:
+            hoveredCards.value = [
+                { x: ownPosition.x, y: ownPosition.y - 1, hoveredSides: HoveredCard.onlyBottom() },
+                { x: ownPosition.x, y: ownPosition.y, hoveredSides: HoveredCard.onlyTop() },
+            ];
+            break;
+        case HoveredCardIn.right:
+            hoveredCards.value = [
+                { x: ownPosition.x + 1, y: ownPosition.y, hoveredSides: HoveredCard.onlyLeft() },
+                { x: ownPosition.x, y: ownPosition.y, hoveredSides: HoveredCard.onlyRight() },
+            ];
+            break;
+        case HoveredCardIn.bottom:
+            hoveredCards.value = [
+                { x: ownPosition.x, y: ownPosition.y + 1, hoveredSides: HoveredCard.onlyTop() },
+                { x: ownPosition.x, y: ownPosition.y, hoveredSides: HoveredCard.onlyBottom() },
+            ];
+            break;
+        case HoveredCardIn.left:
+            hoveredCards.value = [
+                { x: ownPosition.x, y: ownPosition.y, hoveredSides: HoveredCard.onlyLeft() },
+                { x: ownPosition.x - 1, y: ownPosition.y, hoveredSides: HoveredCard.onlyRight() },
+            ];
+            break;
+        default:
+            break;
+
+    }
+    console.log(hoveredCards.value);
+
+}
+
+function checkHoveredSides(position: { x: number, y: number }): Partial<HoveredCard> {
+    let hoveredSides = hoveredCards.value.find(hoveredCard => hoveredCard.x === position.x && hoveredCard.y === position.y);
+    if (!hoveredSides) return HoveredCard.emptyHoveredCard();
+    return hoveredSides.hoveredSides;
+}
+</script>
+<style scoped></style>

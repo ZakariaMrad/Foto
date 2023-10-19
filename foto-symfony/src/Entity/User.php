@@ -50,27 +50,27 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: Types::DATETIME_MUTABLE, name: 'creationDate')]
     private ?\DateTimeInterface $creationDate = null;
 
-    #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'collaborators')]
+    #[ORM\ManyToMany(targetEntity: Album::class, mappedBy: 'collaborators', cascade: ['persist'])]
     #[ORM\JoinTable(
-        name: 'users_albums',
+        name: 'collaboratedAlbums',
         joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
         inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
     )]
     private Collection $collaboretedAlbums;
 
-    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Album::class)]
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Album::class, cascade: ['persist'])]
     private Collection $ownedAlbums;
 
-    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Post::class)]
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Post::class, cascade: ['persist'])]
     private Collection $posts;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Like::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Like::class, cascade: ['persist'])]
     private Collection $likes;
 
-    #[ORM\OneToMany(mappedBy: 'User', targetEntity: Comment::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class, cascade: ['persist'])]
     private Collection $comments;
 
-    #[ORM\ManyToMany(targetEntity: Chat::class, inversedBy: 'User')]
+    #[ORM\ManyToMany(targetEntity: Chat::class, mappedBy: 'users', cascade: ['persist'])]
     #[ORM\JoinTable(
         name: 'users_chats',
         joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
@@ -78,15 +78,23 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     )]
     private Collection $chats;
 
-    #[ORM\OneToMany(mappedBy: 'User', targetEntity: Message::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Message::class, cascade: ['persist'])]
     private Collection $messages;
 
-    #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(name: 'idBanState', referencedColumnName: 'idBanState')]
     private ?BanState $banState = null;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Foto::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Foto::class, cascade: ['persist'])]
     private Collection $fotos;
+
+    #[ORM\ManyToMany(targetEntity: Album::class, mappedBy: 'spectators', cascade: ['persist'])]
+    #[ORM\JoinTable(
+        name: 'spectatedAlbums',
+        joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
+    )]
+    private Collection $spectatedAlbums;
 
     public function __construct()
     {
@@ -98,11 +106,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->chats = new ArrayCollection();
         $this->messages = new ArrayCollection();
         $this->fotos = new ArrayCollection();
+        $this->spectatedAlbums = new ArrayCollection();
     }
 
     public function getAll()
     {
         return [
+            'idAccount'=> $this->idUser,
             'email' => $this->email,
             'roles' => $this->roles,
             'picturePath' => $this->picturePath,
@@ -501,6 +511,33 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             if ($foto->getUser() === $this) {
                 $foto->setUser(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Album>
+     */
+    public function getSpectatedAlbums(): Collection
+    {
+        return $this->spectatedAlbums;
+    }
+
+    public function addSpectatedAlbum(Album $spectatedAlbum): static
+    {
+        if (!$this->spectatedAlbums->contains($spectatedAlbum)) {
+            $this->spectatedAlbums->add($spectatedAlbum);
+            $spectatedAlbum->addSpectator($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSpectatedAlbum(Album $spectatedAlbum): static
+    {
+        if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
+            $spectatedAlbum->removeSpectator($this);
         }
 
         return $this;

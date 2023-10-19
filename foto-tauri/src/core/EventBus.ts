@@ -1,6 +1,7 @@
 import { ref } from "vue";
 const bus = ref(new Map());
 
+
 export enum Events {
     LOGIN='LOGIN',
     LOGOUT='LOGOUT',
@@ -8,6 +9,9 @@ export enum Events {
     CREATE_POST='CREATE_POST',
     OPEN_SEARCH_MODAL='OPEN_SEARCH_MODAL',
     OPEN_EDIT_MODAL='OPEN_EDIT_MODAL'
+    CREATE_ALBUM = "CREATE_ALBUM",
+    RELOAD_CONNECTED_ACCOUNT = "RELOAD_CONNECTED_ACCOUNT",
+    OPEN_MODIFY_PROFILE_MODAL='OPEN_MODIFY_PROFILE_MODAL'
 };
 
 export function EventsBus(){

@@ -17,11 +17,11 @@ class Chat
     #[ORM\Column(name:'idChat')]
     private ?int $idChat = null;
 
-    #[ORM\OneToMany(mappedBy: 'chats', targetEntity: Message::class, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'chat', targetEntity: Message::class, cascade: ['persist'])]
     private Collection $messages;
 
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'chats', cascade: ['persist'])]
-    #[ORM\JoinTable(name: 'chats_users',
+    #[ORM\JoinTable(name: 'chatUsers',
         joinColumns: [new ORM\JoinColumn(name: 'idChat', referencedColumnName: 'idChat')],
         inverseJoinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')])]
     private Collection $users;
