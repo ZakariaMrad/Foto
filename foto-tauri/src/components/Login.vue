@@ -41,9 +41,10 @@ const { register, handleSubmit, formState } = useFormHandler({
 })
 
 const successFn = async (form: any) => {
-    console.log(form);
     loading.value = true
     let apiResult = await AccountRepository.login(form as LoginAccount)
+    console.log('login',apiResult);
+    
     errors.value = []
     message.value = ''
     loading.value = false
@@ -52,7 +53,7 @@ const successFn = async (form: any) => {
         errors.value = apiResult.errors
         return
     }
-    message.value = apiResult.data.message
+    message.value = apiResult.data.message    
     closeDialog(true);
 }
 const submitFn = () => {

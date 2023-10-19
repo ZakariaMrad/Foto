@@ -1,11 +1,13 @@
 import { APIResponse } from "../core/API/APIResponse";
+import Account from "./Account";
+import Foto from "./Foto";
 import { JWTToken } from "./JWTToken";
 
 export default class Post extends JWTToken implements APIResponse{
     idPost: number = 0;
-    title: string = '';
+    owner: Account = new Account();
     description: string = '';
-    id : number = 0;
-    isPublic: boolean = false;
-    isFoto: boolean = true;
+    creationDate: Date = new Date();
+    foto:Foto = new Foto();
+    
 }

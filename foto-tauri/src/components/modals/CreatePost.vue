@@ -28,7 +28,7 @@
                     </v-btn-toggle>
                     <div class="h-10">
                         <AssetPicker :itemSize="6" :items="fotos" :multiple="false"
-                            title="" @items-selected="(items) => setItems(items)" />
+                            title="" @items-selected="(items) => setItems(items as Foto[])" />
                     </div>
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
                     <div class="float-right">
@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useFormHandler } from 'vue-form-handler';
 import Foto from '../../models/Foto';
 import AssetPicker from '../AssetPicker.vue';
@@ -49,10 +49,15 @@ import FotoRepository from '../../repositories/FotoRepository';
 import PostRepository from '../../repositories/PostRepository';
 import { APIError } from '../../core/API/APIError';
 import { watch } from 'vue';
+import { EventsBus, Events } from '../../core/EventBus';
 
 const { register, handleSubmit, formState } = useFormHandler({
     validationMode: 'always',
 })
+
+const { eventBusEmit } = EventsBus();
+
+
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
     activate: Boolean
@@ -97,6 +102,8 @@ async function successFn(form: any) {
     loading.value = false
 
     message.value = apiResult.data.message
+    eventBusEmit(Events.RELOAD_CONNECTED_ACCOUNT, undefined)
+
     closeDialog();
 }
 

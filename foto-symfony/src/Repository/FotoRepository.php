@@ -20,15 +20,6 @@ class FotoRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Foto::class);
     }
-    public function findByIdUser($idUser): ?Foto
-   {
-       return $this->createQueryBuilder('f')
-           ->andWhere('f.idUser = :idUser')
-           ->setParameter('idUser', $idUser)
-           ->getQuery()
-           ->getOneOrNullResult()
-       ;
-   }
 
 //    /**
 //     * @return Foto[] Returns an array of Foto objects

@@ -56,6 +56,16 @@ class Post
         $this->comments = new ArrayCollection();
     }
 
+    public function getAll(){
+        return [
+            "idPost" => $this->idPost,
+            "owner" => $this->owner->getAll(),
+            "description" => $this->description,
+            "creationDate" => $this->creationDate,
+            "foto" => $this->foto->getAll(),
+        ];
+    }
+
     public function getIdPost(): ?int
     {
         return $this->idPost;

@@ -99,6 +99,8 @@ function uploadFotos() {
         foto.base64image = imgSrc as string;
 
         let response = await FotoRepository.uploadFotos(foto);
+        console.log(response);
+        
         if (response.success)
             removeAllFiles();
     })
