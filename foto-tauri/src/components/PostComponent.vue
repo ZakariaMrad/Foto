@@ -17,17 +17,11 @@
                         <v-card-actions>
                             <v-spacer></v-spacer>
 
-                            <!-- <v-list>{{ nbLikes }}</v-list> -->
-                            <!--TODO: Mettre une restriction de like a 1 par utilisateur par post-->
-                            <!-- <v-btn size="small" color="surface-variant" variant="text" icon="mdi-heart"
-                                @click="nbLikes++"></v-btn> -->
+                            <v-list>{{ props.post?.likes }}</v-list>
+                            <v-btn size="small" :color=" props.post?.isLiked ? 'red' : 'surface-variant'" variant="text" icon="mdi-heart"
+                                @click="toggleLike()"></v-btn>
 
-
-                            <!--? Pas sur de vouloir avoir une option pour "dislikes"-->
-                            <!--v-btn size="small" color="surface-variant" variant="text" icon="mdi-heart-broken"
-                                @click="likes--"></v-btn-->
-
-                            <!-- <v-list class="ml-2">{{ nbComment }}</v-list> -->
+                            <v-list class="ml-2">{{ props.post?.comments }}</v-list>
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment"></v-btn>
 
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-share-variant"></v-btn>
@@ -45,6 +39,23 @@ import Post from '../models/Post';
 const props = defineProps({
     post: Post
 })
+
+function toggleLike() {
+    if(!props.post)
+        return;
+
+    if (props.post.isLiked) {
+        props.post.isLiked = false;
+        props.post.likes--;
+    } else {
+        props.post.isLiked = true;
+        props.post.likes++;
+    }
+}
+
 </script>
 
-<style scoped></style>
+<style scoped>
+
+
+</style>
