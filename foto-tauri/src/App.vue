@@ -29,7 +29,7 @@ const activateModifyProfile = ref<boolean>(false);
 const { bus, eventBusEmit } = EventsBus();
 
 watch(() => bus.value.get(Events.LOGIN), () => {
-  activateLogin.value = true;
+  activateLogin.value = true;  
 })
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account) => {
@@ -95,8 +95,12 @@ async function Logout() {
 
 async function getAccount() {
   let apiResponse = await AccountRepository.getAccount();
+  console.log(apiResponse);
+  
   if (!apiResponse.success) return;
   let account = apiResponse.data;
+  console.log(account);
+  
   eventBusEmit(Events.CONNECTED_ACCOUNT, account)
 }
 

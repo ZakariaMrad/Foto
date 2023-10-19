@@ -36,7 +36,7 @@ class Post
 
     #[ORM\ManyToOne(inversedBy: 'posts', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')]
-    private ?foto $foto = null;
+    private ?Foto $foto = null;
 
     #[ORM\Column(name:'isPublic')]
     private ?bool $isPublic = null;
@@ -54,6 +54,16 @@ class Post
     {
         $this->likes = new ArrayCollection();
         $this->comments = new ArrayCollection();
+    }
+
+    public function getAll(){
+        return [
+            "idPost" => $this->idPost,
+            "owner" => $this->owner->getAll(),
+            "description" => $this->description,
+            "creationDate" => $this->creationDate,
+            "foto" => $this->foto->getAll(),
+        ];
     }
 
     public function getIdPost(): ?int

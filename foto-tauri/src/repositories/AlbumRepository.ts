@@ -17,7 +17,6 @@ class FotoRepository extends Repository {
         try {
             const response = await client.post(`${url}/album`, Body.json(album), { responseType: ResponseType.JSON });
             let data = response.data as JWTToken;
-            console.log(response.data);
 
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);

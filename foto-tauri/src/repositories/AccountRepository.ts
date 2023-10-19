@@ -97,7 +97,8 @@ class AccountRepository extends Repository {
         try {
             const response = await client.post(`${url}/account`, Body.json(jwt.data), { responseType: ResponseType.JSON });
             let data = response.data as any;
-
+            console.log(data);
+            
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
 

@@ -40,7 +40,7 @@ const emit = defineEmits(['loggedIn', 'logout'])
 const account = ref<Account | undefined>(undefined);
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefined) => {
-    console.log(value);
+    console.log('connected account', value);
     
     if (!value) {
         account.value = undefined;
