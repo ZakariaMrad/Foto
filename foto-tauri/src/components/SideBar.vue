@@ -54,7 +54,7 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefin
 
 //La ligne fix le bug du fait que le compte ne se charge pas lors d'un changement de page
 onMounted(() => {
-    // eventBusEmit(Events.RELOAD_CONNECTED_ACCOUNT, undefined)
+    eventBusEmit(Events.RELOAD_CONNECTED_ACCOUNT, undefined)
 })
 
 function Login() {
