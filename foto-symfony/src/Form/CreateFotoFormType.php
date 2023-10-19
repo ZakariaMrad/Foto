@@ -26,24 +26,19 @@ class CreateFotoFormType extends AbstractType
             ->add('description',TextType::class,[
                 'required' => false,
             ])
-            ->add('path',TextType::class,[
+            ->add('base64image',TextType::class,[
                 'required' => true,
                 'constraints' => [
-                    new Assert\Url([
-                        'message' => 'Lien: Veuillez entrer un lien valide',
-                    ]),
                     new Assert\NotBlank([
-                        'message' => 'Lien: Veuillez entrer un lien',
+                        'message' => 'Source image: Veuillez fournir les sources de l\'image',
                     ]),
                 ],
+                'mapped' => false
             ])
             ->add('isNSFW', CheckboxType::class,[
                 'required' => true,
-                'false_values' => ['false'],
                 'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'NSFW: Veuillez entrer vrai ou faux',
-                    ]),
+                    //TODO: Fix le blank
                     new Assert\Type([
                         'type' => 'bool',
                         'message' => 'Le champ doit être un booléen.',

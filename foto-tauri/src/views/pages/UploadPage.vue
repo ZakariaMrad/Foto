@@ -17,18 +17,18 @@
 
         <v-container>
             <v-row justify="center">
-                <v-col v-for="(file, index) in files">
+                <v-col cols="3" v-for="(file, index) in files">
                     <v-card>
                         <v-img
-                            height="200"
-                            :src="imgSrc[index]"
+                            height="300"
+                            :src="(imgSrc[index] as string)"
                             cover
                             >
                             <v-toolbar
                                 color="rgba(0, 0, 0, 0)"
                             >
                                 <template v-slot:prepend>
-                                    <v-btn variant="tonal" icon="mdi-pencil"></v-btn>
+                                    <v-btn variant="tonal" icon="mdi-pencil" @click="openEditModal(index)"></v-btn>
                                 </template>
 
                                 <template v-slot:append>
@@ -41,7 +41,7 @@
             </v-row>
         </v-container>
         <div class="d-flex align-center justify-center mt-2 mb-5">
-            <v-btn v-if="files.length !== 0">
+            <v-btn v-if="files.length !== 0" @click="uploadFotos()">
                 Téléverser
             </v-btn>
         </div>
@@ -52,14 +52,15 @@
 <script setup lang="ts">
 import DefaultLayout from '../layouts/DefaultLayout.vue';
 import { ref } from 'vue';
-
+import {EventsBus, Events} from '../../core/EventBus';
+import FotoRepository from '../../repositories/FotoRepository';
+import Foto from '../../models/Foto';
+const {eventBusEmit} = EventsBus();
 
 const imgSrc = ref<Array<string | null | ArrayBuffer>>([]);
 const files = ref([]);
 
 function printFiles() {
-    console.log(files.value);
-
     files.value.forEach((file, index) => {
         const reader = new FileReader();
         reader.onloadend = function() {
@@ -78,6 +79,30 @@ function removeFromFiles(file: File)
     const index = files.value.findIndex((f) => f === file);
     files.value = files.value.filter((f) => f !== file);
     imgSrc.value = imgSrc.value.filter((_, imgIndex) => imgIndex !== index)
+}
+
+function removeAllFiles()
+{
+    files.value = [];
+    imgSrc.value = [];
+}
+
+function openEditModal(index: number) {
+    eventBusEmit(Events.OPEN_EDIT_MODAL, imgSrc.value[index]);
+}
+
+function uploadFotos() {
+    //TODO: Webworker
+    imgSrc.value.forEach(async (imgSrc, index) => {
+        let foto = new Foto();
+        foto.name = "test" + index;
+        foto.base64image = imgSrc as string;
+
+        let response = await FotoRepository.uploadFotos(foto);
+        if (response.success)
+            removeAllFiles();
+    })
+    
 }
 
 </script>

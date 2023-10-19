@@ -28,7 +28,7 @@
                     </v-btn-toggle>
                     <div class="h-10">
                         <AssetPicker :itemSize="6" :items="fotos" :multiple="false"
-                            @items-selected="(items) => setItems(items)" />
+                            title="" @items-selected="(items) => setItems(items)" />
                     </div>
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
                     <div class="float-right">
@@ -48,6 +48,7 @@ import AssetPicker from '../AssetPicker.vue';
 import FotoRepository from '../../repositories/FotoRepository';
 import PostRepository from '../../repositories/PostRepository';
 import { APIError } from '../../core/API/APIError';
+import { watch } from 'vue';
 
 const { register, handleSubmit, formState } = useFormHandler({
     validationMode: 'always',
@@ -64,12 +65,15 @@ const loading = ref<boolean>(false)
 const isFotos = ref<number>(0)
 const fotos = ref<Foto[]>([])
 let choosenFotoId: number | undefined = undefined
-onMounted(async () => {
+
+watch(() => props.activate, async () => {
     let apiResponse = await FotoRepository.getFotos()
+    console.log(apiResponse);
     if (!apiResponse.success) return
 
     fotos.value = apiResponse.data
 })
+
 function setItems(items: Foto[]) {
     console.log(items);
     choosenFotoId = items[0].idFoto

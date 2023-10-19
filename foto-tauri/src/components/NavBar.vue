@@ -25,7 +25,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { Events, EventsBus } from '../core/EventBus';
+import Account  from '../models/Account';
+const { bus } = EventsBus();
+
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefined) => {
+    if (!value) return;
+})
 
 const links = ref<{ icon: string, text: string, route: string }[]>(
     [

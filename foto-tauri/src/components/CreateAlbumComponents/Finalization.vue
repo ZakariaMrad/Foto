@@ -2,7 +2,6 @@
     <v-responsive aspect-ratio="3">
         <v-card height="100%" class="card-outter">
             <form @submit.prevent="submitFn">
-                {{ album }}
                 <v-card-text>
                     <FinalizationAlbum :account="account" :album="album" />
                 </v-card-text>

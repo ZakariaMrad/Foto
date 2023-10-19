@@ -1,4 +1,4 @@
-import { ResponseType, getClient } from "@tauri-apps/api/http";
+import { Body, ResponseType, getClient } from "@tauri-apps/api/http";
 import { APIResult } from "../core/API/APIResult";
 import Foto from "../models/Foto";
 import { Repository } from "./Repository";
@@ -9,6 +9,22 @@ const client = await getClient();
 const url = 'http://localhost:8000';
 
 class FotoRepository extends Repository {
+    public async uploadFotos(foto: Foto) {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+        foto.jwtToken = jwt.data.jwtToken;
+        try {
+            const response = await client.post(`${url}/foto`, Body.json(foto),{ responseType: ResponseType.JSON });
+            if (response.status === 200) {
+                return { success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            console.log(error);
+            return { errors: error as [APIError], success: false };
+        }
+    }
 
     public async getFotos(): Promise<APIResult<Foto[]>> {
         let jwt = await this.getJWTToken();
