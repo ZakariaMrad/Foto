@@ -12,12 +12,13 @@
                         </v-col>
                         <v-col>
                             <AssetPicker :itemSize="6" :items="fotos" title="Fotos" :multiple="true"
-                                @items-selected="(items) => setItems(items)" />
+                                @items-selected="(items) => setItems(items as Foto[])" />
                         </v-col>
                     </v-row>
                 </v-card-text>
                 <v-card-actions align-end class="card-actions">
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
+                    <v-btn class="btn" color="indigo" @click="back()">Précédent</v-btn>
                     <v-btn type="submit" :success="success" :loading="loading" class="text-white" color="green-darken-3"
                         text="Suivant" />
                 </v-card-actions>
@@ -84,14 +85,14 @@ const success = ref(false);
 const fotos = ref<Foto[]>([])
 const selectedfotos = ref<Foto[]>([])
 
-const emit = defineEmits<{ (event: 'nextStep', album: Partial<Album>): void, (event: 'closeDialog'): void }>()
+const emit = defineEmits<{ (event: 'nextStep', album: Partial<Album>): void, (event: 'closeDialog'): void , (event: 'back'): void }>()
 
 onMounted(async () => {
     let apiResponse = await FotoRepository.getFotos()
     if (!apiResponse.success) return
 
     fotos.value = apiResponse.data
-    registerItems([]);
+    registerItems([]);    
 })
 
 function setItems(items: Foto[]) {
@@ -102,6 +103,9 @@ function setItems(items: Foto[]) {
 
 function closeDialog() {
     emit('closeDialog');
+}
+function back() {
+    emit('back');
 }
 
 </script>

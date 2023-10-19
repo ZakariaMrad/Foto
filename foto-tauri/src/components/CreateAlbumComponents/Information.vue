@@ -8,7 +8,7 @@
                             <v-text-field class="mb-1" label="Titre" required v-bind="register('title')"
                                 :error-messages="titleErrorMessage" />
                             <v-switch hide-details color="blue"
-                                v-bind:input-value="register('isPublic', { defaultValue: true })" label="Public" />
+                                v-bind:input-value="register('isPublic', {defaultValue:false})" label="Public" />
                             <v-textarea rows="2" v-bind="register('notes')" type="" label="Notes" />
                         </v-col>
                         <v-col>
@@ -18,6 +18,7 @@
                 </v-card-text>
                 <v-card-actions class="card-actions">
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
+                    <v-btn class="btn" color="indigo" disabled>Précédent</v-btn>
                     <v-btn type="submit" :success="success" :loading="loading" class="text-white" color="green-darken-3"
                         text="Suivant" />
                 </v-card-actions>
@@ -27,6 +28,7 @@
 </template>
   
 <script setup lang="ts">
+//TODO: il faut être capable de faire un reset du formulaire lors d'un back()
 import { ref } from 'vue';
 import Album from '../../models/Album';
 import { useFormHandler } from 'vue-form-handler'
@@ -39,6 +41,7 @@ const props = defineProps<{ album: Partial<Album> }>()
 const loading = ref(false);
 const success = ref(false);
 const titleErrorMessage = ref();
+
 
 const successFn = async (partialAlbum: Partial<Album>) => {
     loading.value = true;

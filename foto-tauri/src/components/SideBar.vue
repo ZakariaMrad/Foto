@@ -31,7 +31,7 @@
     
 </template>
 <script setup lang="ts">
-import {  ref, watch } from 'vue';
+import {  onMounted, ref, watch } from 'vue';
 import  Account  from '../models/Account';
 import {EventsBus, Events} from '../core/EventBus';
 const {eventBusEmit,bus} = EventsBus();
@@ -49,6 +49,11 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefin
     }
     account.value = value[0];
     
+})
+
+//La ligne fix le bug du fait que le compte ne se charge pas lors d'un changement de page
+onMounted(() => {
+    // eventBusEmit(Events.RELOAD_CONNECTED_ACCOUNT, undefined)
 })
 
 function Login() {

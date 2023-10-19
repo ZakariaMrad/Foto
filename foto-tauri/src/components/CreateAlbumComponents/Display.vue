@@ -10,20 +10,21 @@
                     </v-tabs>
                     <v-window v-model="tab" class="mt-1">
                         <v-window-item value="0">
-                            <v-carousel hide-delimiters height="100%" v-if="album.fotos?.length!==0">
-                                <v-carousel-item v-for="(foto, i) in album.fotos" :key="i-1">
+                            <v-carousel hide-delimiters height="100%" v-if="album.fotos?.length !== 0">
+                                <v-carousel-item v-for="(foto, i) in album.fotos" :key="i - 1">
                                     <v-img :src="foto.path" aspect-ratio="3"></v-img>
                                 </v-carousel-item>
                             </v-carousel>
                         </v-window-item>
                         <v-window-item value="1">
                             <p class="text-center text-danger">{{ errorMessage }}</p>
-                            <Grid :fotos="album.fotos!" @finishedGrid="finishedGrid"/>
+                            <Grid :fotos="album.fotos!" @finishedGrid="finishedGrid" />
                         </v-window-item>
                     </v-window>
                 </v-card-text>
                 <v-card-actions align-end class="card-actions">
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
+                    <v-btn class="btn" color="indigo" @click="back()">Précédent</v-btn>
                     <v-btn type="submit" :success="success" :loading="loading" class="text-white" color="green-darken-3"
                         text="Suivant" />
                 </v-card-actions>
@@ -40,7 +41,7 @@ import { useFormHandler } from 'vue-form-handler'
 import AlbumGrid from '../../models/AlbumGrid';
 const props = defineProps<{ album: Partial<Album> }>()
 const tab = ref<number>(0);
-const tabToType=['carousel','grid']
+const tabToType = ['carousel', 'grid']
 const albumGrid = ref<AlbumGrid | undefined>(undefined);
 const errorMessage = ref<string | undefined>(undefined);
 
@@ -69,7 +70,7 @@ function registerGrid() {
 const submitFn = () => {
     try {
         errorMessage.value = undefined;
-        registerType()        
+        registerType()
         if (tab.value == 1) {
             registerGrid();
             if (!albumGrid.value) {
@@ -90,14 +91,17 @@ const loading = ref(false);
 const success = ref(false);
 
 
-const emit = defineEmits<{ (event: 'nextStep', album: Partial<Album>): void, (event: 'closeDialog'): void }>()
+const emit = defineEmits<{ (event: 'nextStep', album: Partial<Album>): void, (event: 'closeDialog'): void, (event: 'back'): void }>()
 
 function closeDialog() {
     emit('closeDialog');
 }
+function back() {
+    emit('back');
+}
 
-function finishedGrid(grid:AlbumGrid | undefined){
-    albumGrid.value=grid;
+function finishedGrid(grid: AlbumGrid | undefined) {
+    albumGrid.value = grid;
 }
 
 </script>

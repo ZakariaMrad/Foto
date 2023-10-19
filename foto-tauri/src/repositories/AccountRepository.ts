@@ -6,7 +6,7 @@ import { APIError } from '../core/API/APIError';
 import { Repository } from './Repository';
 import AccountDatastore from './datastore/AccountDatastore';
 import RegistraionAccount from '../models/RegistrationAccount';
-import { Account } from '../models/Account';
+import Account from '../models/Account';
 
 //TODO: remove the hard coded url
 

@@ -4,7 +4,6 @@
   <CreatePost :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
   <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
   <CreateAlbum :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
-  <TestDrag :activate="testDrag" />
 </template>
 
 <script setup lang="ts">
@@ -15,19 +14,22 @@ import AccountRepository from './repositories/AccountRepository';
 import CreatePost from './components/modals/CreatePost.vue';
 import Search from './components/modals/Search.vue';
 import CreateAlbum from './components/modals/CreateAlbum.vue';
-import TestDrag from './components/modals/TestDrag.vue';
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
 const activateCreateAlbum = ref<boolean>(false);
 const activateSearch = ref<boolean>(false);
-const testDrag = ref<boolean>(false);
 
 
 const { bus, eventBusEmit } = EventsBus();
 
 watch(() => bus.value.get(Events.LOGIN), () => {
   activateLogin.value = true;
+})
+
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account) => {
+  console.log(account);
+  
 })
 
 watch(() => bus.value.get(Events.LOGOUT), () => {
@@ -44,13 +46,14 @@ watch(() => bus.value.get(Events.OPEN_SEARCH_MODAL), () => {
 watch(()=> bus.value.get(Events.CREATE_ALBUM), () => {
   activateCreateAlbum.value = true;
 })
+watch(()=> bus.value.get(Events.RELOAD_CONNECTED_ACCOUNT), () => {
+  getAccount();
+})
 
 onMounted(async () => {
   let isConnected = await AccountRepository.isConnected();
   if (!isConnected) return;
   await getAccount();
-
-  // testDrag.value = true;
 })
 
 function closeSearchDialog() {

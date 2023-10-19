@@ -2,12 +2,13 @@
     <v-responsive aspect-ratio="3">
         <v-card height="100%" class="card-outter">
             <form @submit.prevent="submitFn">
-            {{ album }}
+                {{ album }}
                 <v-card-text>
                     <FinalizationAlbum :account="account" :album="album" />
                 </v-card-text>
                 <v-card-actions align-end class="card-actions">
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
+                    <v-btn class="btn" color="indigo" @click="back()">Précédent</v-btn>
                     <v-btn type="submit" :success="success" :loading="loading" class="text-white" color="green-darken-3"
                         text="Terminer" />
                 </v-card-actions>
@@ -24,7 +25,7 @@ import FinalizationAlbum from './FinalizationAlbum.vue';
 import AccountRepository from '../../repositories/AccountRepository';
 import Account from '../../models/Account';
 
-const props = defineProps<{ album: Partial<Album>}>()
+const props = defineProps<{ album: Partial<Album> }>()
 
 const account = ref<Account>();
 
@@ -57,10 +58,13 @@ const loading = ref(false);
 const success = ref(false);
 
 
-const emit = defineEmits<{ (event: 'nextStep', album: Partial<Album>): void, (event: 'closeDialog'): void }>()
+const emit = defineEmits<{ (event: 'nextStep', album: Partial<Album>): void, (event: 'closeDialog'): void, (event: 'back'): void }>()
 
 function closeDialog() {
     emit('closeDialog');
+}
+function back() {
+    emit('back');
 }
 
 </script>
@@ -74,4 +78,5 @@ function closeDialog() {
     position: absolute;
     bottom: 0;
     right: 0;
-}</style>
+}
+</style>

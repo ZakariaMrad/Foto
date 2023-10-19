@@ -51,7 +51,7 @@ class RegistrationFormType extends AbstractType
                     ])
                 ],
             ])
-            ->add('password', RepeatedType::class,[
+            ->add('password', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'label' => 'Mot de passe',
                 'invalid_message' => 'Mot de passe: Les mots de passe doivent correspondre.',
@@ -113,8 +113,8 @@ class RegistrationFormType extends AbstractType
                     new Assert\NotBlank([
                         'message' => 'Date de naissance: Veuillez entrer votre date de naissance.',
                     ])
-            ]]);
-            
+                ]
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -8,7 +8,7 @@
                     <tbody>
                         <tr v-for="(_, y) in 3" class="pa-0 ma-0">
                             <td v-for="(_, x) in 3" class="pa-0 ma-0">
-                                <AlbumGridCase :position="{ x, y }" :hoveredSidesOut="checkHoveredSides({ x, y })"
+                                <AlbumGridCase :position="{ x, y }" :hoveredSidesOut="checkHoveredSides({ x, y }) as HoveredCard"
                                     @hovered="(hoveredSides) => hoverCards({ x, y }, hoveredSides)" />
                             </td>
                         </tr>
@@ -111,7 +111,7 @@ function hoverCards(ownPosition: { x: number, y: number }, HoveredCardIn: Hovere
 
 }
 
-function checkHoveredSides(position: { x: number, y: number }): HoveredCard {
+function checkHoveredSides(position: { x: number, y: number }): Partial<HoveredCard> {
     let hoveredSides = hoveredCards.value.find(hoveredCard => hoveredCard.x === position.x && hoveredCard.y === position.y);
     if (!hoveredSides) return HoveredCard.emptyHoveredCard();
     return hoveredSides.hoveredSides;

@@ -11,7 +11,7 @@
                 </tr>
             </thead>
             <tbody>
-                <Spectator v-for="account in accounts" :account="account" :key="account.idAccount"
+                <SpectatorCollaborater v-for="account in accounts" :isPublic="props.isPublic!" :account="account" :key="account.idAccount"
                 :isSpectator="isSpectator(account)" :isCollaborater="isCollaborater(account)"
                     @addCollaborater="(idAccount) => addCollaborater(idAccount)"
                     @removeCollaborater="(idAccount) => removeCollaborater(idAccount)"
@@ -27,7 +27,9 @@ import { onMounted, ref } from 'vue';
 import { useFormHandler } from 'vue-form-handler';
 import AccountRepository from '../../repositories/AccountRepository';
 import Account from '../../models/Account';
-import Spectator from './Spectator.vue';
+import SpectatorCollaborater from './SpectatorCollaborater.vue';
+
+const props = defineProps<{ isPublic: boolean }>()
 
 const loading = ref<boolean>(false)
 const accounts = ref<Account[]>([])
@@ -41,6 +43,8 @@ const emit = defineEmits<{
 
 onMounted(() => {
     submitFn();
+    console.log('collab', props.isPublic);
+    
 })
 
 const { register, handleSubmit, formState } = useFormHandler({ validationMode: 'always' })
