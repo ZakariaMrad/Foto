@@ -36,7 +36,7 @@ class Post
 
     #[ORM\ManyToOne(inversedBy: 'posts', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')]
-    private ?foto $foto = null;
+    private ?Foto $foto = null;
 
     #[ORM\Column(name:'isPublic')]
     private ?bool $isPublic = null;
