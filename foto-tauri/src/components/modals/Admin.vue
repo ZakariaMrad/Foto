@@ -17,7 +17,7 @@
                                 </v-window-item>
 
                                 <v-window-item value="1">
-                                    
+                                    <userBlocking/>
                                 </v-window-item>
                             </v-window>
                         </v-card-text>
@@ -33,7 +33,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import complaints from '../AdminComponents/Complaints.vue';
+import complaints from '../AdminComponents/complaints.vue';
+import userBlocking from '../AdminComponents/userBlocking.vue';
 
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
