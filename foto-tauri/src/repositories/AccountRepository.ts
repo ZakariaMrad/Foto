@@ -110,6 +110,29 @@ class AccountRepository extends Repository {
             return { errors: error as [APIError], success: false };
         }
     }
+
+    public async updateAccount(personnalInfo: Account): Promise<APIResult<Account>> {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+        personnalInfo.jwtToken = jwt.data.jwtToken;
+        try {
+            const response = await client.post(`${url}/account/modify`, Body.json(personnalInfo));
+            let data = response.data as any;
+
+            // console.log(data);
+
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+
+                return { data: { ...data.account, ...data.message } as Account, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            console.log(error);
+            return { errors: error as [APIError], success: false };
+        }
+    }
 }
 
 

@@ -12,6 +12,7 @@
             <v-divider></v-divider>
 
             <v-list density="compact" nav>
+                <v-list-item prepend-icon="mdi-glasses" title="Rechercher" @click="openSearchModal" />
                 <v-list-item prepend-icon="mdi-home" title="Accueil" :to="{ name: 'home' }"></v-list-item>
                 <v-list-item prepend-icon="mdi-star" title="Populaire"></v-list-item>
                 <v-list-item prepend-icon="mdi-account" title="Mon profil" :to="{ name: 'profil' }"></v-list-item>
@@ -21,7 +22,7 @@
                 <v-list-item prepend-icon="mdi-glasses" title="Ouvrir le modal" @click="openSearchModal" />
                 <v-list-item prepend-icon="mdi-plus-box" title="Créer un post" @click="createPost" />
                 <v-list-item prepend-icon=" mdi-album" title="Créer un album" @click="createAlbum" />
-                <v-list-item v-if="account" prepend-icon="mdi-logout-variant" title="Logout" @click="logout" />
+                <v-list-item v-if="account" prepend-icon="mdi-logout-variant" title="Se déconnexter" @click="logout" />
             </v-list>
         </v-navigation-drawer>
         <div class="mx-16 my-1">

@@ -4,6 +4,7 @@
   <CreatePost :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
   <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
   <CreateAlbum :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
+  <ModifyProfile :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
 </template>
 
 <script setup lang="ts">
@@ -14,13 +15,14 @@ import AccountRepository from './repositories/AccountRepository';
 import CreatePost from './components/modals/CreatePost.vue';
 import Search from './components/modals/Search.vue';
 import CreateAlbum from './components/modals/CreateAlbum.vue';
+import ModifyProfile from './components/modals/ModifyProfile.vue'
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
 const activateCreateAlbum = ref<boolean>(false);
 const activateSearch = ref<boolean>(false);
 
-
+const activateModifyProfile = ref<boolean>(false);
 const { bus, eventBusEmit } = EventsBus();
 
 watch(() => bus.value.get(Events.LOGIN), () => {
@@ -50,6 +52,11 @@ watch(()=> bus.value.get(Events.RELOAD_CONNECTED_ACCOUNT), () => {
   getAccount();
 })
 
+watch(() => bus.value.get(Events.OPEN_MODIFY_PROFILE_MODAL), () => {
+
+  activateModifyProfile.value = true;
+})
+
 onMounted(async () => {
   let isConnected = await AccountRepository.isConnected();
   if (!isConnected) return;
@@ -58,6 +65,10 @@ onMounted(async () => {
 
 function closeSearchDialog() {
   activateSearch.value = false;
+}
+
+function closeModifyProfileDialog() {
+  activateModifyProfile.value = false;
 }
 
 async function closeLoginRegisterDialog(val: boolean) {

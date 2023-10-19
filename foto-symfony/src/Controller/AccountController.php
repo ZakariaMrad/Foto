@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Form\CreateFotoFormType;
 use App\Form\FormHandler;
 use App\Form\LoginFormType;
+use App\Form\ModifyAccountFormType;
 use App\Form\RegistrationFormType;
 use App\Jwt\JWTHandler;
 use Doctrine\Persistence\ManagerRegistry;
@@ -15,9 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 
 class AccountController extends AbstractController
 {
@@ -140,6 +139,51 @@ class AccountController extends AbstractController
             'jwtToken' => $jwtToken
         ]);
     }
+
+    #[Route('/account/modify', name: 'app_account_modify', methods: ['POST'])]
+    public function modifyAccount(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+
+        if ($data['email'] != $this->jwtHandler->decodedJWTToken['email']) {
+            return $this->json([
+                'message' => 'Impossible de modifier le compte.'
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $formValues = [
+            'bio' => $data['bio'],
+            'picturePath' => $data['picturePath'],
+        ];
+
+        $form = $this->createForm(ModifyAccountFormType::class);
+        $formHandler = new FormHandler($form);
+
+        if (!$formHandler->handle($formValues)) {
+            return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
+        }
+
+        $user->setBio($data['bio']);
+        $user->setPicturePath($data['picturePath']);
+        $this->em->persist($user); // Persist user to the database
+        $this->em->flush(); // Save changes
+        // Generate a JWT token
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'message' => 'Post créée avec succès.',
+            'account' => $user->getAll()
+        ], JsonResponse::HTTP_OK);
+    }
+
 
     private function getUserById(int $idUser): ?User
     {
