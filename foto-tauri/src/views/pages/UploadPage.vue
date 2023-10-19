@@ -41,7 +41,7 @@
             </v-row>
         </v-container>
         <div class="d-flex align-center justify-center mt-2 mb-5">
-            <v-btn v-if="files.length !== 0">
+            <v-btn v-if="files.length !== 0" @click="uploadFotos()">
                 Téléverser
             </v-btn>
         </div>
@@ -53,6 +53,8 @@
 import DefaultLayout from '../layouts/DefaultLayout.vue';
 import { ref } from 'vue';
 import {EventsBus, Events} from '../../core/EventBus';
+import FotoRepository from '../../repositories/FotoRepository';
+import Foto from '../../models/Foto';
 const {eventBusEmit} = EventsBus();
 
 const imgSrc = ref<Array<string | null | ArrayBuffer>>([]);
@@ -84,6 +86,20 @@ function removeFromFiles(file: File)
 function openEditModal(index: number) {
     eventBusEmit(Events.OPEN_EDIT_MODAL, imgSrc.value[index]);
 }
+
+function uploadFotos() {
+    //TODO: Webworker
+    imgSrc.value.forEach(async (imgSrc, index) => {
+        let foto = new Foto();
+        foto.name = "test" + index;
+        foto.base64image = imgSrc as string;
+
+        console.log(foto);
+        await FotoRepository.uploadFotos(foto);
+    })
+    
+}
+
 </script>
 
 <style scoped>

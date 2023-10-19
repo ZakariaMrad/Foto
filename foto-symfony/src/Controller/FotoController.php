@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class FotoController extends AbstractController
 {
@@ -26,7 +27,7 @@ class FotoController extends AbstractController
     }
 
     #[Route('/foto', name: 'app_foto_create', methods: ['POST'])]
-    public function createFoto(Request $request): JsonResponse
+    public function createFoto(Request $request, SluggerInterface $slugger): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
@@ -36,21 +37,35 @@ class FotoController extends AbstractController
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
+        unset($data['description']);
+        unset($data['idFoto']);
+        unset($data['path']);
+
         $foto = new Foto();
         $form = $this->createForm(CreateFotoFormType::class, $foto);
         $formHandler = new FormHandler($form);
         if (!$formHandler->handle($data)) {
             return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
         }
+
         $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
         if (!$user) {
             return $this->json([
-                'error' => ['Erreur: Compte non trouvé.'],
+                'error' => 'Erreur: Compte non trouvé.',
             ], JsonResponse::HTTP_NOT_FOUND);
         }
         $foto->setUploadDate(new \DateTime());
         $foto->setUser($user);
 
+        $base64String = $data['base64image'];
+        $fotoImage = base64_decode($base64String);
+
+        $safeFilename = $slugger->slug($data['name']);
+        $newFilename = $safeFilename . "-" . uniqid() . "." . explode('/', mime_content_type($base64String))[1];
+        $path = $this->getParameter('foto_image_directory') . "/" . $newFilename;
+        $success = file_put_contents($path, $fotoImage);
+
+        $foto->setPath("https://localhost:8000/img/foto/".$newFilename);
         $this->em->persist($foto);
         $this->em->flush();
 
