@@ -46,6 +46,8 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefin
     
     if (!value) {
         account.value = undefined;
+        console.log(account.value);
+        
         return;
     }
     account.value = value[0];

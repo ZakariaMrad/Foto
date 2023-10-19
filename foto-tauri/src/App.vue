@@ -5,6 +5,7 @@
   <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
   <CreateAlbum :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
   <ModifyProfile :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
+  <Admin :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
 </template>
 
 <script setup lang="ts">
@@ -16,22 +17,20 @@ import CreatePost from './components/modals/CreatePost.vue';
 import Search from './components/modals/Search.vue';
 import CreateAlbum from './components/modals/CreateAlbum.vue';
 import ModifyProfile from './components/modals/ModifyProfile.vue'
+import Admin from './components/modals/Admin.vue';
+import router from './router';
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
 const activateCreateAlbum = ref<boolean>(false);
 const activateSearch = ref<boolean>(false);
-
 const activateModifyProfile = ref<boolean>(false);
+const activateAdmin = ref<boolean>(false);
+
 const { bus, eventBusEmit } = EventsBus();
 
 watch(() => bus.value.get(Events.LOGIN), () => {
   activateLogin.value = true;
-})
-
-watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account) => {
-  console.log(account);
-  
 })
 
 watch(() => bus.value.get(Events.LOGOUT), () => {
@@ -57,6 +56,10 @@ watch(() => bus.value.get(Events.OPEN_MODIFY_PROFILE_MODAL), () => {
   activateModifyProfile.value = true;
 })
 
+watch(() => bus.value.get(Events.OPEN_ADMIN_PANEL), () => {
+  activateAdmin.value = true;
+})
+
 onMounted(async () => {
   let isConnected = await AccountRepository.isConnected();
   if (!isConnected) return;
@@ -70,6 +73,9 @@ function closeSearchDialog() {
 function closeModifyProfileDialog() {
   activateModifyProfile.value = false;
 }
+function closeAdminPanel() {
+  activateAdmin.value = false;
+}
 
 async function closeLoginRegisterDialog(val: boolean) {
   activateLogin.value = false;
@@ -80,6 +86,9 @@ async function closeLoginRegisterDialog(val: boolean) {
 async function Logout() {
   AccountRepository.logout();
   eventBusEmit(Events.CONNECTED_ACCOUNT, undefined)
+  //change route to home page
+  router.push({ name: 'home' })
+  console.log();
 }
 
 async function getAccount() {
