@@ -13,10 +13,11 @@ class FotoRepository extends Repository {
     public async getFotos(): Promise<APIResult<Foto[]>> {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
-
-        try {
-            const response = await client.get(`${url}/foto?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
-            let data = response.data as any;            
+        
+        try {                        
+            const response = await client.get(`${url}/fotos?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            let data = response.data as any;      
+            
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
 
@@ -25,7 +26,27 @@ class FotoRepository extends Repository {
             // If there is an unexpected response or error status code, return an Error object
             return { errors: this.getAPIError(response.data), success: false };
         } catch (error) {
-            console.log(error);
+            return { errors: error as [APIError], success: false };
+        }
+    }
+    public async getFotosById(idFotos: number[]): Promise<APIResult<Foto[]>> {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+        
+        try {  
+                      
+            const response = await client.get(`${url}/fotosbyid?jwtToken=${jwt.data.jwtToken}&idFotos=[${idFotos.toString()}]`, { responseType: ResponseType.JSON });
+            let data = response.data as any;      
+            
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+                console.log('foto by id',data.fotos);
+
+                return { data: data.fotos as Foto[], success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
             return { errors: error as [APIError], success: false };
         }
     }

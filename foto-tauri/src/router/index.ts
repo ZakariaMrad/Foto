@@ -19,6 +19,8 @@ const router = createRouter({
         component: () => import('../views/pages/ProfilePage.vue')
     }
   ]
+  
 })
+
 
 export default router;

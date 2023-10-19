@@ -6,7 +6,7 @@ import { APIError } from '../core/API/APIError';
 import { Repository } from './Repository';
 import AccountDatastore from './datastore/AccountDatastore';
 import RegistraionAccount from '../models/RegistrationAccount';
-import { Account } from '../models/Account';
+import Account from '../models/Account';
 
 //TODO: remove the hard coded url
 
@@ -21,6 +21,25 @@ class AccountRepository extends Repository {
         }
     }
 
+    async searchUser(search: any) {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+
+        try {
+            const response = await client.get(`${url}/account/search?jwtToken=${jwt.data.jwtToken}&searchValue=${search}`, { responseType: ResponseType.JSON });
+            if (search == '') return { data: [], success: true };
+            let data = response.data as any;
+
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+                return { data: data.accounts as Account[], success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            return { errors: error as [APIError], success: false };
+        }
+    }
 
     async logout() {
         await AccountDatastore.removeJWTToken();

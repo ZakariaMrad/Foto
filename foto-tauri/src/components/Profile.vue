@@ -107,5 +107,4 @@ const profileLinks = ref<{ icon: string, text: string, click:any }[]>(
 function openProfileModificationModal() {
     eventBusEmit(Events.OPEN_MODIFY_PROFILE_MODAL)
 }
-
 </script>

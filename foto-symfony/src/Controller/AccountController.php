@@ -47,6 +47,36 @@ class AccountController extends AbstractController
             'jwtToken' => $newJWT
         ], JsonResponse::HTTP_OK);
     }
+     
+    #[Route('/account/search', name: 'app_user_search', methods: ['GET'])]
+    public function getFotosById(Request $request): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+        $searchValue = $request->query->get('searchValue')?? '';
+    
+        $users = $this->em->getRepository(User::class)->getUserBySearchValue($searchValue);
+        $users = array_map(function ($user) {
+            return $user->getAll();
+        }, $users);
+
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'accounts' => $users
+        ], JsonResponse::HTTP_OK);
+    }
 
     #[Route('/account/login', name: 'app_account_login', methods: ['POST'])]
     public function login(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
@@ -110,7 +140,6 @@ class AccountController extends AbstractController
         ]);
     }
 
-
     #[Route('/account/modify', name: 'app_account_modify', methods: ['POST'])]
     public function modifyAccount(Request $request): JsonResponse
     {
@@ -157,7 +186,6 @@ class AccountController extends AbstractController
 
 
     private function getUserById(int $idUser): ?User
-
     {
         return $this->em->getRepository(User::class)->findOneBy(['idUser' => $idUser]);
     }

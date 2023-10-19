@@ -2,42 +2,40 @@
 
 namespace App\Form;
 
-use App\Entity\Foto;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use App\Entity\Album;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CreateFotoFormType extends AbstractType
+
+class CreateAlbumFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name',TextType::class,[
+            ->add('title', TextType::class, [
                 'required' => true,
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Nom: Veuillez entrer le nom de la photo',
+                        'message' => 'Titre: Veuillez entrer un titre',
                     ]),
                 ],
             ])
-            ->add('description',TextType::class,[
+            ->add('notes', TextType::class, [
                 'required' => false,
             ])
-            ->add('path',TextType::class,[
-                'required' => true,
+            ->add('description', TextType::class, [
+                'required' => false,
                 'constraints' => [
-                    new Assert\Url([
-                        'message' => 'Lien: Veuillez entrer un lien valide',
-                    ]),
                     new Assert\NotBlank([
-                        'message' => 'Lien: Veuillez entrer un lien',
+                        'message' => 'Description: Veuillez entrer une description',
                     ]),
                 ],
             ])
-            ->add('isNSFW', CheckboxType::class,[
+            ->add('isPublic', CheckboxType::class, [
                 'required' => true,
                 'false_values' => ['false'],
                 'constraints' => [
@@ -50,13 +48,24 @@ class CreateFotoFormType extends AbstractType
                     ]),
                 ],
             ])
-        ;
+            ->add('type', TextType::class, [
+                'required' => true,
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Type: Veuillez entrer un type',
+                    ]),
+                    new Assert\Choice([
+                        'choices' => ['grid', 'carousel'],
+                        'message' => 'Type: Veuillez entrer un type valide (grid ou carousel)',
+                    ]),
+                ],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Foto::class,
+            'data_class' => Album::class,
         ]);
     }
 }
