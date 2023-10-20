@@ -6,7 +6,7 @@ import { JWTToken } from "../models/JWTToken";
 import { APIError } from "../core/API/APIError";
 
 const client = await getClient();
-const url = 'http://localhost:8000';
+const url = 'https://fotoapi.1929736.techinfo-cstj.ca';
 
 class FotoRepository extends Repository {
     public async uploadFotos(foto: Foto) {

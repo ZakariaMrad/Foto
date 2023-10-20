@@ -1,4 +1,3 @@
-import { th } from "vuetify/locale";
 
 export default class HoveredCard {
     top: boolean = false;

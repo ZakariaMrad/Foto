@@ -1,13 +1,12 @@
 import { Body, ResponseType, getClient } from "@tauri-apps/api/http";
 import { APIResult } from "../core/API/APIResult";
-import Foto from "../models/Foto";
 import { Repository } from "./Repository";
 import { JWTToken } from "../models/JWTToken";
 import { APIError } from "../core/API/APIError";
 import Album from "../models/Album";
 
 const client = await getClient();
-const url = 'http://localhost:8000';
+const url = 'https://fotoapi.1929736.techinfo-cstj.ca';
 
 class FotoRepository extends Repository {
     public async createAlbum(album: Album): Promise<APIResult<JWTToken>> {

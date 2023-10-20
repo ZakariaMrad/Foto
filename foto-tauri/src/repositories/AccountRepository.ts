@@ -10,7 +10,7 @@ import Account from '../models/Account';
 
 //TODO: remove the hard coded url
 
-const url = 'http://localhost:8000';
+const url = 'https://fotoapi.1929736.techinfo-cstj.ca';
 const client = await getClient();
 class AccountRepository extends Repository {
 

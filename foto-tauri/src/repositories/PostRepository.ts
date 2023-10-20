@@ -7,7 +7,7 @@ import { APIError } from "../core/API/APIError";
 
 
 const client = await getClient();
-const url = 'http://localhost:8000';
+const url = 'https://fotoapi.1929736.techinfo-cstj.ca';
 class PostRepository extends Repository {
     public async createPost(newPost: Post): Promise<APIResult<JWTToken>> {
         let jwt = await this.getJWTToken();

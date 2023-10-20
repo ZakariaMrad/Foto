@@ -33,8 +33,9 @@ import { useFormHandler } from 'vue-form-handler';
 import Foto from '../../models/Foto';
 import AssetPicker from '../AssetPicker.vue';
 import AccountRepository from '../../repositories/AccountRepository';
-import { Account } from '../../models/Account';
+import Account from '../../models/Account';
 import { Events, EventsBus } from '../../core/EventBus';
+import Album from '../../models/Album';
 
 
 
@@ -71,8 +72,9 @@ const props = defineProps({
 })
 
 
-function setItems(items: Foto[]) {
+function setItems(items: (Foto | Album)[]) {
     console.log(items);
+    if (!('idFoto' in items[0])) return;
     choosenFotoId = items[0].idFoto
     console.log(choosenFotoId);
 }

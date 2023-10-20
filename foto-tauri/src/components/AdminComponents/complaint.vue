@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import Complaint from '../../models/Complaint';
+import Complaint from '../../models/Complaint.ts';
 
 const props = defineProps({
     complaint: Complaint

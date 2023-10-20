@@ -17,6 +17,9 @@ export default defineConfig(async () => ({
       'trix'
     ]
   },
+  build: {
+    target: "esnext",
+  },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
