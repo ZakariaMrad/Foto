@@ -9,5 +9,7 @@ export default class Post extends JWTToken implements APIResponse{
     description: string = '';
     creationDate: Date = new Date();
     foto:Foto = new Foto();
-    
+    likes: number = (Math.floor(Math.random() * 31));
+    isLiked: boolean = false;
+    comments: number = (Math.floor(Math.random() * 31));
 }

@@ -42,6 +42,12 @@ class PostRepository extends Repository {
             const response = await client.get(`${url}/posts?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
             let data = response.data as any;
 
+            data.posts.forEach( (post: Post) => {
+                post.likes = (Math.floor(Math.random() * 31));
+                post.isLiked = false;
+                post.comments = (Math.floor(Math.random() * 31));
+            });
+
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
 
