@@ -35,19 +35,16 @@ class CreateAlbumFormType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('isPublic', CheckboxType::class, [
-                'required' => true,
-                'false_values' => ['false'],
-                'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'NSFW: Veuillez entrer vrai ou faux',
-                    ]),
-                    new Assert\Type([
-                        'type' => 'bool',
-                        'message' => 'Le champ doit être un booléen.',
-                    ]),
-                ],
-            ])
+            // ->add('isPublic', CheckboxType::class, [
+            //     'required' => true,
+            //     'false_values' => ['false'],
+            //     'constraints' => [
+            //         new Assert\Type([
+            //             'type' => 'bool',
+            //             'message' => 'Le champ doit être un booléen.',
+            //         ]),
+            //     ],
+            // ])
             ->add('type', TextType::class, [
                 'required' => true,
                 'constraints' => [

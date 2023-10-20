@@ -15,4 +15,6 @@ export default class Album extends JWTToken implements APIResponse {
     grid: AlbumGrid = new AlbumGrid();
     collaboraters: Account[] = [];
     spectators: Account[] = [];
+    cover?: Foto[] = [];
+    //TODO: fix this
 }

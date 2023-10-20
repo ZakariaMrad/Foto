@@ -57,7 +57,7 @@ class Album
     private Collection $posts;
 
     #[ORM\Column( name: 'isPublic')]
-    private ?bool $isPublic = null;
+    private ?bool $isPublic = true;
 
     #[ORM\Column(length: 255)]
     private ?string $title = null;

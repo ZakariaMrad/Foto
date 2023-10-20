@@ -61,6 +61,7 @@ import PickFotos from '../CreateAlbumComponents/PickFotos.vue';
 import Display from '../CreateAlbumComponents/Display.vue';
 import Collaboraters from '../CreateAlbumComponents/Collaboraters.vue';
 import Finalization from '../CreateAlbumComponents/Finalization.vue';
+import AlbumRepository from '../../repositories/AlbumRepository';
 
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
@@ -132,12 +133,11 @@ function finalizationToCollaboraters() {
     finalizationKey.value++;
 }
 
-function finalization(album: Partial<Album>) {
+async function finalization(album: Partial<Album>) {
     tab.value = 0;
     disabledTabs.value = { infos:true,fotos: true, display: true, collaboraters: true, finalization: true };
-    console.log(album);
     albumInProgress.value = album;
-
+    await AlbumRepository.createAlbum(album as Album);
     emit('closeDialog');
 }
 function closeDialog() {

@@ -27,14 +27,38 @@ class AlbumController extends AbstractController
         $this->em = $doctrine->getManager();
         $this->jwtHandler = new JWTHandler($jwtEncoder);
     }
-    #[Route('/album', name: 'app_get_album', methods: ['GET'])]
-    public function getAlbum(): JsonResponse
+
+    #[Route('/albums', name: 'app_album_getall', methods: ['GET'])]
+    public function getFotos(Request $request): JsonResponse
     {
-        $album = $this->getAlbumById(3);
-        // dd($album);
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+        $albums = $user->getOwnedAlbums()->getValues();
+
+        usort($albums, function($a,$b){
+            return $b->getCreationDate() <=> $a->getCreationDate();
+        });
+        $albums = array_map(function($album){
+            $a = $album->getAll();
+            $a['cover'] = $a['fotos'];
+            return $a;
+        },$albums);
+
         return $this->json([
-            'album' => $album->getAll(),
-            'message' => 'Album créé avec succès.'
+            'jwtToken' => $newJWT,
+            'albums' => $albums
         ], JsonResponse::HTTP_OK);
     }
 
@@ -78,7 +102,6 @@ class AlbumController extends AbstractController
         
         $this->em->persist($album);
         $this->em->flush();
-        dd($album);
 
         return $this->json([
             'jwtToken' => $newJWT,

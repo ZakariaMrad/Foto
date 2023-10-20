@@ -1,4 +1,5 @@
 <template>
+  
   <v-card class="max-height-60 my-3">
     <v-card-title class="text-center">{{ props.title }}</v-card-title>
     <v-window>
@@ -8,6 +9,8 @@
             <v-col v-for="(item, i) in props.items" cols="12" md="4">
               <v-card class="p-1" v-bind:class="{ 'bg-blue-darken-4': activeItemsId.includes(i) }" @click="setActive(i)">
                   <v-img v-if="'path' in item" :src="item.path" aspect-ratio="1" :draggable="true" />
+                  <v-img v-else-if="'cover' in item" :src="item.cover![0].path" aspect-ratio="1" :draggable="true" />
+                  
                 <!-- TODO: Créer une cover pour l'album dans la v0.9 -->
               </v-card>
             </v-col>
