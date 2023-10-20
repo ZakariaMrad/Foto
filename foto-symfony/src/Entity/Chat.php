@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChatRepository::class)]
+#[ORM\Table(name: 'chats')]
 class Chat
 {
     #[ORM\Id]
@@ -16,17 +17,20 @@ class Chat
     #[ORM\Column(name:'idChat')]
     private ?int $idChat = null;
 
-    #[ORM\OneToMany(mappedBy: 'chats', targetEntity: Message::class, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'chat', targetEntity: Message::class, cascade: ['persist'])]
     private Collection $messages;
 
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'chats', cascade: ['persist'])]
-    #[ORM\JoinTable(name: 'chats_users',
+    #[ORM\JoinTable(name: 'chatUsers',
         joinColumns: [new ORM\JoinColumn(name: 'idChat', referencedColumnName: 'idChat')],
         inverseJoinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')])]
     private Collection $users;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, name: 'creationDate')]
     private ?\DateTimeInterface $creationDate = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $title = null;
 
     public function __construct()
     {
@@ -102,6 +106,18 @@ class Chat
     public function setCreationDate(\DateTimeInterface $creationDate): static
     {
         $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): static
+    {
+        $this->title = $title;
 
         return $this;
     }

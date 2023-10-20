@@ -6,7 +6,7 @@ use App\Repository\LikeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LikeRepository::class)]
-#[ORM\Table(name: '`like`')]
+#[ORM\Table(name: '`likes`')]
 class Like
 {
     #[ORM\Id]
@@ -14,11 +14,11 @@ class Like
     #[ORM\Column(name:'idLike')]
     private ?int $idLike = null;
 
-    #[ORM\ManyToOne(inversedBy: 'likes')]
+    #[ORM\ManyToOne(inversedBy: 'likes', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'likes')]
+    #[ORM\ManyToOne(inversedBy: 'likes', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost')]
     private ?Post $post = null;
 

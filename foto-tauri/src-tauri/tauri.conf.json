@@ -12,16 +12,30 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false,
+      "http": {
+        "all": true,
+        "request": true,
+        "scope": [
+          "https://*",
+          "http://*"
+        ]
+      },
       "shell": {
         "all": false,
         "open": true
+      },
+      "fs": {
+        "all": true,
+        "scope": ["$APP/*", "$DESKTOP/*"]
+      },
+      "path": {
+        "all": true
       }
     },
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "api.foto.ca",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -39,7 +53,8 @@
         "resizable": true,
         "title": "Foto",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "fileDropEnabled": false
       }
     ]
   }

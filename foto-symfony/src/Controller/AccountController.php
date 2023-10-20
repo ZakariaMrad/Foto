@@ -2,155 +2,215 @@
 
 namespace App\Controller;
 
+use App\Entity\Foto;
 use App\Entity\User;
+use App\Form\CreateFotoFormType;
+use App\Form\FormHandler;
 use App\Form\LoginFormType;
+use App\Form\ModifyAccountFormType;
 use App\Form\RegistrationFormType;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Jwt\JWTHandler;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 
 class AccountController extends AbstractController
 {
     private $em = null;
-    private $jwtEncoder;
+    private $jwtHandler;
 
-    public function __construct(JWTEncoderInterface $jwtEncoder)
+    public function __construct(JWTEncoderInterface $jwtEncoder, ManagerRegistry $doctrine,)
     {
-        $this->jwtEncoder = $jwtEncoder;
+        $this->em = $doctrine->getManager();
+        $this->jwtHandler = new JWTHandler($jwtEncoder);
     }
 
     #[Route('/account', name: 'app_account', methods: ['POST'])]
-    public function index(Request $request, ManagerRegistry $doctrine, EntityManagerInterface $entityManager): JsonResponse
+    public function account(Request $request): JsonResponse
     {
-        $em = $doctrine->getManager();
-
         $data = json_decode($request->getContent(), true);
-        $token = $data['jwt_token'] ?? null;
-
-        if (!$token) {
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
             return $this->json([
-                'error' => 'JWT token not provided.',
-            ], JsonResponse::HTTP_BAD_REQUEST);
-        }
-        try {
-            $decodedJWTToken = $this->jwtEncoder->decode($token);
-        } catch (JWTDecodeFailureException $e) {
-            // Handle token decode failure
-            return $this->json([
-                'error' => 'Invalid token',
-            ], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        if (!$decodedJWTToken) {
-            return $this->json([
-                'error' => 'Invalid JWT token.',
+                'error' => $this->jwtHandler->error,
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        $username = $decodedJWTToken['username'] ?? 'Unknown User';
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => $this->jwtHandler->decodedJWTToken['email']]);
 
         return $this->json([
-            'completeToken' => $decodedJWTToken,
-            'user' => $username,
-        ]);
+            'user' => $user->getAll(),
+            'jwtToken' => $newJWT
+        ], JsonResponse::HTTP_OK);
+    }
+     
+    #[Route('/account/search', name: 'app_user_search', methods: ['GET'])]
+    public function search(Request $request): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+        $searchValue = $request->query->get('searchValue')?? '';
+    
+        $users = $this->em->getRepository(User::class)->getUserBySearchValue($searchValue);
+        $users = array_map(function ($user) {
+            return $user->getAll();
+        }, $users);
+
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'accounts' => $users
+        ], JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/account/isAdmin', name: 'app_user_is_admin', methods: ['GET'])]
+    public function isAdmin(Request $request): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'isAdmin' => $user->isIsAdmin()
+        ], JsonResponse::HTTP_OK);
     }
 
     #[Route('/account/login', name: 'app_account_login', methods: ['POST'])]
-    public function login(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $jwtManager): JsonResponse
+    public function login(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
-        $em = $doctrine->getManager();
-        $data = json_decode($request->getContent(), true);
+        $form = $this->createForm(LoginFormType::class);
+        $formHandler = new FormHandler($form);
 
-        // Get username and password from JSON data
-        $username = $data['username'];
-        $password = $data['password'];
-
-        // Find the user by username (you might want to adjust this based on your User entity)
-        $user = $em->getRepository(User::class)->findOneBy(['userName' => $username]);
-
-        if (!$user || !$passwordHasher->isPasswordValid($user, $password)) {
-            return $this->json(['message' => 'Invalid credentials'], 401);
+        $data = json_decode($request->getContent(), true); // Decode JSON data from the request
+        if ($formHandler->handle($data) == false) {
+            return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
         }
 
-        // Generate a JWT token
-        $jwt_token = $jwtManager->create($user);
-
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => $form->get('email')->getData()]);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Courriel ou mot de passe incorrect.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+        if (!$passwordHasher->isPasswordValid($user, $form->get('password')->getData())) {
+            return $this->json([
+                'error' => ['Courriel ou mot de passe incorrect.'],
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
         return $this->json([
-            'username' => $user->getUsername(),
-            'jwt_token' => $jwt_token
+            "message" => "User logged in successfully.",
+            "jwtToken" => $this->jwtHandler->create($user->getEmail(), $user->getIdUser())
         ]);
     }
 
     #[Route('/account/register', name: 'app_account_register')]
-    public function register(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $userPasswordHasher, JWTTokenManagerInterface $jwtManager): JsonResponse
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher): JsonResponse
     {
-        $em = $doctrine->getManager();
-        $data = json_decode($request->getContent(), true); // Decode JSON data from the request
-        $needCSRTToken = $request->query->get("need-csrf-token") == "true";
-
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
+        $formHandler = new FormHandler($form);
 
-        // Submit form with JSON data
-        $form->submit($data);
+        $data = json_decode($request->getContent(), true); // Decode JSON data from the request
 
-        if ($needCSRTToken) {
-            return $this->json([
-                'csrf_token' => $form->createView()->children['_token']->vars['value']
-            ], 200); // Return a JSON error response with a 400 status code
-        }
-        if (!$form->isSubmitted() || !$form->isValid()) {
-            // Handle form validation errors and return error response
-            $errors = [];
-            foreach ($form->getErrors(true, true) as $error) {
-                $fieldName = $error->getOrigin() ? $error->getOrigin()->getName() : '_global';
-                $errors[$fieldName][] = $error->getMessage();
-            }
-
-            return $this->json([
-                'errors' => $errors,
-                'csrf_token' => $form->createView()->children['_token']->vars['value']
-            ], 400); // Return a JSON error response with a 400 status code
+        if (!$formHandler->handle($data)) {
+            return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
         }
 
-        // Rest of the code for successful registration
+
         $user->setPassword(
             $userPasswordHasher->hashPassword(
                 $user,
                 $form->get('password')->getData()
             )
         );
-        $em->persist($user); // Persist user to the database
-        $em->flush(); // Save changes
+        $user->setCreationDate(new \DateTime());
 
+        $this->em->persist($user); // Persist user to the database
+        $this->em->flush(); // Save changes
         // Generate a JWT token
-        $jwt_token = $jwtManager->create($user);
+        $jwtToken = $this->jwtHandler->create($user->getEmail(), $user->getIdUser());
+
 
         return $this->json([
-            'message' => 'User registered successfully.',
-            'jwt_token' => $jwt_token
+            'message' => 'Compte créé avec succès.',
+            'jwtToken' => $jwtToken
         ]);
     }
 
-
-    private function getFormErrors($form)
+    #[Route('/account/modify', name: 'app_account_modify', methods: ['POST'])]
+    public function modifyAccount(Request $request): JsonResponse
     {
-        $errors = [];
-        foreach ($form->getErrors(true, true) as $error) {
-            if ($error->getOrigin()) {
-                $fieldName = $error->getOrigin()->getName();
-                $errors[$fieldName][] = $error->getMessage();
-            } else {
-                $errors['_global'][] = $error->getMessage();
-            }
+        $data = json_decode($request->getContent(), true);
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
         }
-        return $errors;
+
+        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+
+        if ($data['email'] != $this->jwtHandler->decodedJWTToken['email']) {
+            return $this->json([
+                'message' => 'Impossible de modifier le compte.'
+            ], JsonResponse::HTTP_OK);
+        }
+
+        $formValues = [
+            'bio' => $data['bio'],
+            'picturePath' => $data['picturePath'],
+        ];
+
+        $form = $this->createForm(ModifyAccountFormType::class);
+        $formHandler = new FormHandler($form);
+
+        if (!$formHandler->handle($formValues)) {
+            return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
+        }
+
+        $user->setBio($data['bio']);
+        $user->setPicturePath($data['picturePath']);
+        $this->em->persist($user); // Persist user to the database
+        $this->em->flush(); // Save changes
+        // Generate a JWT token
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'message' => 'Post créée avec succès.',
+            'account' => $user->getAll()
+        ], JsonResponse::HTTP_OK);
+    }
+
+
+    private function getUserById(int $idUser): ?User
+    {
+        return $this->em->getRepository(User::class)->findOneBy(['idUser' => $idUser]);
     }
 }

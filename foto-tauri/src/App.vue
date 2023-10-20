@@ -1,52 +1,120 @@
-<script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import Greet from "./components/Greet.vue";
-</script>
-
 <template>
-  <div class="container">
-    <h1>Welcome to Tauri!</h1>
-
-    <div class="row">
-      <a href="https://vitejs.dev" target="_blank">
-        <img src="/vite.svg" class="logo vite" alt="Vite logo" />
-      </a>
-      <a href="https://tauri.app" target="_blank">
-        <img src="/tauri.svg" class="logo tauri" alt="Tauri logo" />
-      </a>
-      <a href="https://vuejs.org/" target="_blank">
-        <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-      </a>
-    </div>
-
-    <p>Click on the Tauri, Vite, and Vue logos to learn more.</p>
-
-    <p>
-      Recommended IDE setup:
-      <a href="https://code.visualstudio.com/" target="_blank">VS Code</a>
-      +
-      <a href="https://github.com/johnsoncodehk/volar" target="_blank">Volar</a>
-      +
-      <a href="https://github.com/tauri-apps/tauri-vscode" target="_blank"
-        >Tauri</a
-      >
-      +
-      <a href="https://github.com/rust-lang/rust-analyzer" target="_blank"
-        >rust-analyzer</a
-      >
-    </p>
-
-    <Greet />
-  </div>
+  <RouterView />
+  <LoginRegister :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
+  <CreatePost :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
+  <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
+  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" :img-src="editImgSrc"/>
+  <CreateAlbum :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
+  <ModifyProfile :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
+  <Admin :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
 </template>
 
-<style scoped>
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
+<script setup lang="ts">
+import { onMounted, ref, watch } from 'vue';
+import { EventsBus, Events } from './core/EventBus';
+import LoginRegister from './components/modals/LoginRegister.vue';
+import AccountRepository from './repositories/AccountRepository';
+import CreatePost from './components/modals/CreatePost.vue';
+import Search from './components/modals/Search.vue';
+import EditPicture from './components/modals/EditPicture.vue';
+import CreateAlbum from './components/modals/CreateAlbum.vue';
+import ModifyProfile from './components/modals/ModifyProfile.vue'
+import Admin from './components/modals/Admin.vue';
+import router from './router';
+
+const activateLogin = ref<boolean>(false);
+const activateCreatePost = ref<boolean>(false);
+const activateCreateAlbum = ref<boolean>(false);
+const activateSearch = ref<boolean>(false);
+const activateEdit = ref<boolean>(false);
+const editImgSrc = ref<string>("");
+const activateModifyProfile = ref<boolean>(false);
+const activateAdmin = ref<boolean>(false);
+
+const { bus, eventBusEmit } = EventsBus();
+
+watch(() => bus.value.get(Events.LOGIN), () => {
+  activateLogin.value = true;  
+})
+
+watch(() => bus.value.get(Events.LOGOUT), () => {
+  Logout();
+})
+
+watch(() => bus.value.get(Events.CREATE_POST), () => {
+  activateCreatePost.value = true;
+})
+watch(() => bus.value.get(Events.OPEN_SEARCH_MODAL), () => {
+  activateSearch.value = true;
+})
+watch(()=> bus.value.get(Events.CREATE_ALBUM), () => {
+  activateCreateAlbum.value = true;
+})
+watch(()=> bus.value.get(Events.RELOAD_CONNECTED_ACCOUNT), () => {
+  getAccount();
+})
+
+watch(() => bus.value.get(Events.OPEN_MODIFY_PROFILE_MODAL), () => {
+
+  activateModifyProfile.value = true;
+})
+
+watch(() => bus.value.get(Events.OPEN_ADMIN_PANEL), () => {
+  activateAdmin.value = true;
+})
+
+watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: string[]) => {
+    activateEdit.value = true;
+    editImgSrc.value = value[0];
+});
+
+onMounted(async () => {
+  let isConnected = await AccountRepository.isConnected();
+  if (!isConnected) return;
+  await getAccount();
+})
+
+function closeEditDialog() {
+    activateEdit.value = false;
 }
 
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #249b73);
+function closeSearchDialog() {
+  activateSearch.value = false;
 }
-</style>
+
+function closeModifyProfileDialog() {
+  activateModifyProfile.value = false;
+}
+function closeAdminPanel() {
+  activateAdmin.value = false;
+}
+
+async function closeLoginRegisterDialog(val: boolean) {
+  activateLogin.value = false;
+  if (!val) return;
+  await getAccount();
+}
+
+async function Logout() {
+  AccountRepository.logout();
+  eventBusEmit(Events.CONNECTED_ACCOUNT, undefined)
+  //change route to home page
+  router.push({ name: 'home' })
+  console.log();
+}
+
+async function getAccount() {
+  let apiResponse = await AccountRepository.getAccount();
+  console.log(apiResponse);
+  
+  if (!apiResponse.success) return;
+  let account = apiResponse.data;
+  console.log(account);
+  
+  eventBusEmit(Events.CONNECTED_ACCOUNT, account)
+}
+
+
+</script>
+
+<style scoped></style>

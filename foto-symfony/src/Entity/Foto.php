@@ -7,8 +7,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: FotoRepository::class)]
+#[ORM\Table(name: 'fotos')]
 class Foto
 {
     #[ORM\Id]
@@ -19,13 +21,13 @@ class Foto
     #[ORM\Column(length: 50)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 1024)]
+    #[ORM\Column(length: 1024, nullable:true)]
     private ?string $description = null;
 
     #[ORM\Column(length: 255)]
     private ?string $path = null;
 
-    #[ORM\Column(length: 255,name:'originalPath')]
+    #[ORM\Column(length: 255,name:'originalPath',nullable:true)]
     private ?string $originalPath = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable:true,name:'modificationDate')]
@@ -37,16 +39,40 @@ class Foto
     #[ORM\Column(name:'isNSFW')]
     private ?bool $isNSFW = null;
 
-    #[ORM\ManyToMany(targetEntity: Album::class, mappedBy: 'fotos')]
+    // #[ORM\JoinTable(
+    //     name: 'albumFotos',
+    //     joinColumns: [new ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')],
+    //     inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
+    // )]
+    #[ORM\JoinTable(name:'albumFotos')]
+    #[ORM\JoinColumn(name:'idFoto',referencedColumnName:'idFoto')]
+    #[ORM\InverseJoinColumn(name:'idAlbum',referencedColumnName:'idAlbum')]
+    #[ORM\ManyToMany(targetEntity: Album::class, mappedBy: 'fotos', cascade: ['persist'])]
     private Collection $albums;
 
-    #[ORM\OneToMany(mappedBy: 'foto', targetEntity: Post::class)]
+    #[ORM\OneToMany(mappedBy: 'foto', targetEntity: Post::class, cascade: ['persist'])]
     private Collection $posts;
+
+    #[ORM\ManyToOne(inversedBy: 'fotos', cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')]
+    private ?User $user = null;
 
     public function __construct()
     {
         $this->albums = new ArrayCollection();
         $this->posts = new ArrayCollection();
+    }
+
+    public function getAll(){
+        return [
+            'idFoto'=>$this->idFoto,
+            'name' => $this->name,
+            'description' => $this->description,
+            'path' => $this->path,
+            'modificationDate' => $this->modificationDate,
+            'uploadDate' => $this->uploadDate,
+            'isNSFW' => $this->isNSFW,
+        ];
     }
 
     public function getIdFoto(): ?int
@@ -72,7 +98,7 @@ class Foto
         return $this->description;
     }
 
-    public function setDescription(string $description): static
+    public function setDescription(?string $description): static
     {
         $this->description = $description;
 
@@ -192,6 +218,18 @@ class Foto
                 $post->setFoto(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }
