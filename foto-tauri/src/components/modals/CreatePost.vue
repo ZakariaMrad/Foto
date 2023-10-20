@@ -3,13 +3,13 @@
         <v-card>
             <v-card-text>
                 <form class="form-group" @submit.prevent="submitFn">
-                    <h3 class="text-center" md="12">Créer un post</h3>
+                    <h3 class="text-center" md="12">Créer une publication</h3>
                     <v-row>
                         <v-col cols="6">
                             <div class="left-panel">
                                 <v-text-field v-bind="register('title')" type="text" label="Titre" required />
                                 <v-switch hide-details color="blue" v-bind:input-value="register('isPublic', { defaultValue: true})"
-                                    label="Public" />
+                                    label="Publique" />
                             </div>
                         </v-col>
                         <v-col cols="6">

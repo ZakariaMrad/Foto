@@ -1,7 +1,7 @@
 <template>
     <v-dialog width="40%" v-model="props.activate">
         <v-card title="Rechercher">
-            <v-text-field v-bind:="register('searchValue')" class="pa-5" append-icon="mdi-magnify" label="Search" single-line
+            <v-text-field v-bind:="register('searchValue')" class="pa-5" append-icon="mdi-magnify" label="Rechercher..." single-line
                 hide-details/>
             <v-card-actions>
                 <v-spacer/>

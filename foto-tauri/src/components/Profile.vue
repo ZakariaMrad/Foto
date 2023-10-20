@@ -35,17 +35,17 @@
                 <v-row cols="12" class="pa-3 font-weight-bold">
                     <v-col cols="4">
                         <p>
-                            120 posts
+                            120 Publications
                         </p>
                     </v-col>
                     <v-col cols="4">
                         <p>
-                            752 followers
+                            752 Suiveurs
                         </p>
                     </v-col>
                     <v-col cols="4">
                         <p>
-                            1,5K following
+                            1,5K Suivis
                         </p>
                     </v-col>
                 </v-row>
