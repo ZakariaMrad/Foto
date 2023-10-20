@@ -17,10 +17,10 @@
                 <v-list-item prepend-icon="mdi-star" title="Populaire" value="shared" />
                 <v-list-item v-if="account" prepend-icon="mdi-account" title="Mon profil" :to="{ name: 'profil' }"></v-list-item>
                 <v-list-item v-if="account" prepend-icon="mdi-upload" title="Téléverser" :to="{ name: 'upload' }"></v-list-item>
-                <v-list-item v-if="account" prepend-icon="mdi-folder" title="Mes Fichiers" value="myfiles" />
-                <v-list-item v-if="account" prepend-icon="mdi-plus-box" title="Créer un post" @click="createPost" />
+                <v-list-item v-if="account" prepend-icon="mdi-folder" title="Mes fichiers" value="myfiles" />
+                <v-list-item v-if="account" prepend-icon="mdi-plus-box" title="Créer une publication" @click="createPost" />
                 <v-list-item v-if="account" prepend-icon=" mdi-album" title="Créer un album" @click="createAlbum" />
-                <v-list-item v-if="account" prepend-icon="mdi-logout-variant" title="Se déconnexter" @click="logout" />
+                <v-list-item v-if="account" prepend-icon="mdi-logout-variant" title="Se déconnecter" @click="logout" />
             </v-list>
         </v-navigation-drawer>
         <div class="mx-16 my-1">
