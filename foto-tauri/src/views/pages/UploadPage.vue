@@ -11,17 +11,17 @@
                         chips
                         prepend-icon="mdi-camera"
                         v-model="files"
-                        @update:model-value="printFiles">
+                        @update:model-value="readFiles">
             </v-file-input>
         </div>
 
         <v-container>
             <v-row justify="center">
                 <v-col cols="3" v-for="(file, index) in files">
-                    <v-card>
+                    <v-card v-if="pictures[index]">
                         <v-img
                             height="300"
-                            :src="(imgSrc[index] as string)"
+                            :src="pictures[index]?.base64"
                             cover
                             >
                             <v-toolbar
@@ -52,58 +52,61 @@
 <script setup lang="ts">
 import DefaultLayout from '../layouts/DefaultLayout.vue';
 import { ref } from 'vue';
-import {EventsBus, Events} from '../../core/EventBus';
+//import {EventsBus, Events} from '../../core/EventBus';
 import FotoRepository from '../../repositories/FotoRepository';
 import Foto from '../../models/Foto';
-const {eventBusEmit} = EventsBus();
+import EditedPicture from '../../models/EditedPicture';
+//const {eventBusEmit} = EventsBus();
 
-const imgSrc = ref<Array<string | null | ArrayBuffer>>([]);
+const pictures = ref<Array<EditedPicture>>([]);
 const files = ref([]);
 
-function printFiles() {
+function readFiles() {
     files.value.forEach((file, index) => {
         const reader = new FileReader();
         reader.onloadend = function() {
-            imgSrc.value[index] = reader.result;
+            pictures.value[index] = new EditedPicture((reader.result as string));
         }
         if (file) {
             reader.readAsDataURL(file);
         } else {
-            imgSrc.value[index] = "";
+            delete pictures.value[index];
         }
-    })
+    });
+    console.log(pictures.value);
 }
 
 function removeFromFiles(file: File)
 {
     const index = files.value.findIndex((f) => f === file);
     files.value = files.value.filter((f) => f !== file);
-    imgSrc.value = imgSrc.value.filter((_, imgIndex) => imgIndex !== index)
+    pictures.value = pictures.value.filter((_, picIndex) => picIndex !== index)
 }
 
 function removeAllFiles()
 {
     files.value = [];
-    imgSrc.value = [];
+    pictures.value = [];
 }
 
 function openEditModal(index: number) {
-    eventBusEmit(Events.OPEN_EDIT_MODAL, imgSrc.value[index]);
+    //eventBusEmit(Events.OPEN_EDIT_MODAL, imgSrc.value[index]);
+    index;
 }
 
 function uploadFotos() {
     //TODO: Webworker
-    imgSrc.value.forEach(async (imgSrc, index) => {
+    pictures.value.forEach(async (picture, index) => {
         let foto = new Foto();
         foto.name = "test" + index;
-        foto.base64image = imgSrc as string;
+        foto.base64image = picture.base64;
 
         let response = await FotoRepository.uploadFotos(foto);
         console.log(response);
         
         if (response.success)
             removeAllFiles();
-    })
+    });
     
 }
 

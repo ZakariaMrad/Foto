@@ -1,14 +1,11 @@
 export default class EditedPicture {
     base64: string;
-    exposition: number;
-    contrast: number;
-    saturation: number;
+    exposition: number = 100;
+    contrast: number = 100;
+    saturation: number = 100;
 
-    constructor(base64: string, exposition: number, contrast: number, saturation: number)
+    constructor(base64: string)
     {
         this.base64 = base64;
-        this.exposition = exposition;
-        this.contrast = contrast;
-        this.saturation = saturation;
     }
 }
