@@ -22,6 +22,7 @@
                         <v-img
                             height="300"
                             :src="pictures[index]?.base64"
+                            :style="{filter: 'saturate(' + pictures[index]?.saturation +'%) contrast(' + pictures[index]?.contrast +'%) brightness(' + pictures[index]?.exposition +'%)'}"
                             cover
                             >
                             <v-toolbar

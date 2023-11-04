@@ -51,12 +51,12 @@ const props = defineProps({
     editedPicture: EditedPicture
 })
 
-watch(() => (props.editedPicture), (value: EditedPicture | undefined) => {
-    if (!value)
+watch(() => (props.activate), (value: Boolean | undefined) => {
+    if (!value || !props.editedPicture)
         return;
-    exposition.value = value.exposition;
-    contrast.value = value.contrast;
-    saturation.value = value.saturation;
+    exposition.value = props.editedPicture.exposition;
+    contrast.value = props.editedPicture.contrast;
+    saturation.value = props.editedPicture.saturation;
 });
 
 function closeDialog() {
