@@ -6,16 +6,15 @@
                     <v-row>
                         <v-col cols="9">
                             <v-img
-                            class="foo"
                             max-height="600"
-                            :src="imgSrc"
-                            :style="{filter: 'saturate(' + saturation +'%) contrast(' + contrast +'%) brightness(' + exposure +'%)'}">
+                            :src="editedPicture?.base64"
+                            :style="{filter: 'saturate(' + saturation +'%) contrast(' + contrast +'%) brightness(' + exposition +'%)'}">
                         
                         </v-img>
                         </v-col>
                         <v-col cols="3">
                             <div class="text-caption">Exposition</div>
-                            <v-slider :max="max" :min="min" v-model="exposure"></v-slider>
+                            <v-slider :max="max" :min="min" v-model="exposition"></v-slider>
                             <div class="text-caption">Contraste</div>
                             <v-slider :max="max" :min="min" v-model="contrast"></v-slider>
                             <div class="text-caption">Saturation</div>
@@ -26,7 +25,7 @@
                 <div class="d-flex justify-space-between">
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
                     <v-btn class="btn" @click="resetSliders()">Retour à l'original</v-btn>
-                    <v-btn class="btn btn-success" @click="closeDialog()" color="green-darken-3">Sauvegarder</v-btn>
+                    <v-btn class="btn btn-success" @click="save()" color="green-darken-3">Sauvegarder</v-btn>
                 </div>
             </v-card-text>
         </v-card>
@@ -35,20 +34,30 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import EditedPicture from '../../models/EditedPicture';
+import { watch } from 'vue';
 
 const max = ref(200);
 const min = ref(0);
 const defaultValue = 100;
 
-const exposure = ref(defaultValue);
+const exposition = ref(defaultValue);
 const contrast = ref(defaultValue);
 const saturation = ref(defaultValue);
 
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
     activate: Boolean,
-    imgSrc: String
+    editedPicture: EditedPicture
 })
+
+watch(() => (props.editedPicture), (value: EditedPicture | undefined) => {
+    if (!value)
+        return;
+    exposition.value = value.exposition;
+    contrast.value = value.contrast;
+    saturation.value = value.saturation;
+});
 
 function closeDialog() {
     resetSliders();
@@ -56,10 +65,23 @@ function closeDialog() {
 }
 
 function resetSliders() {
-    exposure.value = defaultValue;
+    if (!props.editedPicture)
+        return;
+    exposition.value = defaultValue;
     contrast.value = defaultValue;
     saturation.value = defaultValue;
 }
+
+function save() {
+    if (!props.editedPicture)
+        return;
+    props.editedPicture.exposition = exposition.value;
+    props.editedPicture.contrast = contrast.value;
+    props.editedPicture.saturation = saturation.value;
+    
+    closeDialog();
+}
+
 </script>
 
 <style scoped>

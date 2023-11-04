@@ -3,7 +3,7 @@
   <LoginRegister :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
   <CreatePost :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
   <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
-  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" :img-src="editImgSrc"/>
+  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" :editedPicture="editedPicture"/>
   <CreateAlbum :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
   <ModifyProfile :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
   <Admin :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
@@ -21,13 +21,14 @@ import CreateAlbum from './components/modals/CreateAlbum.vue';
 import ModifyProfile from './components/modals/ModifyProfile.vue'
 import Admin from './components/modals/Admin.vue';
 import router from './router';
+import EditedPicture from './models/EditedPicture';
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
 const activateCreateAlbum = ref<boolean>(false);
 const activateSearch = ref<boolean>(false);
 const activateEdit = ref<boolean>(false);
-const editImgSrc = ref<string>("");
+const editedPicture= ref<EditedPicture>();
 const activateModifyProfile = ref<boolean>(false);
 const activateAdmin = ref<boolean>(false);
 
@@ -63,9 +64,9 @@ watch(() => bus.value.get(Events.OPEN_ADMIN_PANEL), () => {
   activateAdmin.value = true;
 })
 
-watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: string[]) => {
+watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: EditedPicture[]) => {
     activateEdit.value = true;
-    editImgSrc.value = value[0];
+    editedPicture.value = value[0];
 });
 
 onMounted(async () => {

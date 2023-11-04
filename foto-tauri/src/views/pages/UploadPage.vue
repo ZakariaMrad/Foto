@@ -52,11 +52,11 @@
 <script setup lang="ts">
 import DefaultLayout from '../layouts/DefaultLayout.vue';
 import { ref } from 'vue';
-//import {EventsBus, Events} from '../../core/EventBus';
+import {EventsBus, Events} from '../../core/EventBus';
 import FotoRepository from '../../repositories/FotoRepository';
 import Foto from '../../models/Foto';
 import EditedPicture from '../../models/EditedPicture';
-//const {eventBusEmit} = EventsBus();
+const {eventBusEmit} = EventsBus();
 
 const pictures = ref<Array<EditedPicture>>([]);
 const files = ref([]);
@@ -90,8 +90,7 @@ function removeAllFiles()
 }
 
 function openEditModal(index: number) {
-    //eventBusEmit(Events.OPEN_EDIT_MODAL, imgSrc.value[index]);
-    index;
+    eventBusEmit(Events.OPEN_EDIT_MODAL, pictures.value[index]);
 }
 
 function uploadFotos() {
