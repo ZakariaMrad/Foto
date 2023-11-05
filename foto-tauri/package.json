@@ -33,6 +33,7 @@
     "vue-horizontal": "^1.0.2",
     "vue-router": "^4.2.4",
     "vue-tauri-draggable": "^0.2.0",
+    "vue-uuid": "^3.0.0",
     "vue3-horizontal-list": "^0.0.3",
     "vuedraggable": "^4.1.0",
     "vuetify": "^3.3.16",
