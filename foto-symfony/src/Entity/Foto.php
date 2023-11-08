@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: FotoRepository::class)]
 #[ORM\Table(name: 'fotos')]
@@ -38,13 +39,17 @@ class Foto
     #[ORM\Column(name:'isNSFW')]
     private ?bool $isNSFW = null;
 
-    #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'fotos')]
+
+    #[ORM\JoinTable(name:'albumFotos')]
+    #[ORM\JoinColumn(name:'idFoto',referencedColumnName:'idFoto')]
+    #[ORM\InverseJoinColumn(name:'idAlbum',referencedColumnName:'idAlbum')]
+    #[ORM\ManyToMany(targetEntity: Album::class, mappedBy: 'fotos', cascade: ['persist'])]
     private Collection $albums;
 
-    #[ORM\OneToMany(mappedBy: 'foto', targetEntity: Post::class)]
+    #[ORM\OneToMany(mappedBy: 'foto', targetEntity: Post::class, cascade: ['persist'])]
     private Collection $posts;
 
-    #[ORM\ManyToOne(inversedBy: 'fotos')]
+    #[ORM\ManyToOne(inversedBy: 'fotos', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')]
     private ?User $user = null;
 

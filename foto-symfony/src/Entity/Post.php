@@ -17,7 +17,7 @@ class Post
     #[ORM\Column(name:'idPost')]
     private ?int $idPost = null;
 
-    #[ORM\ManyToOne(inversedBy: 'posts')]
+    #[ORM\ManyToOne(inversedBy: 'posts', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idOwner', referencedColumnName: 'idUser')]
     private ?User $owner = null;
 
@@ -30,21 +30,21 @@ class Post
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true,name:'modificationDate')]
     private ?\DateTimeInterface $modificationDate = null;
 
-    #[ORM\ManyToOne(inversedBy: 'posts')]
+    #[ORM\ManyToOne(inversedBy: 'posts', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
     private ?Album $album = null;
 
-    #[ORM\ManyToOne(inversedBy: 'posts')]
+    #[ORM\ManyToOne(inversedBy: 'posts', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')]
-    private ?foto $foto = null;
+    private ?Foto $foto = null;
 
     #[ORM\Column(name:'isPublic')]
     private ?bool $isPublic = null;
 
-    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Like::class)]
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Like::class, cascade: ['persist'])]
     private Collection $likes;
 
-    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Comment::class)]
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Comment::class, cascade: ['persist'])]
     private Collection $comments;
 
     #[ORM\Column(length: 255)]
@@ -54,6 +54,16 @@ class Post
     {
         $this->likes = new ArrayCollection();
         $this->comments = new ArrayCollection();
+    }
+
+    public function getAll(){
+        return [
+            "idPost" => $this->idPost,
+            "owner" => $this->owner->getAll(),
+            "description" => $this->description,
+            "creationDate" => $this->creationDate,
+            "foto" => $this->foto->getAll(),
+        ];
     }
 
     public function getIdPost(): ?int

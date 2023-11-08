@@ -8,13 +8,13 @@
             <div class="text-center ma-2 pa-2">
                 <v-menu open-on-hover>
                     <template v-slot:activator="{ props }">
-                        <v-btn color="primary" v-bind="props">
-                            |||
+                        <v-btn color="primary" icon="mdi-menu" v-bind="props">
                         </v-btn>
                     </template>
 
                     <v-list>
-                        <v-list-item v-for="link in links" :key="link.text" router :to="link.route">
+                        <v-list-item v-for="link in links" :prepend-icon="link.icon" :key="link.text" router
+                            :to="link.route">
                             <v-list-item-title>{{ link.text }}</v-list-item-title>
                         </v-list-item>
                     </v-list>
@@ -27,21 +27,18 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { Events, EventsBus } from '../core/EventBus';
-import { Account } from '../models/Account';
+import Account  from '../models/Account';
 const { bus } = EventsBus();
 
-
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefined) => {
-    if(!value) return;
-    console.log('value of account on bus',value[0].email);
+    if (!value) return;
 })
 
-const links = ref<{ text:string, route: string }[]>(
+const links = ref<{ icon: string, text: string, route: string }[]>(
     [
-        { text: 'Dark mode', route: '' },
-        { text: `S'inscrire`, route: '' },
-        { text: 'Paramètres', route: '' },
-        { text: 'Nous contacter', route: '' },
+        { icon: 'mdi-theme-light-dark', text: 'Mode sombre', route: '' },
+        { icon: 'mdi-cog-outline', text: 'Paramètres', route: '' },
+        { icon: 'mdi-card-account-phone-outline', text: 'Nous contacter', route: '' },
     ]
 )
 

@@ -24,6 +24,8 @@ const router = createRouter({
         component: () => import('../views/pages/AdminPage.vue')
     }
   ]
+  
 })
+
 
 export default router;

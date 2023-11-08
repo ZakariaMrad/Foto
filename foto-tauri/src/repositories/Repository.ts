@@ -14,7 +14,8 @@ export class Repository {
         return errorsArray;
     }
     protected async handleJWT(data: JWTToken) {
-        let jwtToken = new JWTToken(data.jwtToken);
+        let jwtToken = new JWTToken();
+        jwtToken.jwtToken = data.jwtToken;
         await AccountDatastore.setJWTToken(jwtToken);        
     }
     

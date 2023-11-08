@@ -3,13 +3,13 @@
         <v-card>
             <v-card-text>
                 <form class="form-group" @submit.prevent="submitFn">
-                    <h3 class="text-center" md="12">Créer un post</h3>
+                    <h3 class="text-center" md="12">Créer une publication</h3>
                     <v-row>
                         <v-col cols="6">
                             <div class="left-panel">
                                 <v-text-field v-bind="register('title')" type="text" label="Titre" required />
                                 <v-switch hide-details color="blue" v-bind:input-value="register('isPublic', { defaultValue: true})"
-                                    label="Public" />
+                                    label="Publique" />
                             </div>
                         </v-col>
                         <v-col cols="6">
@@ -28,7 +28,7 @@
                     </v-btn-toggle>
                     <div class="h-10">
                         <AssetPicker :itemSize="6" :items="fotos" :multiple="false"
-                            @items-selected="(items) => setItems(items)" />
+                            title="" @items-selected="(items) => setItems(items as Foto[])" />
                     </div>
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
                     <div class="float-right">
@@ -41,17 +41,23 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useFormHandler } from 'vue-form-handler';
 import Foto from '../../models/Foto';
 import AssetPicker from '../AssetPicker.vue';
 import FotoRepository from '../../repositories/FotoRepository';
 import PostRepository from '../../repositories/PostRepository';
 import { APIError } from '../../core/API/APIError';
+import { watch } from 'vue';
+import { EventsBus, Events } from '../../core/EventBus';
 
 const { register, handleSubmit, formState } = useFormHandler({
     validationMode: 'always',
 })
+
+const { eventBusEmit } = EventsBus();
+
+
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
     activate: Boolean
@@ -64,12 +70,15 @@ const loading = ref<boolean>(false)
 const isFotos = ref<number>(0)
 const fotos = ref<Foto[]>([])
 let choosenFotoId: number | undefined = undefined
-onMounted(async () => {
+
+watch(() => props.activate, async () => {
     let apiResponse = await FotoRepository.getFotos()
+    console.log(apiResponse);
     if (!apiResponse.success) return
 
     fotos.value = apiResponse.data
 })
+
 function setItems(items: Foto[]) {
     console.log(items);
     choosenFotoId = items[0].idFoto
@@ -93,6 +102,8 @@ async function successFn(form: any) {
     loading.value = false
 
     message.value = apiResult.data.message
+    eventBusEmit(Events.RELOAD_CONNECTED_ACCOUNT, undefined)
+
     closeDialog();
 }
 

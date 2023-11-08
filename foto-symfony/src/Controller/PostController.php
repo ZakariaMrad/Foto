@@ -66,7 +66,35 @@ class PostController extends AbstractController
 
         return $this->json([
             'jwtToken' => $newJWT,
-            'message' => 'Post créée avec succès.'
+            'message' => 'Post créé avec succès.'
+        ], JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/posts', name: 'app_post_get', methods: ['GET'])]
+    public function getFotos(Request $request): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $posts = $this->em->getRepository(Post::class)->findAll();
+
+        //order the post by the inversed datetime (new post at the start of the array)
+        usort($posts, function($a,$b){
+            return $b->getCreationDate() <=> $a->getCreationDate();
+        });
+        $posts = array_map(function($post){
+            return $post->getAll();
+        },$posts);
+        
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'posts' => $posts
         ], JsonResponse::HTTP_OK);
     }
     private function getUserById(int $idUser): ?User

@@ -11,55 +11,69 @@
             <v-col cols="5">
                 <v-row cols="12" class="pa-2">
                     <v-col cols="6">
-                        <h2 colors="grey">Sandra Adams</h2>
+                        <h2 colors="grey">{{ connectedAccount?.name }}</h2>
+                        <p class="font-italic">{{ connectedAccount?.email }}</p>
                     </v-col>
                     <v-col cols="6" class="text-lg-right">
+
+
+                        <v-menu open-on-hover>
+                            <template v-slot:activator="{ props }">
+                                <v-btn color="primary" icon="mdi-dots-horizontal" v-bind="props">
+                                </v-btn>
+                                <v-btn class="ms-2" color="red-darken-3" v-if="isAdmin" @click="openAdminPage()">Admin</v-btn>
+                            </template>
+
+                            <v-list>
+                                <v-list-item v-for="profileLink in profileLinks" :prepend-icon="profileLink.icon"
+                                    :key="profileLink.text" @click="profileLink.click">
+                                    <v-list-item-title>{{ profileLink.text }}</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
+
                         <v-btn>Follow</v-btn>
                         <v-btn color="red" v-if="user.isAdmin">Admin</v-btn>
                     </v-col>
                     <v-col cols="12">
                         <p>sandra_a88@gmail.com</p>
+
                     </v-col>
                 </v-row>
                 <v-row cols="12" class="pa-3 font-weight-bold">
                     <v-col cols="4">
                         <p>
-                            120 posts
+                            120 Publications
                         </p>
                     </v-col>
                     <v-col cols="4">
                         <p>
-                            752 followers
+                            752 Suiveurs
                         </p>
                     </v-col>
                     <v-col cols="4">
                         <p>
-                            1,5K following
+                            1,5K Suivis
                         </p>
                     </v-col>
                 </v-row>
                 <v-sheet class="pa-2 ma-2">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur molestias, obcaecati fugiat unde
-                    aliquid illum quibusdam quo error similique quae sit aut placeat doloremque ipsam? Ipsa delectus ipsum
-                    repellendus nihil.
+                    {{ connectedAccount?.bio }}
                 </v-sheet>
             </v-col>
         </v-row>
         <v-row justify="center">
             <v-col cols="8">
                 <hr>
-
-
-
             </v-col>
         </v-row>
         <v-row justify="center">
             <v-col cols="10">
-                <v-tabs  color="deep-purple-accent-4" align-tabs="center">
+                <v-tabs color="deep-purple-accent-4" align-tabs="center">
                     <v-tab :value="1">Photos</v-tab>
                     <v-tab :value="2">Albums</v-tab>
                 </v-tabs>
-                <v-window >
+                <v-window>
                     <v-window-item v-for="n in 3" :key="n" :value="n">
                         <v-container fluid>
                             <v-row>
@@ -78,5 +92,43 @@
 </template>
 
 <script setup lang="ts">
+import { watch, ref, onMounted } from 'vue';
+import { EventsBus, Events } from '../core/EventBus';
+import Account from '../models/Account';
+import AccountRepository from '../repositories/AccountRepository';
 
+const { eventBusEmit, bus } = EventsBus();
+
+const connectedAccount = ref<Account>()
+const isAdmin = ref<boolean>(false)
+
+onMounted(async () => {
+    let apiResponse = await AccountRepository.isAdmin()
+    if (!apiResponse.success) return;
+    isAdmin.value = apiResponse.data
+})
+
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
+    if (!account)
+        return;
+
+    connectedAccount.value = account[0];
+})
+
+const profileLinks = ref<{ icon: string, text: string, click: any }[]>(
+    [
+        { icon: 'mdi-pencil-outline', text: 'Modifier le profil', click: openProfileModificationModal },
+    ]
+)
+
+async function openAdminPage() {
+    let apiResponse = await AccountRepository.isAdmin()
+    if (!apiResponse.success) return;
+    isAdmin.value = apiResponse.data
+    eventBusEmit(Events.OPEN_ADMIN_PANEL)
+}
+
+function openProfileModificationModal() {
+    eventBusEmit(Events.OPEN_MODIFY_PROFILE_MODAL)
+}
 </script>
