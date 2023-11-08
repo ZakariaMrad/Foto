@@ -91,6 +91,12 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(name:'isAdmin')]
     private ?bool $isAdmin = false;
 
+    #[ORM\OneToMany(mappedBy: 'Sender', targetEntity: Complaint::class, orphanRemoval: true)]
+    private Collection $sentComplaints;
+
+    #[ORM\OneToMany(mappedBy: 'Recipient', targetEntity: Complaint::class, orphanRemoval: true)]
+    private Collection $receivedComplaints;
+
     public function __construct()
     {
         $this->collaboretedAlbums = new ArrayCollection();
@@ -101,6 +107,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->chats = new ArrayCollection();
         $this->messages = new ArrayCollection();
         $this->fotos = new ArrayCollection();
+        $this->sentComplaints = new ArrayCollection();
+        $this->receivedComplaints = new ArrayCollection();
     }
 
     public function getAll()
@@ -517,6 +525,66 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function setIsAdmin(bool $isAdmin): static
     {
         $this->isAdmin = $isAdmin;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Complaint>
+     */
+    public function getSentComplaints(): Collection
+    {
+        return $this->sentComplaints;
+    }
+
+    public function addSentComplaint(Complaint $sentComplaint): static
+    {
+        if (!$this->sentComplaints->contains($sentComplaint)) {
+            $this->sentComplaints->add($sentComplaint);
+            $sentComplaint->setSender($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSentComplaint(Complaint $sentComplaint): static
+    {
+        if ($this->sentComplaints->removeElement($sentComplaint)) {
+            // set the owning side to null (unless already changed)
+            if ($sentComplaint->getSender() === $this) {
+                $sentComplaint->setSender(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Complaint>
+     */
+    public function getReceivedComplaints(): Collection
+    {
+        return $this->receivedComplaints;
+    }
+
+    public function addReceivedComplaint(Complaint $receivedComplaint): static
+    {
+        if (!$this->receivedComplaints->contains($receivedComplaint)) {
+            $this->receivedComplaints->add($receivedComplaint);
+            $receivedComplaint->setRecipient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReceivedComplaint(Complaint $receivedComplaint): static
+    {
+        if ($this->receivedComplaints->removeElement($receivedComplaint)) {
+            // set the owning side to null (unless already changed)
+            if ($receivedComplaint->getRecipient() === $this) {
+                $receivedComplaint->setRecipient(null);
+            }
+        }
 
         return $this;
     }

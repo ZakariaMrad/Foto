@@ -38,7 +38,7 @@ class Foto
     #[ORM\Column(name:'isNSFW')]
     private ?bool $isNSFW = null;
 
-    #[ORM\ManyToMany(targetEntity: Album::class, mappedBy: 'fotos')]
+    #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'fotos')]
     private Collection $albums;
 
     #[ORM\OneToMany(mappedBy: 'foto', targetEntity: Post::class)]
