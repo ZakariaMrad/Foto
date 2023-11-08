@@ -98,10 +98,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column(name: 'isAdmin')]
     private ?bool $isAdmin = false;
-    #[ORM\OneToMany(mappedBy: 'Sender', targetEntity: Complaint::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'sender', targetEntity: Complaint::class, orphanRemoval: true)]
     private Collection $sentComplaints;
 
-    #[ORM\OneToMany(mappedBy: 'Recipient', targetEntity: Complaint::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'recipient', targetEntity: Complaint::class, orphanRemoval: true)]
     private Collection $receivedComplaints;
 
     public function __construct()
@@ -542,6 +542,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             $this->spectatedAlbums->add($spectatedAlbum);
             $spectatedAlbum->addSpectator($this);
         }
+        return $this;
     }
  public function removeSpectatedAlbum(Album $spectatedAlbum): static
        {
@@ -550,19 +551,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         }
       return $this;
     }
-    public function isIsAdmin(): ?bool
-    {
-        return $this->isAdmin;
-    }
-
-    public function setIsAdmin(bool $isAdmin): static
-    {
-        $this->isAdmin = $isAdmin;
-
-        return $this;
-    }
-     
-          
+    
     /**
      * @return Collection<int, Complaint>
      */
@@ -605,6 +594,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function setIsAdmin(bool $isAdmin): static
     {
         $this->isAdmin = $isAdmin;
+        return $this;
+    }
 
     /**
      * @return Collection<int, Complaint>

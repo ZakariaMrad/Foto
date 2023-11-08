@@ -6,7 +6,6 @@ import { APIError } from "../core/API/APIError";
 import Album from "../models/Album";
 
 const client = await getClient();
-const url = 'https://fotoapi.1929736.techinfo-cstj.ca';
 
 class FotoRepository extends Repository {
     public async createAlbum(album: Album): Promise<APIResult<JWTToken>> {
@@ -14,7 +13,7 @@ class FotoRepository extends Repository {
         if (!jwt.success) return { errors: jwt.errors, success: false };
         album.jwtToken = jwt.data.jwtToken;
         try {
-            const response = await client.post(`${url}/album`, Body.json(album), { responseType: ResponseType.JSON });
+            const response = await client.post(`${this.url}/album`, Body.json(album), { responseType: ResponseType.JSON });
             let data = response.data as JWTToken;
 
             if (response.status === 200) {

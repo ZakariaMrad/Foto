@@ -11,7 +11,7 @@ class Complaint
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(name:'idComplaint')]
     private ?int $idComplaint = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
@@ -24,7 +24,7 @@ class Complaint
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, name:'readDateTime')]
     private ?\DateTimeInterface $readDateTime = null;
 
-    #[ORM\ManyToOne(inversedBy: 'SentComplaints')]
+    #[ORM\ManyToOne(inversedBy: 'sentComplaints')]
     #[ORM\JoinColumn(name: 'idSender', referencedColumnName: 'idUser', nullable: false)]
     private ?User $sender = null;
 
@@ -32,9 +32,25 @@ class Complaint
     #[ORM\JoinColumn(name: 'idRecipient', referencedColumnName: 'idUser', nullable: false)]
     private ?User $recipient = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(name: 'idComplaintStatus', referencedColumnName: 'idComplaintStatus', nullable: false)]
-    private ?ComplaintStatus $Status = null;
+    #[ORM\Column(length: 1024)]
+    private ?String $status = '';
+
+    const STATUS_NEW = 'Nouveau';
+    const STATUS_READ = 'Vue';
+    const STATUS_PROCESSING = 'En traitement';
+    const STATUS_PROCESSED = 'Traité';
+
+    public function getAll(){
+        return [
+            'idComplaint' => $this->idComplaint,
+            'subject'=> $this->subject->getAll(),
+            'sentDateTime' => $this->sentDateTime,
+            'readDateTime' => $this->readDateTime,
+            'status' => $this->status,
+            'sender' => $this->sender,
+            'recipient' => $this->recipient,
+        ];
+    }
 
     public function getIdComplaint(): ?int
     {
@@ -101,14 +117,14 @@ class Complaint
         return $this;
     }
 
-    public function getStatus(): ?ComplaintStatus
+    public function getStatus(): ?String
     {
-        return $this->Status;
+        return $this->status;
     }
 
-    public function setStatus(?ComplaintStatus $Status): static
+    public function setStatus(?String $Status): static
     {
-        $this->Status = $Status;
+        $this->status = $Status;
 
         return $this;
     }

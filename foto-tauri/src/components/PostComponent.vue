@@ -23,8 +23,8 @@
 
                             <v-list class="ml-2">{{ props.post?.comments }}</v-list>
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment"></v-btn>
-
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-share-variant"></v-btn>
+                            <v-btn size="small" color="surface-variant" variant="text" icon="mdi-exclamation" @click="report()"/>
                         </v-card-actions>
                     </v-card>
                 </v-col>
@@ -51,6 +51,11 @@ function toggleLike() {
         props.post.isLiked = true;
         props.post.likes++;
     }
+}
+
+function report() {
+    console.log("report", props.post?.idPost);
+    
 }
 
 </script>
