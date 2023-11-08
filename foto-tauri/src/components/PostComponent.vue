@@ -35,6 +35,7 @@
 
 <script setup lang="ts">
 import Post from '../models/Post';
+import ComplaintRepository from '../repositories/ComplaintRepository';
 
 const props = defineProps({
     post: Post
@@ -54,7 +55,8 @@ function toggleLike() {
 }
 
 function report() {
-    console.log("report", props.post?.idPost);
+
+    ComplaintRepository.createComplaint(props.post?.idPost as number, 'post',props.post?.owner.idAccount as number )
     
 }
 

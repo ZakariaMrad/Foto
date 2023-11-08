@@ -4,10 +4,10 @@
         <v-row class="ma-1">
             <v-col cols="4">
                 <v-row class="p-1">
-                    Envoyé par <span class="ms-1 text-green">Zakaria</span>
+                    Envoyé par <span class="ms-1 text-green">{{complaint?.sender.name}}</span>
                 </v-row>
                 <v-row class="p-1">
-                    Envers <span class="ms-1 text-red-darken-3">Zakaria</span>
+                    Envers <span class="ms-1 text-red-darken-3">{{complaint?.recipient.name}}</span>
                 </v-row>
             </v-col>
             <v-col cols="8">
@@ -23,7 +23,7 @@
                             <v-icon color="blue" size="large" icon="mdi-read"/>
                          </v-btn>
                         <v-btn>
-                            <v-icon color="red-darken-3" size="large" icon="mdi-delete"/>
+                            <v-icon color="red-darken-3" size="large" icon="mdi-delete" @click="deleteComplaint"/>
                          </v-btn>
                         <v-btn>
                             <v-icon color="green" size="large" icon="mdi-check-bold"/>
@@ -38,17 +38,17 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Complaint from '../../models/Complaint.ts';
+import ComplaintRepository from '../../repositories/ComplaintRepository';
 
 const props = defineProps({
     complaint: Complaint
 })
 const actionbarModel = ref<number>();
 
-let icons = new Map([
-    ["unread", { icon: "mdi-exclamation-thick", color: "red-darken-2" }],
-    ["unresolved", { icon: "mdi-exclamation", color: "indigo" }],
-    ["resolved", { icon: "mdi-check", color: "green" }],
-]);
+function deleteComplaint(){
+    console.log('delete complaint');
+    ComplaintRepository.deleteComplaint(props.complaint?.idComplaint as number);
+}
 </script>
 
 <style scoped></style>

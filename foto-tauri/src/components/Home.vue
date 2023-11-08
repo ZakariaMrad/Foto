@@ -1,5 +1,5 @@
 <template>
-    <PostComponent v-for="post in posts" :post="post"/>
+    <PostComponent v-for="post in posts" :post="post" />
 </template>
 
 <script setup lang="ts">
@@ -12,17 +12,22 @@ const { bus } = EventsBus();
 
 const posts = ref<Post[]>([])
 
-onMounted(async() => {
-    let apiResponse = await PostRepository.getPosts();
-    if(!apiResponse.success) return;
-    posts.value = apiResponse.data;
+onMounted(async () => {
+    getPosts();
 })
 
 watch(() => bus.value.get(Events.CREATE_POST), async () => {
-    let apiResponse = await PostRepository.getPosts();
-    if(!apiResponse.success) return;
-    posts.value = apiResponse.data;
+    getPosts();
 })
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), async () => {
+    getPosts();
+})
+
+async function getPosts() {
+    let apiResponse = await PostRepository.getPosts();
+    if (!apiResponse.success) return;
+    posts.value = apiResponse.data;
+}
 
 
 </script>

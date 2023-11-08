@@ -47,8 +47,8 @@ class Complaint
             'sentDateTime' => $this->sentDateTime,
             'readDateTime' => $this->readDateTime,
             'status' => $this->status,
-            'sender' => $this->sender,
-            'recipient' => $this->recipient,
+            'sender' => $this->sender->getAll(),
+            'recipient' => $this->recipient->getAll(),
         ];
     }
 

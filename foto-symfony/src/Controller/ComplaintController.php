@@ -11,6 +11,7 @@ use App\Form\FormHandler;
 use App\Form\ReportFormType;
 use App\Jwt\JWTHandler;
 use App\Entity\Complaint;
+use COM;
 use Doctrine\Persistence\ManagerRegistry;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -61,7 +62,7 @@ class ComplaintController extends AbstractController
         $complaint->setStatus(Complaint::STATUS_NEW);
 
         $complaint = $this->setSubjectById($data['idSubject'], $data['subjectType'], $complaint);
-        if($complaint->getSubject()->isEmpty()) {
+        if ($complaint->getSubject()->isEmpty()) {
             return $this->json([
                 'error' => ['Erreur: Le subject n\'existe pas.'],
             ], JsonResponse::HTTP_BAD_REQUEST);
@@ -74,6 +75,32 @@ class ComplaintController extends AbstractController
         return $this->json([
             // 'jwtToken' => $newJWT,
             'message' => 'Reporté avec succès.'
+        ], JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/complaint/{idComplaint}', name: 'app_complaint_delete', methods: ['DELETE'])]
+    public function deleteComplaint($idComplaint, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $complaint = $this->em->getRepository(Complaint::class)->findOneBy(['idComplaint' => $idComplaint]);
+        if (!$complaint) {
+            return $this->json([
+                'error' => ['Erreur: Le report n\'existe pas.'],
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+        $this->em->remove($complaint);
+        $this->em->flush();
+
+        return $this->json([
+            // 'jwtToken' => $newJWT,
+            'message' => 'Report supprimé avec succès.'
         ], JsonResponse::HTTP_OK);
     }
 
@@ -91,18 +118,26 @@ class ComplaintController extends AbstractController
         $complaints = $this->em->getRepository(Complaint::class)->findAll();
 
         //order the post by the inversed datetime (new post at the start of the array)
-        usort($complaints, function(Complaint $a,Complaint $b){
+        usort($complaints, function (Complaint $a, Complaint $b) {
             return $b->getSentDateTime() <=> $a->getSentDateTime();
         });
-        $complaints = array_map(function(Complaint $complaint){
+        $complaintsObj = array_map(function (Complaint $complaint) {
             return $complaint->getAll();
-        },$complaints);
-        
+        }, $complaints);
 
-        return $this->json([
+
+        $response =  $this->json([
             'jwtToken' => $newJWT,
-            'complaints' => $complaints
+            'complaints' => $complaintsObj
         ], JsonResponse::HTTP_OK);
+
+        $complaints = array_map(function (Complaint $complaint) {
+            $complaint->setStatus(Complaint::STATUS_READ);
+            $this->em->persist($complaint);
+            $this->em->flush();
+        }, $complaints);
+
+        return $response;
     }
 
 
