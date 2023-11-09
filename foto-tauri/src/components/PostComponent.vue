@@ -2,24 +2,24 @@
     <v-card class="mx-auto ma-10" max-width="1200px">
         <v-list>
             <v-list-item prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" :title="props.post?.owner.name"
-                :subtitle="props.post?.owner.email"></v-list-item>
+                :subtitle="props.post?.owner.email" 
+                @click="openUserProfile(props.post?.owner.idAccount)"></v-list-item>
             <v-list-item>
-                {{ props.post?.description  }}
+                {{ props.post?.description }}
             </v-list-item>
         </v-list>
         <v-container fluid>
             <v-row dense>
                 <v-col>
                     <v-card>
-                        <v-img class="d-flex" cover
-                            :src="props.post?.foto.path">
+                        <v-img class="d-flex" cover :src="props.post?.foto.path">
                         </v-img>
                         <v-card-actions>
                             <v-spacer></v-spacer>
 
                             <v-list>{{ props.post?.likes }}</v-list>
-                            <v-btn size="small" :color=" props.post?.isLiked ? 'red' : 'surface-variant'" variant="text" icon="mdi-heart"
-                                @click="toggleLike()"></v-btn>
+                            <v-btn size="small" :color="props.post?.isLiked ? 'red' : 'surface-variant'" variant="text"
+                                icon="mdi-heart" @click="toggleLike()"></v-btn>
 
                             <v-list class="ml-2">{{ props.post?.comments }}</v-list>
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment"></v-btn>
@@ -35,13 +35,39 @@
 
 <script setup lang="ts">
 import Post from '../models/Post';
+// import AccountRepository from '../repositories/AccountRepository';
+import { EventsBus, Events } from '../core/EventBus';
+
+const { eventBusEmit } = EventsBus();
+
+// let idAccount : number;
 
 const props = defineProps({
     post: Post
 })
 
+
+function openUserProfile(idAccount : any ){
+
+    // console.log(idAccount);
+
+
+    
+    eventBusEmit(Events.OPEN_USER_PROFILE, idAccount)
+
+
+
+    // let apiResponse = await AccountRepository.getOtherUserAccount(idAccount)
+    // if (!apiResponse.success) return;
+    // idAccount.value = apiResponse.data
+}
+
+
+
+
+
 function toggleLike() {
-    if(!props.post)
+    if (!props.post)
         return;
 
     if (props.post.isLiked) {
@@ -52,10 +78,6 @@ function toggleLike() {
         props.post.likes++;
     }
 }
-
 </script>
 
-<style scoped>
-
-
-</style>
+<style scoped></style>

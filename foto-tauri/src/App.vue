@@ -31,6 +31,9 @@ const editImgSrc = ref<string>("");
 const activateModifyProfile = ref<boolean>(false);
 const activateAdmin = ref<boolean>(false);
 
+
+// TODO : voir si ca marche
+
 const { bus, eventBusEmit } = EventsBus();
 
 watch(() => bus.value.get(Events.LOGIN), () => {
@@ -44,6 +47,7 @@ watch(() => bus.value.get(Events.LOGOUT), () => {
 watch(() => bus.value.get(Events.CREATE_POST), () => {
   activateCreatePost.value = true;
 })
+
 watch(() => bus.value.get(Events.OPEN_SEARCH_MODAL), () => {
   activateSearch.value = true;
 })
@@ -54,6 +58,14 @@ watch(()=> bus.value.get(Events.RELOAD_CONNECTED_ACCOUNT), () => {
   getAccount();
 })
 
+// watch(()=> bus.value.get(Events.GET_OTHER_USER_PROFILE), () => {
+//   getOtherUserAccount();
+// })
+
+watch(() => bus.value.get(Events.OPEN_USER_PROFILE), () => {
+  router.push('otherUserProfile');
+})
+
 watch(() => bus.value.get(Events.OPEN_MODIFY_PROFILE_MODAL), () => {
 
   activateModifyProfile.value = true;
@@ -62,6 +74,7 @@ watch(() => bus.value.get(Events.OPEN_MODIFY_PROFILE_MODAL), () => {
 watch(() => bus.value.get(Events.OPEN_ADMIN_PANEL), () => {
   activateAdmin.value = true;
 })
+
 
 watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: string[]) => {
     activateEdit.value = true;
@@ -77,18 +90,15 @@ onMounted(async () => {
 function closeEditDialog() {
     activateEdit.value = false;
 }
-
 function closeSearchDialog() {
   activateSearch.value = false;
 }
-
 function closeModifyProfileDialog() {
   activateModifyProfile.value = false;
 }
 function closeAdminPanel() {
   activateAdmin.value = false;
 }
-
 async function closeLoginRegisterDialog(val: boolean) {
   activateLogin.value = false;
   if (!val) return;
@@ -102,7 +112,6 @@ async function Logout() {
   router.push({ name: 'home' })
   console.log();
 }
-
 async function getAccount() {
   let apiResponse = await AccountRepository.getAccount();
   console.log(apiResponse);
@@ -114,6 +123,18 @@ async function getAccount() {
   eventBusEmit(Events.CONNECTED_ACCOUNT, account)
 }
 
+// todo : voir si il est capable de get le account du user
+
+// async function getOtherUserAccount() {
+//   let apiResponse = await AccountRepository.getOtherUserAccount();
+//   console.log(apiResponse);
+  
+//   if (!apiResponse.success) return;
+//   let otherUserAccount = apiResponse.data;
+//   console.log(otherUserAccount);
+  
+//   eventBusEmit(Events.GET_OTHER_USER_PROFILE, otherUserAccount)
+// }
 
 </script>
 

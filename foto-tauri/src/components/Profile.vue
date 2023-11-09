@@ -69,10 +69,11 @@
                     <v-window-item v-for="n in 3" :key="n" :value="n">
                         <v-container fluid>
                             <v-row>
-                                <v-col v-for="i in 34" :key="i" cols="12" md="4">
-                                    <v-img :src="`https://picsum.photos/500/300?image=${i * n * 5 + 10}`"
-                                        :lazy-src="`https://picsum.photos/10/6?image=${i * n * 5 + 10}`"
-                                        aspect-ratio="2"></v-img>
+                                <v-col v-for="post in posts" cols="12" md="4">
+                                    <v-img v-if="post.owner.idAccount == connectedAccount?.idAccount" :src="`${post.foto.path}?image=${1 * n * 5 + 10}`" aspect-ratio="2"></v-img>
+                                        <!--v-img v-if="post.idPost == connectedAccount?.idAccount" :src="`https://picsum.photos/500/300?image=${post * n * 5 + 10}`"
+                                        :lazy-src="`https://picsum.photos/10/6?image=${post * n * 5 + 10}`"
+                                        aspect-ratio="2"></v-img-->
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -88,16 +89,23 @@ import { watch, ref, onMounted } from 'vue';
 import { EventsBus, Events } from '../core/EventBus';
 import Account from '../models/Account';
 import AccountRepository from '../repositories/AccountRepository';
+import Post from '../models/Post';
+import PostRepository from '../repositories/PostRepository';
 
 const { eventBusEmit, bus } = EventsBus();
 
 const connectedAccount = ref<Account>()
+const posts = ref<Post[]>([])
 const isAdmin = ref<boolean>(false)
 
 onMounted(async () => {
     let apiResponse = await AccountRepository.isAdmin()
     if (!apiResponse.success) return;
     isAdmin.value = apiResponse.data
+
+    let apiPostResponse = await PostRepository.getPosts();
+    if(!apiPostResponse.success) return;
+    posts.value = apiPostResponse.data;
 })
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
