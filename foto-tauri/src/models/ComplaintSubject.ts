@@ -7,4 +7,6 @@ export default class ComplaintSubject {
     album: Album | undefined = undefined;
     post: Post | undefined = undefined;
     foto: Foto | undefined = undefined;
+
+    
 };

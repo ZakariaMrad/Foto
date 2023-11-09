@@ -8,8 +8,8 @@
                     </v-card-title>
                     <v-card-text>
                         <v-list>
-                            <v-list-item v-for="complaint in complaints.filter((c) => c.status === Constants.STATUS_NEW)">
-                                <complaint :complaint="complaint" />
+                            <v-list-item v-for="complaint in complaints.filter((c) => c.status !== Constants.STATUS_PROCESSED)">
+                                <complaint :complaint="complaint" @relaodComplaints="reloadComplaints"/>
                             </v-list-item>
                         </v-list>
                     </v-card-text>
@@ -23,8 +23,8 @@
                     </v-card-title>
                     <v-card-text>
                         <v-list>
-                            <v-list-item v-for="complaint in complaints.filter((c) => c.status !== Constants.STATUS_NEW)">
-                                <complaint :complaint="complaint" />
+                            <v-list-item v-for="complaint in complaints.filter((c) => c.status === Constants.STATUS_PROCESSED)">
+                                <complaint :complaint="complaint" @relaodComplaints="reloadComplaints"/>
                             </v-list-item>
                         </v-list>
                     </v-card-text>
@@ -43,10 +43,17 @@ import Constants from '../../core/Constants';
 
 const complaints = ref<Complaint[]>([]);
 onMounted(async () => {
-    let apiResponse = await ComplaintRepository.getComplaints();
-    if (!apiResponse.success || !apiResponse.data) return;
-    complaints.value = apiResponse.data as Complaint[];
+    await reloadComplaints();
 })
+
+async function reloadComplaints() {
+    console.log('reload complaints');
+        let apiResponse = await ComplaintRepository.getComplaints();
+        if (!apiResponse.success || !apiResponse.data) return;
+        complaints.value = apiResponse.data as Complaint[];
+    console.log(complaints.value);
+    
+}
 </script>
 
 <style scoped></style>

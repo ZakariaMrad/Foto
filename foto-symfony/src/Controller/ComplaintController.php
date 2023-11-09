@@ -40,7 +40,6 @@ class ComplaintController extends AbstractController
                 'error' => $this->jwtHandler->error,
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
-
         $complaint = new Complaint();
 
         $form = $this->createForm(ReportFormType::class, $complaint);
@@ -73,15 +72,56 @@ class ComplaintController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            // 'jwtToken' => $newJWT,
+            'jwtToken' => $newJWT,
             'message' => 'Reporté avec succès.'
+        ], JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/complaint/{idComplaint}/read', name: 'app_complaint_read', methods: ['POST'])]
+    public function readComplait($idComplaint, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+        $complaint = $this->getComplaintById($idComplaint);
+        $complaint->setStatus(Complaint::STATUS_PROCESSING);
+        $this->em->persist($complaint);
+        $this->em->flush();
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'message' => 'Plainte lue avec succès.'
+        ], JsonResponse::HTTP_OK);
+    }
+    #[Route('/complaint/{idComplaint}/process', name: 'app_complaint_process', methods: ['POST'])]
+    public function processComplait($idComplaint, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+        $complaint = $this->getComplaintById($idComplaint);
+        $complaint->setStatus(Complaint::STATUS_PROCESSED);
+        $this->em->persist($complaint);
+        $this->em->flush();
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'message' => 'Plainte lue avec succès.'
         ], JsonResponse::HTTP_OK);
     }
 
     #[Route('/complaint/{idComplaint}', name: 'app_complaint_delete', methods: ['DELETE'])]
     public function deleteComplaint($idComplaint, Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data["jwtToken"] = $request->query->get('jwtToken');
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
         if (!$hasSucceded) {
             return $this->json([
@@ -95,11 +135,12 @@ class ComplaintController extends AbstractController
                 'error' => ['Erreur: Le report n\'existe pas.'],
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
+
         $this->em->remove($complaint);
         $this->em->flush();
 
         return $this->json([
-            // 'jwtToken' => $newJWT,
+            'jwtToken' => $newJWT,
             'message' => 'Report supprimé avec succès.'
         ], JsonResponse::HTTP_OK);
     }
@@ -126,18 +167,10 @@ class ComplaintController extends AbstractController
         }, $complaints);
 
 
-        $response =  $this->json([
+        return  $this->json([
             'jwtToken' => $newJWT,
             'complaints' => $complaintsObj
         ], JsonResponse::HTTP_OK);
-
-        $complaints = array_map(function (Complaint $complaint) {
-            $complaint->setStatus(Complaint::STATUS_READ);
-            $this->em->persist($complaint);
-            $this->em->flush();
-        }, $complaints);
-
-        return $response;
     }
 
 
@@ -162,6 +195,9 @@ class ComplaintController extends AbstractController
                 break;
         }
         return $complaint->setSubject($subject);
+    }
+    private function getComplaintById($idComplaint){
+        return $this->em->getRepository(Complaint::class)->findOneBy(['idComplaint' => $idComplaint]);
     }
 
     // private function setCommentSubject(ComplaintSubject $subject, $idSubject): ComplaintSubject{

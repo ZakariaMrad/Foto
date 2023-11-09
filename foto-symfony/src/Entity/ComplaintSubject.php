@@ -14,15 +14,15 @@ class ComplaintSubject
     #[ORM\Column(name: 'idComplaintSubject')]
     private ?int $idComplaintSubject = null;
 
-    #[ORM\ManyToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost', nullable: true)]
     private ?Post $Post = null;
 
-    #[ORM\ManyToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum', nullable: true)]
     private ?Album $Album = null;
 
-    #[ORM\ManyToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto', nullable: true)]
     private ?Foto $Foto = null;
 

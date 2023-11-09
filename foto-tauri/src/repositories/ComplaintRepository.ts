@@ -52,7 +52,7 @@ class ComplaintRepository extends Repository {
         try {
             const response = await client.get(`${this.url}/complaints?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
             let data = response.data as any;
-
+        
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
                 return { data: data.complaints as Complaint[], success: true };
@@ -64,8 +64,73 @@ class ComplaintRepository extends Repository {
         }
     }
     
-    deleteComplaint(arg0: number) {
-        throw new Error('Method not implemented.');
+    public async deleteComplaint(idComplant: number) {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+
+        try {
+            const response = await client.delete(`${this.url}/complaint/${idComplant}?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            let data = response.data as any;
+            console.log(data);
+            
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+                return { data: data.complaints as Complaint[], success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            return { errors: error as [APIError], success: false };
+        }
+    }
+
+    public async processComplaint(idComplaint: number) {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+
+        try {
+            const response = await client.post(`${this.url}/complaint/${idComplaint}/process`, Body.json(jwt.data), { responseType: ResponseType.JSON });
+            let data = response.data as JWTToken;
+            console.log(response.data);
+
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+
+                return { data: data, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+
+        } catch (error) {
+            // Handle any network or request-related errors here and return an Error object
+            console.log(error);
+
+            return { errors: error as [APIError], success: false };
+        }
+    }
+    public async readComplaint(idComplaint: number) {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+
+        try {
+            const response = await client.post(`${this.url}/complaint/${idComplaint}/read`, Body.json(jwt.data), { responseType: ResponseType.JSON });
+            let data = response.data as JWTToken;
+            console.log(response.data);
+
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+
+                return { data: data, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+
+        } catch (error) {
+            // Handle any network or request-related errors here and return an Error object
+            console.log(error);
+
+            return { errors: error as [APIError], success: false };
+        }
     }
 
 }
