@@ -16,6 +16,7 @@
                     </v-col>
                     <v-col cols="6" class="text-lg-right">
 
+
                         <v-menu open-on-hover>
                             <template v-slot:activator="{ props }">
                                 <v-btn color="primary" icon="mdi-dots-horizontal" v-bind="props">
@@ -30,6 +31,13 @@
                                 </v-list-item>
                             </v-list>
                         </v-menu>
+
+                        <v-btn>Follow</v-btn>
+                        <v-btn color="red" v-if="user.isAdmin">Admin</v-btn>
+                    </v-col>
+                    <v-col cols="12">
+                        <p>sandra_a88@gmail.com</p>
+
                     </v-col>
                 </v-row>
                 <v-row cols="12" class="pa-3 font-weight-bold">

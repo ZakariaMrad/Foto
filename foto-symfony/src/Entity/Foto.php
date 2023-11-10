@@ -39,11 +39,7 @@ class Foto
     #[ORM\Column(name:'isNSFW')]
     private ?bool $isNSFW = null;
 
-    // #[ORM\JoinTable(
-    //     name: 'albumFotos',
-    //     joinColumns: [new ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')],
-    //     inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
-    // )]
+
     #[ORM\JoinTable(name:'albumFotos')]
     #[ORM\JoinColumn(name:'idFoto',referencedColumnName:'idFoto')]
     #[ORM\InverseJoinColumn(name:'idAlbum',referencedColumnName:'idAlbum')]
