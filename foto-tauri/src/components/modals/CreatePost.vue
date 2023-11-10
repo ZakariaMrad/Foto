@@ -50,6 +50,7 @@ import PostRepository from '../../repositories/PostRepository';
 import { APIError } from '../../core/API/APIError';
 import { watch } from 'vue';
 import { EventsBus, Events } from '../../core/EventBus';
+import delay from 'delay';
 
 const { register, handleSubmit, formState } = useFormHandler({
     validationMode: 'always',
@@ -115,7 +116,9 @@ function submitFn() {
         console.log(formState.errors)
     }
 }
-function closeDialog() {
+async function closeDialog() {
+    await delay(2000);
+
     emit('closeDialog');
 }
 </script>
