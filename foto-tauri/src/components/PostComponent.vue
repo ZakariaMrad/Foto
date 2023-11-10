@@ -35,36 +35,20 @@
 
 <script setup lang="ts">
 import Post from '../models/Post';
-// import AccountRepository from '../repositories/AccountRepository';
 import { EventsBus, Events } from '../core/EventBus';
 
 const { eventBusEmit } = EventsBus();
 
-// let idAccount : number;
 
 const props = defineProps({
     post: Post
 })
 
-
-function openUserProfile(idAccount : any ){
-
+function openUserProfile(idAccount : number ){
     // console.log(idAccount);
-
-
     
     eventBusEmit(Events.OPEN_USER_PROFILE, idAccount)
-
-
-
-    // let apiResponse = await AccountRepository.getOtherUserAccount(idAccount)
-    // if (!apiResponse.success) return;
-    // idAccount.value = apiResponse.data
 }
-
-
-
-
 
 function toggleLike() {
     if (!props.post)

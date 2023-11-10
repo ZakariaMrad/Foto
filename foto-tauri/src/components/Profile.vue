@@ -20,7 +20,8 @@
                             <template v-slot:activator="{ props }">
                                 <v-btn color="primary" icon="mdi-dots-horizontal" v-bind="props">
                                 </v-btn>
-                                <v-btn class="ms-2" color="red-darken-3" v-if="isAdmin" @click="openAdminPage()">Admin</v-btn>
+                                <v-btn class="ms-2" color="red-darken-3" v-if="isAdmin"
+                                    @click="openAdminPage()">Admin</v-btn>
                             </template>
 
                             <v-list>
@@ -70,10 +71,9 @@
                         <v-container fluid>
                             <v-row>
                                 <v-col v-for="post in posts" cols="12" md="4">
-                                    <v-img v-if="post.owner.idAccount == connectedAccount?.idAccount" :src="`${post.foto.path}?image=${1 * n * 5 + 10}`" aspect-ratio="2"></v-img>
-                                        <!--v-img v-if="post.idPost == connectedAccount?.idAccount" :src="`https://picsum.photos/500/300?image=${post * n * 5 + 10}`"
-                                        :lazy-src="`https://picsum.photos/10/6?image=${post * n * 5 + 10}`"
-                                        aspect-ratio="2"></v-img-->
+                                    <v-img @click="openPostModal(post.idPost)"
+                                        v-if="post.owner.idAccount == connectedAccount?.idAccount"
+                                        :src="`${post.foto.path}`" aspect-ratio="2"></v-img>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -104,7 +104,7 @@ onMounted(async () => {
     isAdmin.value = apiResponse.data
 
     let apiPostResponse = await PostRepository.getPosts();
-    if(!apiPostResponse.success) return;
+    if (!apiPostResponse.success) return;
     posts.value = apiPostResponse.data;
 })
 
@@ -131,4 +131,14 @@ async function openAdminPage() {
 function openProfileModificationModal() {
     eventBusEmit(Events.OPEN_MODIFY_PROFILE_MODAL)
 }
+
+function openPostModal(idPost : number) {
+    eventBusEmit(Events.OPEN_POST_MODAL, idPost)
+}
 </script>
+
+<style scoped>
+img:hover {
+    cursor: pointer;
+}
+</style>

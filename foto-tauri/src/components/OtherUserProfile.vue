@@ -3,6 +3,7 @@
         <v-row justify="center" no-gutters style="height: auto">
             <v-col cols="2">
                 <v-sheet class="pa-2 ma-2">
+
                     <v-avatar size="150">
                         <v-img src="https://randomuser.me/api/portraits/women/85.jpg" alt="Sandra Adams"></v-img>
                     </v-avatar>
@@ -11,8 +12,8 @@
             <v-col cols="5">
                 <v-row cols="12" class="pa-2">
                     <v-col cols="6">
-                        <h2 colors="grey">{{ }}</h2>
-                        <p class="font-italic">{{ }}</p>
+                        <h2 colors="grey">{{ account?.name }}</h2>
+                        <p class="font-italic">{{ account?.email }}</p>
                     </v-col>
                     <v-col cols="6" class="text-lg-right">
                         <v-btn>Follow</v-btn>
@@ -55,10 +56,10 @@
                     <v-window-item v-for="n in 3" :key="n" :value="n">
                         <v-container fluid>
                             <v-row>
-                                <v-col v-for="i in 34" :key="i" cols="12" md="4">
-                                    <v-img :src="`https://picsum.photos/500/300?image=${i * n * 5 + 10}`"
-                                        :lazy-src="`https://picsum.photos/10/6?image=${i * n * 5 + 10}`"
-                                        aspect-ratio="2"></v-img>
+                                <v-col v-for="post in posts" cols="12" md="4">
+                                    <v-img @click="openPostModal(post.idPost)"
+                                        v-if="post.owner.idAccount == account?.idAccount"
+                                        :src="`${post.foto.path}`" aspect-ratio="2"></v-img>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -70,62 +71,80 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
-import { EventsBus, Events } from '../core/EventBus';
-// import Account from '../models/Account';
+import { ref, onMounted, watch } from 'vue';
 // import AccountRepository from '../repositories/AccountRepository';
+import PostRepository from '../repositories/PostRepository';
+import Post from '../models/Post';
+import Account from '../models/Account';
+import { EventsBus, Events } from '../core/EventBus';
+import AccountRepository from '../repositories/AccountRepository';
 
 
-const { bus } = EventsBus();
+const { eventBusEmit } = EventsBus();
 
-// let idAccountPasse: number;
-// const idAccount = ref<Account>()
-
-watch(() => bus.value.get(Events.OPEN_USER_PROFILE), idAccountPasse => {
-    console.log("je suis rentrer dans le watch")
-    // if (!account)
-    //     return;
-
-        // idAccount.value? = idAccountPasse;
-        console.log(idAccountPasse);
-        
+const props = defineProps({
+    idAccount: Number,
+    post: Post,
+    // accounts: Account
 })
 
-// import { watch, ref, onMounted } from 'vue';
-// import { EventsBus, Events } from '../core/EventBus';
-// import Account from '../models/Account';
-// import AccountRepository from '../repositories/AccountRepository';
 
-// const { bus } = EventsBus();
+const posts = ref<Post[]>([])
+const account = ref<Account>()
 
-// const otherUserProfile = ref<Account>()
-// const isAdmin = ref<boolean>(false)
+onMounted(async () => {
+    console.log("le test", props.idAccount);
 
-// onMounted(async () => {
-//     let apiResponse = await AccountRepository.isAdmin()
-//     if (!apiResponse.success) return;
-//     isAdmin.value = apiResponse.data
-// })
-
-// otherProfile(async () => {
-//     let apiResponse = await AccountRepository.getOtherUserAccount()
-//     if(!apiResponse.success) return;
-
-// })
-
-// watch(() => bus.value.get(Events.GET_OTHER_USER_PROFILE), (account: Account[] | undefined) => {
-//     if (!account)
-//         return;
-
-//         otherUserProfile. = account[0];
-// })
+    if (!props.idAccount) {
+        console.log(account.value);
+        return;
+    }
 
 
 
+    let apiResponse = await AccountRepository.getOtherUserAccount(props.idAccount);
+    if (!apiResponse.success) return;
+    account.value = apiResponse.data;
+
+    console.log(account.value);
+
+
+    let apiPostResponse = await PostRepository.getPosts();
+    if (!apiPostResponse.success) return;
+    posts.value = apiPostResponse.data;
+})
+
+watch(() => (props.idAccount), async (value: number | undefined) => {
+    if (!value) {
+        return;
+    }
+
+    let apiResponse = await AccountRepository.getOtherUserAccount(value);
+    if (!apiResponse.success) return;
+    account.value = apiResponse.data;
+
+    console.log(account.value.idAccount);
+    
+})
+
+function openPostModal(idPost : number) {
+    eventBusEmit(Events.OPEN_POST_MODAL, idPost)
+}
+
+// accounts.forEach(element => {
+//     if(otherUserAccount.value?.idAccount === props.idAccount){
+
+//     }
+// });
 
 
 
 
+// function getUserAccount() {
+//     let apiAccountResponse = await AccountRepository.getOtherUserAccount(props.idAccount)
+//     accounts.value = apiAccountResponse.data[0];
+
+// }
 
 </script>
 

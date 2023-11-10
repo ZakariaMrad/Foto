@@ -7,6 +7,8 @@
   <CreateAlbum :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
   <ModifyProfile :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
   <Admin :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
+  <PostModal :idPost="idPost" :activate="activatePostModal" @close-dialog="closePostModal()"/>
+  <!-- <OtherUserProfileVue :idAccount="idAccount"/> -->
 </template>
 
 <script setup lang="ts">
@@ -21,6 +23,8 @@ import CreateAlbum from './components/modals/CreateAlbum.vue';
 import ModifyProfile from './components/modals/ModifyProfile.vue'
 import Admin from './components/modals/Admin.vue';
 import router from './router';
+import PostModal from './components/modals/PostModal.vue';
+import OtherUserProfileVue from './components/OtherUserProfile.vue';
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
@@ -30,6 +34,10 @@ const activateEdit = ref<boolean>(false);
 const editImgSrc = ref<string>("");
 const activateModifyProfile = ref<boolean>(false);
 const activateAdmin = ref<boolean>(false);
+const activatePostModal = ref<boolean>(false);
+const idPost = ref<number | undefined>();
+const idAccount = ref<number>();
+// const activateOthersProfile = ref<boolean>(false);
 
 
 // TODO : voir si ca marche
@@ -62,8 +70,15 @@ watch(()=> bus.value.get(Events.RELOAD_CONNECTED_ACCOUNT), () => {
 //   getOtherUserAccount();
 // })
 
-watch(() => bus.value.get(Events.OPEN_USER_PROFILE), () => {
+watch(() => bus.value.get(Events.OPEN_USER_PROFILE ), (value) => {
+  idAccount.value = value[0];
+  // activateOthersProfile.value = true;
   router.push('otherUserProfile');
+})
+
+watch(() => bus.value.get(Events.OPEN_POST_MODAL), (value) => {
+  idPost.value = value[0];  
+  activatePostModal.value = true;
 })
 
 watch(() => bus.value.get(Events.OPEN_MODIFY_PROFILE_MODAL), () => {
@@ -74,7 +89,6 @@ watch(() => bus.value.get(Events.OPEN_MODIFY_PROFILE_MODAL), () => {
 watch(() => bus.value.get(Events.OPEN_ADMIN_PANEL), () => {
   activateAdmin.value = true;
 })
-
 
 watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: string[]) => {
     activateEdit.value = true;
@@ -105,6 +119,10 @@ async function closeLoginRegisterDialog(val: boolean) {
   await getAccount();
 }
 
+function closePostModal(){
+  activatePostModal.value = false;
+}
+
 async function Logout() {
   AccountRepository.logout();
   eventBusEmit(Events.CONNECTED_ACCOUNT, undefined)
@@ -114,11 +132,11 @@ async function Logout() {
 }
 async function getAccount() {
   let apiResponse = await AccountRepository.getAccount();
-  console.log(apiResponse);
+  // console.log(apiResponse);
   
   if (!apiResponse.success) return;
   let account = apiResponse.data;
-  console.log(account);
+  // console.log(account);
   
   eventBusEmit(Events.CONNECTED_ACCOUNT, account)
 }
