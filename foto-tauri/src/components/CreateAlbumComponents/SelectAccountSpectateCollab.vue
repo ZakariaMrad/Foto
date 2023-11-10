@@ -70,6 +70,17 @@ async function successFn(form: any) {
     }
     if (!apiResult.data) return
     accounts.value = apiResult.data
+    //we need to get the connected account
+
+    const apiResultAccount = await AccountRepository.getAccount()
+    if (!apiResultAccount.success) {
+        console.log(apiResultAccount.errors);
+        return
+    }
+    if (!apiResultAccount.data) return
+    accounts.value = accounts.value.filter((ac) => ac.idAccount !== apiResultAccount.data!.idAccount)
+
+
     loading.value = false
 }
 
