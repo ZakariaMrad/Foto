@@ -1,12 +1,12 @@
 <template>
   <RouterView />
-  <LoginRegister :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
-  <CreatePost :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
-  <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
-  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" :img-src="editImgSrc"/>
-  <CreateAlbum :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
-  <ModifyProfile :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
-  <Admin :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
+  <LoginRegister :key="v1()" :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
+  <CreatePost :key="v1()" :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
+  <Search :key="v1()" :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
+  <EditPicture :key="v1()" :activate="activateEdit" @close-dialog="() => closeEditDialog()" :img-src="editImgSrc"/>
+  <CreateAlbum :key="v1()" :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
+  <ModifyProfile :key="v1()" :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
+  <Admin :key="v1()" :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
 </template>
 
 <script setup lang="ts">
@@ -21,6 +21,8 @@ import CreateAlbum from './components/modals/CreateAlbum.vue';
 import ModifyProfile from './components/modals/ModifyProfile.vue'
 import Admin from './components/modals/Admin.vue';
 import router from './router';
+import {v1} from 'uuid'; 
+
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
