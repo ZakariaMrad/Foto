@@ -16,6 +16,7 @@
         </v-row>à
     </v-col>
     <!-- <PostComponent v-for="post in posts" :post="post" /> -->
+
 </template>
 
 <script setup lang="ts">
@@ -31,16 +32,22 @@ const columnChoice = ref<number>(0)
 const columnNumber = ref<number[]>([12, 6, 4])
 
 onMounted(async () => {
-    let apiResponse = await PostRepository.getPosts();
-    if (!apiResponse.success) return;
-    posts.value = apiResponse.data;
+    getPosts();
+
 })
 
 watch(() => bus.value.get(Events.CREATE_POST), async () => {
+    getPosts();
+})
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), async () => {
+    getPosts();
+})
+
+async function getPosts() {
     let apiResponse = await PostRepository.getPosts();
     if (!apiResponse.success) return;
     posts.value = apiResponse.data;
-})
+}
 
 
 </script>

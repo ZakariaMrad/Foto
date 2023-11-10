@@ -124,6 +124,11 @@ class AccountController extends AbstractController
                 'error' => ['Courriel ou mot de passe incorrect.'],
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
+        if($user->getBlock()){
+            return $this->json([
+                'error' => ['Votre compte est bloqué, Raison: '.$user->getBlock()->getReason().'.'],
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
         return $this->json([
             "message" => "User logged in successfully.",
             "jwtToken" => $this->jwtHandler->create($user->getEmail(), $user->getIdUser())

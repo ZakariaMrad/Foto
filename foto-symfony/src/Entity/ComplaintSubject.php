@@ -6,24 +6,34 @@ use App\Repository\ComplaintSubjectRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ComplaintSubjectRepository::class)]
+#[ORM\Table(name: 'complaintSubject')]
 class ComplaintSubject
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(name: 'idComplaintSubject')]
     private ?int $idComplaintSubject = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost', nullable: false)]
+    #[ORM\ManyToOne(cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost', nullable: true)]
     private ?Post $Post = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum', nullable: false)]
+    #[ORM\ManyToOne(cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum', nullable: true)]
     private ?Album $Album = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto', nullable: false)]
+    #[ORM\ManyToOne(cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto', nullable: true)]
     private ?Foto $Foto = null;
+
+    public function getAll(){
+        $arr =['idComplaintSubject' => $this->idComplaintSubject,];
+        if($this->getFoto()) $arr['foto'] = $this->getFoto()->getAll();
+        if($this->getPost()) $arr['post'] = $this->getPost()->getAll();
+        if($this->getAlbum()) $arr['album'] = $this->getAlbum()->getAll();
+
+        return $arr;
+    }
 
     public function getIdComplaintSubject(): ?int
     {
@@ -64,5 +74,10 @@ class ComplaintSubject
         $this->Foto = $Foto;
 
         return $this;
+    }
+
+    public function isEmpty(): bool
+    {
+        return ($this->Album == null && $this->Foto == null && $this->Post == null);
     }
 }

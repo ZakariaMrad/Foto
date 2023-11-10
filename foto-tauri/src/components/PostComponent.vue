@@ -22,8 +22,8 @@
 
                             <v-list class="ml-2">{{ props.post?.comments }}</v-list>
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment"></v-btn>
-
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-share-variant"></v-btn>
+                            <v-btn size="small" color="surface-variant" variant="text" icon="mdi-exclamation" @click="report()"/>
                         </v-card-actions>
                     </v-card>
                 </v-col>
@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 import Post from '../models/Post';
+import ComplaintRepository from '../repositories/ComplaintRepository';
 
 const props = defineProps({
     post: Post
@@ -50,6 +51,12 @@ function toggleLike() {
         props.post.isLiked = true;
         props.post.likes++;
     }
+}
+
+function report() {
+
+    ComplaintRepository.createComplaint(props.post?.idPost as number, 'post',props.post?.owner.idAccount as number )
+    
 }
 
 </script>

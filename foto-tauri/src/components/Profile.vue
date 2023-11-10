@@ -21,7 +21,6 @@
                             <template v-slot:activator="{ props }">
                                 <v-btn color="primary" icon="mdi-dots-horizontal" v-bind="props">
                                 </v-btn>
-                                <v-btn class="ms-2" color="red-darken-3" v-if="isAdmin" @click="openAdminPage()">Admin</v-btn>
                             </template>
 
                             <v-list>
@@ -32,8 +31,8 @@
                             </v-list>
                         </v-menu>
 
-                        <v-btn>Follow</v-btn>
-                        <v-btn color="red" v-if="user.isAdmin">Admin</v-btn>
+                        <v-btn class="ms-2">Follow</v-btn>
+                        <v-btn class="ms-2" color="red-darken-3" v-if="isAdmin" @click="openAdminPage()">Admin</v-btn>
                     </v-col>
                     <v-col cols="12">
                         <p>sandra_a88@gmail.com</p>

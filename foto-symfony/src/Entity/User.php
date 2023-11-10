@@ -98,11 +98,15 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column(name: 'isAdmin')]
     private ?bool $isAdmin = false;
-    #[ORM\OneToMany(mappedBy: 'Sender', targetEntity: Complaint::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'sender', targetEntity: Complaint::class, orphanRemoval: true)]
     private Collection $sentComplaints;
 
-    #[ORM\OneToMany(mappedBy: 'Recipient', targetEntity: Complaint::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'recipient', targetEntity: Complaint::class, orphanRemoval: true)]
     private Collection $receivedComplaints;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+
+    private ?UserBlock $block = null;
 
     public function __construct()
     {
@@ -542,27 +546,16 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             $this->spectatedAlbums->add($spectatedAlbum);
             $spectatedAlbum->addSpectator($this);
         }
-    }
- public function removeSpectatedAlbum(Album $spectatedAlbum): static
-       {
-          if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
-            $spectatedAlbum->removeSpectator($this);
-        }
-      return $this;
-    }
-    public function isIsAdmin(): ?bool
-    {
-        return $this->isAdmin;
-    }
-
-    public function setIsAdmin(bool $isAdmin): static
-    {
-        $this->isAdmin = $isAdmin;
-
         return $this;
     }
-     
-          
+ public function removeSpectatedAlbum(Album $spectatedAlbum): static
+                {
+                   if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
+                     $spectatedAlbum->removeSpectator($this);
+                 }
+               return $this;
+             }
+    
     /**
      * @return Collection<int, Complaint>
      */
@@ -605,6 +598,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function setIsAdmin(bool $isAdmin): static
     {
         $this->isAdmin = $isAdmin;
+        return $this;
+    }
 
     /**
      * @return Collection<int, Complaint>
@@ -632,6 +627,23 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
                 $receivedComplaint->setRecipient(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBlock(): ?UserBlock
+    {
+        return $this->block;
+    }
+
+    public function setBlock(UserBlock $block): static
+    {
+        // set the owning side of the relation if necessary
+        if ($block->getUser() !== $this) {
+            $block->setUser($this);
+        }
+
+        $this->block = $block;
 
         return $this;
     }

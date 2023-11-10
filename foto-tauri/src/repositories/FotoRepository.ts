@@ -6,7 +6,6 @@ import { JWTToken } from "../models/JWTToken";
 import { APIError } from "../core/API/APIError";
 
 const client = await getClient();
-const url = 'https://fotoapi.1929736.techinfo-cstj.ca';
 
 class FotoRepository extends Repository {
     public async uploadFotos(foto: Foto) {
@@ -14,7 +13,7 @@ class FotoRepository extends Repository {
         if (!jwt.success) return { errors: jwt.errors, success: false };
         foto.jwtToken = jwt.data.jwtToken;
         try {
-            const response = await client.post(`${url}/foto`, Body.json(foto),{ responseType: ResponseType.JSON });
+            const response = await client.post(`${this.url}/foto`, Body.json(foto),{ responseType: ResponseType.JSON });
             if (response.status === 200) {
                 return { success: true };
             }
@@ -31,7 +30,7 @@ class FotoRepository extends Repository {
         if (!jwt.success) return { errors: jwt.errors, success: false };
         
         try {                        
-            const response = await client.get(`${url}/fotos?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            const response = await client.get(`${this.url}/fotos?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
             let data = response.data as any;      
             
             if (response.status === 200) {
@@ -51,7 +50,7 @@ class FotoRepository extends Repository {
         
         try {  
                       
-            const response = await client.get(`${url}/fotosbyid?jwtToken=${jwt.data.jwtToken}&idFotos=[${idFotos.toString()}]`, { responseType: ResponseType.JSON });
+            const response = await client.get(`${this.url}/fotosbyid?jwtToken=${jwt.data.jwtToken}&idFotos=[${idFotos.toString()}]`, { responseType: ResponseType.JSON });
             let data = response.data as any;      
             
             if (response.status === 200) {
