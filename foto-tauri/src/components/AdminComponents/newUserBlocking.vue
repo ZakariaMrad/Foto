@@ -30,6 +30,8 @@ import UserBlockRepository from '../../repositories/UserBlockRepository';
 import Account from '../../models/Account';
 import PickUser from './pickUser.vue';
 import { useFormHandler } from 'vue-form-handler';
+import delay from 'delay';
+
 
 
 const emit = defineEmits<{ (event: 'done'): void }>()
@@ -70,6 +72,7 @@ const successFn = async (form: any) => {
     }
     if (!apiResult.data) return
     successMessage.value = apiResult.data.message;
+    await delay(2000);
     emit('done');
     loading.value = false;
 

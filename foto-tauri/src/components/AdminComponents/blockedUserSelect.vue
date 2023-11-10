@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import UserBlock from '../../models/UserBlock';
-const props = defineProps<{ blockedUser: UserBlock, isChoosen:boolean }>()
+const props = defineProps<{ blockedUser: UserBlock}>()
 
 const emit = defineEmits<{
     (event: 'selectUser', user: UserBlock): void

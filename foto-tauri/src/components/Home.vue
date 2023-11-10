@@ -13,7 +13,7 @@
             <v-col v-for="post in posts" :cols="columnNumber[columnChoice]">
                 <PostComponent :post="post" />
             </v-col>
-        </v-row>à
+        </v-row>
     </v-col>
     <!-- <PostComponent v-for="post in posts" :post="post" /> -->
 
