@@ -1,55 +1,29 @@
 <template>
-    <div>
+    <NewUserBlocking v-if="blocking" @done="toggleBlocking" />
+    <div v-else>
         <v-row>
-            <v-col cols="5">
-                <v-card variant="outlined">
-                    <v-card-title>
-                        Utilisateurs non bloqués
-                    </v-card-title>
-                    <v-card-text>
-                        <v-list>
-                            <v-list-item>
+            <v-col>
 
-                            </v-list-item>
-                        </v-list>
-                    </v-card-text>
-                </v-card>
+                <BlockedUserList  />
 
-            </v-col>
-            <v-col cols="7">
-                <v-card variant="outlined">
-                    <v-card-title>
-                        Utlisateurs bloqués
-                    </v-card-title>
-                    <v-card-text>
-                        <v-list>
-                            <v-list-item v-for="account in accounts">
-                                <account :account="account"/>
-                            </v-list-item>
-                        </v-list>
-                    </v-card-text>
-                </v-card>
+                <v-btn class="mt-1" color="blue" @click="toggleBlocking">Bloquer un utilisateur</v-btn>
             </v-col>
         </v-row>
     </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import AccountRepository from '../../repositories/AccountRepository';
-import Account from '../../models/Account';
-import account from './account.vue';
+import { ref } from 'vue';
+import NewUserBlocking from './newUserBlocking.vue';
+import BlockedUserList from './blockedUserList.vue';
 
-const accounts = ref<Account[]>([])
+const blocking = ref<boolean>(false);
 
-onMounted(async () => {
-    console.log('search user');
-    
-    let apiResult = await AccountRepository.searchUser(' ')
-    if (!apiResult.success) return;
-    if (!apiResult.data) return;
-    accounts.value = apiResult.data;
-})
+function toggleBlocking() {
+    console.log('toggle');
+
+    blocking.value = !blocking.value;
+}
 </script>
 
 <style scoped></style>

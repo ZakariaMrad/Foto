@@ -104,6 +104,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToMany(mappedBy: 'recipient', targetEntity: Complaint::class, orphanRemoval: true)]
     private Collection $receivedComplaints;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+
+    private ?UserBlock $block = null;
+
     public function __construct()
     {
         $this->collaboretedAlbums = new ArrayCollection();
@@ -545,12 +549,12 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this;
     }
  public function removeSpectatedAlbum(Album $spectatedAlbum): static
-       {
-          if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
-            $spectatedAlbum->removeSpectator($this);
-        }
-      return $this;
-    }
+                {
+                   if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
+                     $spectatedAlbum->removeSpectator($this);
+                 }
+               return $this;
+             }
     
     /**
      * @return Collection<int, Complaint>
@@ -623,6 +627,23 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
                 $receivedComplaint->setRecipient(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBlock(): ?UserBlock
+    {
+        return $this->block;
+    }
+
+    public function setBlock(UserBlock $block): static
+    {
+        // set the owning side of the relation if necessary
+        if ($block->getUser() !== $this) {
+            $block->setUser($this);
+        }
+
+        $this->block = $block;
 
         return $this;
     }
