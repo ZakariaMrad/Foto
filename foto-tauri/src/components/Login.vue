@@ -22,6 +22,7 @@ import AccountRepository from '../repositories/AccountRepository'
 import { LoginAccount } from '../models/LoginAccount';
 import { ref } from 'vue'
 import { APIError } from '../core/API/APIError';
+import delay from 'delay';
 
 const emit = defineEmits(['closeDialog', 'isRegister'])
 
@@ -29,7 +30,8 @@ const errors = ref<APIError[]>([])
 const message = ref<string | undefined>('')
 const loading = ref<boolean>(false)
 
-function closeDialog(val: boolean = false) {
+async function closeDialog(val: boolean = false) {
+    await delay(2000);
     emit('closeDialog', val);  
 }
 function toggleRegister() {
