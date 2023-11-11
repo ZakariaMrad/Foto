@@ -96,10 +96,35 @@ class AlbumController extends AbstractController
         $albumArray = array_map(function (Album $album) {
             return $album->getAll();
         }, $albums->toArray());
-
         return $this->json([
             'jwtToken' => $newJWT,
             'albums' => $albumArray,
+        ], JsonResponse::HTTP_OK);
+    }
+    #[Route('/album/{idAlbum}', name: 'app_album_delete', methods: ['DELETE'])]
+    public function deleteComplaint($idAlbum, Request $request): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $album = $this->em->getRepository(Album::class)->findOneBy(['idAlbum' => $idAlbum]);
+        if (!$album) {
+            return $this->json([
+                'error' => ['Erreur: L\'album n\'existe pas.'],
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $this->em->remove($album);
+        $this->em->flush();
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'message' => 'Album supprimé avec succès.'
         ], JsonResponse::HTTP_OK);
     }
     private function getUserById(int $idUser): ?User
