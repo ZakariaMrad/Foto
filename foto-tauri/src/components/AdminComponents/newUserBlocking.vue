@@ -30,6 +30,7 @@ import UserBlockRepository from '../../repositories/UserBlockRepository';
 import Account from '../../models/Account';
 import PickUser from './pickUser.vue';
 import { useFormHandler } from 'vue-form-handler';
+//@ts-ignore
 import delay from 'delay';
 
 

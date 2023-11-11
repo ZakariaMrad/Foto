@@ -62,7 +62,8 @@ class Post
             "owner" => $this->owner->getAll(),
             "description" => $this->description,
             "creationDate" => $this->creationDate,
-            "foto" => $this->foto->getAll(),
+            "foto" => $this->foto ? $this->foto->getAll() : null,
+            "album" => $this->album ? $this->album->getAll() : null,
         ];
     }
 

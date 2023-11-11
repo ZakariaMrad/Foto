@@ -15,8 +15,6 @@
             </v-col>
         </v-row>
     </v-col>
-    <!-- <PostComponent v-for="post in posts" :post="post" /> -->
-
 </template>
 
 <script setup lang="ts">
@@ -32,6 +30,8 @@ const columnChoice = ref<number>(0)
 const columnNumber = ref<number[]>([12, 6, 4])
 
 onMounted(async () => {
+    console.log('test');
+    
     getPosts();
 
 })
@@ -47,6 +47,8 @@ async function getPosts() {
     let apiResponse = await PostRepository.getPosts();
     if (!apiResponse.success) return;
     posts.value = apiResponse.data;
+    console.log(' post', posts.value);
+    
 }
 
 

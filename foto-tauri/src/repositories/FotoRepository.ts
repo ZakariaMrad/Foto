@@ -14,6 +14,8 @@ class FotoRepository extends Repository {
         foto.jwtToken = jwt.data.jwtToken;
         try {
             const response = await client.post(`${this.url}/foto`, Body.json(foto),{ responseType: ResponseType.JSON });
+            console.log(response.data);
+            
             if (response.status === 200) {
                 return { success: true };
             }
