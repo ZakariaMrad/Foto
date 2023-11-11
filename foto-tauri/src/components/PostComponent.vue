@@ -2,7 +2,7 @@
     <v-card class="mx-auto ma-10" max-width="1200px">
         <v-list>
             <v-list-item prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" :title="props.post?.owner.name"
-                :subtitle="props.post?.owner.email"></v-list-item>
+                :subtitle="props.post?.owner.email" @click="openUserProfile(props.post?.owner.idAccount)"></v-list-item>
             <v-list-item>
                 {{ props.post?.description }}
             </v-list-item>
@@ -11,7 +11,7 @@
             <v-row dense>
                 <v-col>
                     <v-card>
-                        <v-img  class="d-flex" cover :src="props.post?.foto.path">
+                        <v-img class="d-flex" cover :src="props.post?.foto.path">
                         </v-img>
                         <!-- <v-img v-else class="d-flex" cover :src="props.post?.album.fotos[0].path">
                         </v-img> -->
@@ -19,7 +19,7 @@
                             <v-spacer></v-spacer>
 
                             <v-list>{{ props.post?.likes }}</v-list>
-                            
+
                             <v-btn size="small" :color="props.post?.isLiked ? 'red' : 'surface-variant'" variant="text"
                                 icon="mdi-heart" @click="toggleLike()"></v-btn>
 
@@ -64,8 +64,10 @@
 
 <script setup lang="ts">
 import Post from '../models/Post';
+import { EventsBus, Events } from '../core/EventBus';
 import ComplaintRepository from '../repositories/ComplaintRepository';
 
+const { eventBusEmit } = EventsBus();
 
 const props = defineProps({
     post: Post
@@ -74,6 +76,11 @@ const getPath = (index: number) => {
     if (!props.post?.album) return;
     const id = props.post?.album.grid!.fotosPosition[index];
     return props.post?.album.fotos!.find(foto => foto.idFoto === id)?.path;
+}
+
+function openUserProfile(idAccount: number) {
+
+    eventBusEmit(Events.OPEN_USER_PROFILE, idAccount)
 }
 
 function toggleLike() {

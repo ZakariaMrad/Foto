@@ -115,7 +115,7 @@ class AccountRepository extends Repository {
             const response = await client.post(`${this.url}/account`, Body.json(jwt.data), { responseType: ResponseType.JSON });
             let data = response.data as any;
             console.log(data);
-            
+
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
 
@@ -128,6 +128,30 @@ class AccountRepository extends Repository {
             return { errors: error as [APIError], success: false };
         }
     }
+
+
+
+    public async getOtherUserAccount(idUser: number): Promise<APIResult<Account>> {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+
+        try {
+            const response = await client.get(`http:localhost:8000/account/${idUser}`, { responseType: ResponseType.JSON });
+            let data = response.data as any;
+            console.log(data);
+
+            if (response.status === 200) {
+                console.log("ca marche");
+                return { data: data.user as Account, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            console.log(error);
+            return { errors: error as [APIError], success: false };
+        }
+    }
+
 
     public async updateAccount(personnalInfo: Account): Promise<APIResult<Account>> {
         let jwt = await this.getJWTToken();
