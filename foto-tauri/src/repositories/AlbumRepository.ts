@@ -7,7 +7,7 @@ import Album from "../models/Album";
 
 const client = await getClient();
 
-class FotoRepository extends Repository {
+class AlbumRepository extends Repository {
     public async createAlbum(album: Album): Promise<APIResult<JWTToken>> {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
@@ -32,6 +32,27 @@ class FotoRepository extends Repository {
             return { errors: error as [APIError], success: false };
         }
     }
+    public async deleteAlbum(idAlbum:number): Promise<APIResult<JWTToken>> {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+        
+        try {                        
+            const response = await client.delete(`${this.url}/album/${idAlbum}?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            let data = response.data as any;      
+            console.log(data);
+            
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+
+                return { data: data, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            return { errors: error as [APIError], success: false };
+        }
+    }
+    
     public async getAlbums(): Promise<APIResult<Album[]>> {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
@@ -52,4 +73,4 @@ class FotoRepository extends Repository {
         }
     }
 }
-export default new FotoRepository();
+export default new AlbumRepository();

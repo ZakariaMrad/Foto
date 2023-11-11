@@ -48,12 +48,19 @@ class Album
     )]
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'collaboretedAlbums', cascade: ['persist'])]
     private Collection $collaborators;
+    #[ORM\JoinTable(
+        name: 'albumSpectators',
+        joinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idSpectator', referencedColumnName: 'idUser')]
+    )]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'spectatedAlbums', cascade: ['persist'])]
+    private Collection $spectators;
 
     #[ORM\ManyToOne(inversedBy: 'ownedAlbums', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idOwner', referencedColumnName: 'idUser')]
     private ?User $owner = null;
 
-    #[ORM\OneToMany(mappedBy: 'album', targetEntity: Post::class, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'album', targetEntity: Post::class, cascade: ['persist', 'remove'])]
     private Collection $posts;
 
     #[ORM\Column( name: 'isPublic')]
@@ -67,14 +74,7 @@ class Album
 
     #[ORM\Column(length: 10)]
     private ?string $type = null;
-
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'spectatedAlbums', cascade: ['persist'])]
-    #[ORM\JoinTable(
-        name: 'albumSpectators',
-        joinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')],
-        inverseJoinColumns: [new ORM\JoinColumn(name: 'idSpectator', referencedColumnName: 'idUser')]
-    )]
-    private Collection $spectators;
+    
 
     #[ORM\Column(type: Types::ARRAY, nullable: true)]
     private ?array $grid = null;
