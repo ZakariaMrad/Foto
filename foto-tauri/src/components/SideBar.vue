@@ -1,6 +1,6 @@
 <template>
     <v-main>
-        <v-navigation-drawer expand-on-hover rail>
+        <v-navigation-drawer expand-on-hover rail permanent>
             <v-list v-if="account" density="compact">
                 <v-list-item prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" :title="account?.name"
                     :subtitle="account?.email" />
