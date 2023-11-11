@@ -19,7 +19,7 @@ const router = createRouter({
       component: () => import('../views/pages/ProfilePage.vue')
     },
     {
-      path: '/otherUserProfile',
+      path: '/otherUserProfile/:idAccount',
       name: 'otherUserProfile',
       component: () => import('../views/pages/OtherUserProfilePage.vue')
     },

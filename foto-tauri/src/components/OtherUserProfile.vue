@@ -71,38 +71,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-// import AccountRepository from '../repositories/AccountRepository';
+import { ref, onMounted } from 'vue';
 import PostRepository from '../repositories/PostRepository';
 import Post from '../models/Post';
 import Account from '../models/Account';
 import { EventsBus, Events } from '../core/EventBus';
 import AccountRepository from '../repositories/AccountRepository';
+import { useRoute } from 'vue-router';
 
 
 const { eventBusEmit } = EventsBus();
 
 const props = defineProps({
-    idAccount: Number,
-    post: Post,
+    
+    post: Post
     // accounts: Account
 })
 
+const idAccount = useRoute().params.idAccount[0];
 
 const posts = ref<Post[]>([])
 const account = ref<Account>()
 
 onMounted(async () => {
-    console.log("le test", props.idAccount);
+    console.log("le test", idAccount);
 
-    if (!props.idAccount) {
+    if (!idAccount) {
         console.log(account.value);
         return;
     }
 
 
 
-    let apiResponse = await AccountRepository.getOtherUserAccount(props.idAccount);
+    let apiResponse = await AccountRepository.getOtherUserAccount(parseInt(idAccount));
     if (!apiResponse.success) return;
     account.value = apiResponse.data;
 
@@ -114,37 +115,9 @@ onMounted(async () => {
     posts.value = apiPostResponse.data;
 })
 
-watch(() => (props.idAccount), async (value: number | undefined) => {
-    if (!value) {
-        return;
-    }
-
-    let apiResponse = await AccountRepository.getOtherUserAccount(value);
-    if (!apiResponse.success) return;
-    account.value = apiResponse.data;
-
-    console.log(account.value.idAccount);
-    
-})
-
 function openPostModal(idPost : number) {
     eventBusEmit(Events.OPEN_POST_MODAL, idPost)
 }
-
-// accounts.forEach(element => {
-//     if(otherUserAccount.value?.idAccount === props.idAccount){
-
-//     }
-// });
-
-
-
-
-// function getUserAccount() {
-//     let apiAccountResponse = await AccountRepository.getOtherUserAccount(props.idAccount)
-//     accounts.value = apiAccountResponse.data[0];
-
-// }
 
 </script>
 

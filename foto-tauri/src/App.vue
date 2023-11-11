@@ -8,7 +8,6 @@
   <ModifyProfile :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
   <Admin :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
   <PostModal :idPost="idPost" :activate="activatePostModal" @close-dialog="closePostModal()"/>
-  <!-- <OtherUserProfileVue :idAccount="idAccount"/> -->
 </template>
 
 <script setup lang="ts">
@@ -24,7 +23,6 @@ import ModifyProfile from './components/modals/ModifyProfile.vue'
 import Admin from './components/modals/Admin.vue';
 import router from './router';
 import PostModal from './components/modals/PostModal.vue';
-import OtherUserProfileVue from './components/OtherUserProfile.vue';
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
@@ -37,10 +35,6 @@ const activateAdmin = ref<boolean>(false);
 const activatePostModal = ref<boolean>(false);
 const idPost = ref<number | undefined>();
 const idAccount = ref<number>();
-// const activateOthersProfile = ref<boolean>(false);
-
-
-// TODO : voir si ca marche
 
 const { bus, eventBusEmit } = EventsBus();
 
@@ -66,14 +60,10 @@ watch(()=> bus.value.get(Events.RELOAD_CONNECTED_ACCOUNT), () => {
   getAccount();
 })
 
-// watch(()=> bus.value.get(Events.GET_OTHER_USER_PROFILE), () => {
-//   getOtherUserAccount();
-// })
-
 watch(() => bus.value.get(Events.OPEN_USER_PROFILE ), (value) => {
   idAccount.value = value[0];
   // activateOthersProfile.value = true;
-  router.push('otherUserProfile');
+  router.push({name :'otherUserProfile', params: {idAccount: idAccount.value}});
 })
 
 watch(() => bus.value.get(Events.OPEN_POST_MODAL), (value) => {
@@ -140,20 +130,6 @@ async function getAccount() {
   
   eventBusEmit(Events.CONNECTED_ACCOUNT, account)
 }
-
-// todo : voir si il est capable de get le account du user
-
-// async function getOtherUserAccount() {
-//   let apiResponse = await AccountRepository.getOtherUserAccount();
-//   console.log(apiResponse);
-  
-//   if (!apiResponse.success) return;
-//   let otherUserAccount = apiResponse.data;
-//   console.log(otherUserAccount);
-  
-//   eventBusEmit(Events.GET_OTHER_USER_PROFILE, otherUserAccount)
-// }
-
 </script>
 
 <style scoped></style>
