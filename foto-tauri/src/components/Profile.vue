@@ -69,8 +69,9 @@
         <v-row justify="center">
             <v-col cols="10">
                 <v-tabs color="deep-purple-accent-4" align-tabs="center">
-                    <v-tab :value="1">Photos</v-tab>
+                    <v-tab :value="1">Publications</v-tab>
                     <v-tab :value="2">Albums</v-tab>
+                    <v-tab :value="3">Portefolio</v-tab>
                 </v-tabs>
                 <v-window>
                     <v-window-item v-for="n in 3" :key="n" :value="n">
