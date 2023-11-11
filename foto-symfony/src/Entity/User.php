@@ -98,6 +98,15 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column(name: 'isAdmin')]
     private ?bool $isAdmin = false;
+    #[ORM\OneToMany(mappedBy: 'sender', targetEntity: Complaint::class, orphanRemoval: true)]
+    private Collection $sentComplaints;
+
+    #[ORM\OneToMany(mappedBy: 'recipient', targetEntity: Complaint::class, orphanRemoval: true)]
+    private Collection $receivedComplaints;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+
+    private ?UserBlock $block = null;
 
     public function __construct()
     {
@@ -110,6 +119,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->messages = new ArrayCollection();
         $this->fotos = new ArrayCollection();
         $this->spectatedAlbums = new ArrayCollection();
+        $this->sentComplaints = new ArrayCollection();
+        $this->receivedComplaints = new ArrayCollection();
+
     }
 
     public function getAll()
@@ -534,6 +546,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this;
     }
 
+
     /**
      * @return Collection<int, Album>
      */
@@ -548,18 +561,49 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             $this->spectatedAlbums->add($spectatedAlbum);
             $spectatedAlbum->addSpectator($this);
         }
-
         return $this;
     }
-
-    public function removeSpectatedAlbum(Album $spectatedAlbum): static
+ public function removeSpectatedAlbum(Album $spectatedAlbum): static
+                {
+                   if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
+                     $spectatedAlbum->removeSpectator($this);
+                 }
+               return $this;
+             }
+    
+    /**
+     * @return Collection<int, Complaint>
+     */
+    public function getSentComplaints(): Collection
     {
-        if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
-            $spectatedAlbum->removeSpectator($this);
+        return $this->sentComplaints;
+    }
+
+    public function addSentComplaint(Complaint $sentComplaint): static
+    {
+        if (!$this->sentComplaints->contains($sentComplaint)) {
+            $this->sentComplaints->add($sentComplaint);
+            $sentComplaint->setSender($this);
+
         }
 
         return $this;
     }
+
+
+    
+
+    public function removeSentComplaint(Complaint $sentComplaint): static
+    {
+        if ($this->sentComplaints->removeElement($sentComplaint)) {
+            // set the owning side to null (unless already changed)
+            if ($sentComplaint->getSender() === $this) {
+                $sentComplaint->setSender(null);
+            }
+        }
+        return $this;
+    }
+
 
     public function isIsAdmin(): ?bool
     {
@@ -569,6 +613,52 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function setIsAdmin(bool $isAdmin): static
     {
         $this->isAdmin = $isAdmin;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Complaint>
+     */
+    public function getReceivedComplaints(): Collection
+    {
+        return $this->receivedComplaints;
+    }
+
+    public function addReceivedComplaint(Complaint $receivedComplaint): static
+    {
+        if (!$this->receivedComplaints->contains($receivedComplaint)) {
+            $this->receivedComplaints->add($receivedComplaint);
+            $receivedComplaint->setRecipient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReceivedComplaint(Complaint $receivedComplaint): static
+    {
+        if ($this->receivedComplaints->removeElement($receivedComplaint)) {
+            // set the owning side to null (unless already changed)
+            if ($receivedComplaint->getRecipient() === $this) {
+                $receivedComplaint->setRecipient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getBlock(): ?UserBlock
+    {
+        return $this->block;
+    }
+
+    public function setBlock(UserBlock $block): static
+    {
+        // set the owning side of the relation if necessary
+        if ($block->getUser() !== $this) {
+            $block->setUser($this);
+        }
+
+        $this->block = $block;
 
         return $this;
     }

@@ -8,9 +8,8 @@ import AccountDatastore from './datastore/AccountDatastore';
 import RegistraionAccount from '../models/RegistrationAccount';
 import Account from '../models/Account';
 
-//TODO: remove the hard coded url
+//TODO: remove the hard coded this.url
 
-const url = 'https://fotoapi.1929736.techinfo-cstj.ca';
 const client = await getClient();
 class AccountRepository extends Repository {
 
@@ -25,7 +24,7 @@ class AccountRepository extends Repository {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
         try {
-            const response = await client.get(`${url}/account/isAdmin?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            const response = await client.get(`${this.url}/account/isAdmin?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
             let data = response.data as any;
 
             if (response.status === 200) {
@@ -44,7 +43,7 @@ class AccountRepository extends Repository {
         if (!jwt.success) return { errors: jwt.errors, success: false };
 
         try {
-            const response = await client.get(`${url}/account/search?jwtToken=${jwt.data.jwtToken}&searchValue=${search}`, { responseType: ResponseType.JSON });
+            const response = await client.get(`${this.url}/account/search?jwtToken=${jwt.data.jwtToken}&searchValue=${search}`, { responseType: ResponseType.JSON });
             if (search == '') return { data: [], success: true };
             let data = response.data as any;
 
@@ -65,7 +64,7 @@ class AccountRepository extends Repository {
 
     public async login(loginAccount: LoginAccount): Promise<APIResult<JWTToken>> {
         try {
-            const response = await client.post(`${url}/account/login`, Body.json(loginAccount), { responseType: ResponseType.JSON });
+            const response = await client.post(`${this.url}/account/login`, Body.json(loginAccount), { responseType: ResponseType.JSON });
             let data = response.data as JWTToken;
 
             if (response.status === 200) {
@@ -83,7 +82,7 @@ class AccountRepository extends Repository {
 
     public async register(registrationAccount: RegistraionAccount): Promise<APIResult<JWTToken>> {
         try {
-            const response = await client.post(`${url}/account/register`, Body.json(registrationAccount), { responseType: ResponseType.JSON });
+            const response = await client.post(`${this.url}/account/register`, Body.json(registrationAccount), { responseType: ResponseType.JSON });
             let data = response.data as JWTToken;
 
             if (response.status === 200) {
@@ -113,7 +112,7 @@ class AccountRepository extends Repository {
         if (!jwt.success) return { errors: jwt.errors, success: false };
 
         try {
-            const response = await client.post(`${url}/account`, Body.json(jwt.data), { responseType: ResponseType.JSON });
+            const response = await client.post(`${this.url}/account`, Body.json(jwt.data), { responseType: ResponseType.JSON });
             let data = response.data as any;
             console.log(data);
 
@@ -159,7 +158,7 @@ class AccountRepository extends Repository {
         if (!jwt.success) return { errors: jwt.errors, success: false };
         personnalInfo.jwtToken = jwt.data.jwtToken;
         try {
-            const response = await client.post(`${url}/account/modify`, Body.json(personnalInfo));
+            const response = await client.post(`${this.url}/account/modify`, Body.json(personnalInfo));
             let data = response.data as any;
 
             // console.log(data);

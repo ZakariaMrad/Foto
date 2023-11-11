@@ -27,6 +27,16 @@ const router = createRouter({
       path: '/friendsList',
       name: 'friendsList',
       component: () => import('../views/pages/FriendsListPage.vue')
+    },
+    {
+       path:'/admin',
+        name:'admin',
+        component: () => import('../views/pages/AdminPage.vue')
+    },
+    {
+      path:'/albums',
+      name:'albums',
+      component: () => import('../views/pages/AlbumsPage.vue')
     }
   ]
 

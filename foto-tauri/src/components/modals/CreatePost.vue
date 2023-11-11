@@ -8,8 +8,8 @@
                         <v-col cols="6">
                             <div class="left-panel">
                                 <v-text-field v-bind="register('title')" type="text" label="Titre" required />
-                                <v-switch hide-details color="blue" v-bind:input-value="register('isPublic', { defaultValue: true})"
-                                    label="Publique" />
+                                <v-switch hide-details color="blue"
+                                    v-bind:input-value="register('isPublic', { defaultValue: true })" label="Publique" />
                             </div>
                         </v-col>
                         <v-col cols="6">
@@ -22,14 +22,26 @@
                     <p class="text-danger" v-for="error in errors">{{ error.message }}</p>
 
                     <p class="text-success">{{ message }}</p>
-                    <v-btn-toggle class="d-flex justify-center" color="blue" v-model="isFotos" mandatory>
-                        <v-btn value="0">Fotos</v-btn>
-                        <v-btn value="1">Albums</v-btn>
-                    </v-btn-toggle>
-                    <div class="h-10">
-                        <AssetPicker :itemSize="6" :items="fotos" :multiple="false"
-                            title="" @items-selected="(items) => setItems(items as Foto[])" />
-                    </div>
+                    <v-responsive :aspect-ratio="3 / 1">
+                        <v-card height="99%">
+                            <v-tabs v-model="isFotos" color="deep-purple-accent-4" fixed-tabs>
+                                <v-tab value="0">Fotos</v-tab>
+                                <v-tab value="1">Albums</v-tab>
+                            </v-tabs>
+                            <v-card-text>
+                                <v-window v-model="isFotos">
+                                    <v-window-item value="0">
+                                        <AssetPicker :itemSize="6" :items="fotos" :multiple="false" title=""
+                                            @items-selected="(items) => setItems(items as Foto[])" />
+                                    </v-window-item>
+                                    <v-window-item value="1">
+                                        <AssetPicker :itemSize="6" :items="albums" :multiple="false" title=""
+                                            @items-selected="(items) => setItems(items as Album[])" />
+                                    </v-window-item>
+                                </v-window>
+                            </v-card-text>
+                        </v-card>
+                    </v-responsive>
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
                     <div class="float-right">
                         <v-btn type="submit" class="text-white" color="green-darken-3" text="Créer" :loading="loading" />
@@ -41,15 +53,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useFormHandler } from 'vue-form-handler';
 import Foto from '../../models/Foto';
 import AssetPicker from '../AssetPicker.vue';
 import FotoRepository from '../../repositories/FotoRepository';
 import PostRepository from '../../repositories/PostRepository';
 import { APIError } from '../../core/API/APIError';
-import { watch } from 'vue';
 import { EventsBus, Events } from '../../core/EventBus';
+//@ts-ignore
+import delay from 'delay';
+import Album from '../../models/Album';
+import AlbumRepository from '../../repositories/AlbumRepository';
 
 const { register, handleSubmit, formState } = useFormHandler({
     validationMode: 'always',
@@ -69,28 +84,44 @@ const loading = ref<boolean>(false)
 
 const isFotos = ref<number>(0)
 const fotos = ref<Foto[]>([])
-let choosenFotoId: number | undefined = undefined
+const albums = ref<Album[]>([])
+let choosenId: number | undefined = undefined
+onMounted(async () => {
+    //We need to do the the get at the same time
+    await Promise.all([getFotos(), getAlbums()])
+    console.log(fotos.value, albums.value);
 
-watch(() => props.activate, async () => {
+})
+async function getFotos() {
     let apiResponse = await FotoRepository.getFotos()
     console.log(apiResponse);
     if (!apiResponse.success) return
-
     fotos.value = apiResponse.data
-})
-
-function setItems(items: Foto[]) {
+}
+async function getAlbums() {
+    let apiResponse = await AlbumRepository.getAlbums()
+    console.log(apiResponse);
+    if (!apiResponse.success) return
+    albums.value = apiResponse.data
+}
+function setItems(items: Foto[] | Album[]) {
     console.log(items);
-    choosenFotoId = items[0].idFoto
-    console.log(choosenFotoId);
+    if (items.length == 0) return
+    choosenId = undefined
+    //check is it foto or album 
+    if ('idFoto' in items[0]) {
+        choosenId = items[0].idFoto
+    } else {
+        choosenId = items[0].idAlbum
+    }
 }
 
 async function successFn(form: any) {
     loading.value = true
-    form.id = choosenFotoId;
-    form.isFoto = 'true';
+    form.id = choosenId;
+    form.isFoto = !isFotos?'true':'false';
     console.log('form', form);
-    
+
     let apiResult = await PostRepository.createPost(form)
     loading.value = false
     errors.value = []
@@ -115,7 +146,8 @@ function submitFn() {
         console.log(formState.errors)
     }
 }
-function closeDialog() {
+async function closeDialog() {
+    await delay(2000);
     emit('closeDialog');
 }
 </script>

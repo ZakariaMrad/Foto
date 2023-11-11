@@ -1,5 +1,20 @@
 <template>
-    <PostComponent v-for="post in posts" :post="post"/>
+    <v-col class="d-flex justify-end">
+        <!-- i nned to put the btn-toggle at the end of the row -->
+
+        <v-btn-toggle v-model="columnChoice" shaped mandatory>
+            <v-btn icon="mdi-tally-mark-1" />
+            <v-btn icon="mdi-tally-mark-2" />
+            <v-btn icon="mdi-tally-mark-3" />
+        </v-btn-toggle>
+    </v-col>
+    <v-col>
+        <v-row>
+            <v-col v-for="post in posts" :cols="columnNumber[columnChoice]">
+                <PostComponent :post="post" />
+            </v-col>
+        </v-row>
+    </v-col>
 </template>
 
 <script setup lang="ts">
@@ -11,18 +26,30 @@ import { Events, EventsBus } from '../core/EventBus';
 const { bus } = EventsBus();
 
 const posts = ref<Post[]>([])
+const columnChoice = ref<number>(0)
+const columnNumber = ref<number[]>([12, 6, 4])
 
-onMounted(async() => {
-    let apiResponse = await PostRepository.getPosts();
-    if(!apiResponse.success) return;
-    posts.value = apiResponse.data;
+onMounted(async () => {
+    console.log('test');
+    
+    getPosts();
+
 })
 
 watch(() => bus.value.get(Events.CREATE_POST), async () => {
-    let apiResponse = await PostRepository.getPosts();
-    if(!apiResponse.success) return;
-    posts.value = apiResponse.data;
+    getPosts();
 })
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), async () => {
+    getPosts();
+})
+
+async function getPosts() {
+    let apiResponse = await PostRepository.getPosts();
+    if (!apiResponse.success) return;
+    posts.value = apiResponse.data;
+    console.log(' post', posts.value);
+    
+}
 
 
 </script>

@@ -7,14 +7,13 @@ import { APIError } from "../core/API/APIError";
 
 
 const client = await getClient();
-const url = 'https://fotoapi.1929736.techinfo-cstj.ca';
 class PostRepository extends Repository {
     public async createPost(newPost: Post): Promise<APIResult<JWTToken>> {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
         newPost.jwtToken = jwt.data.jwtToken;
         try {
-            const response = await client.post(`${url}/post`, Body.json(newPost), { responseType: ResponseType.JSON });
+            const response = await client.post(`${this.url}/post`, Body.json(newPost), { responseType: ResponseType.JSON });
             let data = response.data as JWTToken;
             console.log(response.data);
 
@@ -39,9 +38,10 @@ class PostRepository extends Repository {
         if (!jwt.success) return { errors: jwt.errors, success: false };
 
         try {
-            const response = await client.get(`${url}/posts?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            const response = await client.get(`${this.url}/posts?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
             let data = response.data as any;
-
+            console.log(data);
+            
             data.posts.forEach( (post: Post) => {
                 post.likes = (Math.floor(Math.random() * 31));
                 post.isLiked = false;
