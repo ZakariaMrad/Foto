@@ -20,6 +20,7 @@
                 <v-col cols="3" v-for="(file, index) in files">
                     <v-card v-if="pictures[index]">
                         <v-img
+                            class="imgToUpload"
                             height="300"
                             :src="pictures[index]?.base64"
                             :style="{filter: 'saturate(' + pictures[index]?.saturation +'%) contrast(' + pictures[index]?.contrast +'%) brightness(' + pictures[index]?.exposition +'%)'}"
@@ -46,6 +47,7 @@
                 Téléverser
             </v-btn>
         </div>
+        <img :src="test">
         
     </DefaultLayout>
 </template>
@@ -61,6 +63,7 @@ const {eventBusEmit} = EventsBus();
 
 const pictures = ref<Array<EditedPicture>>([]);
 const files = ref([]);
+const test = ref();
 
 function readFiles() {
     files.value.forEach((file, index) => {
@@ -96,18 +99,37 @@ function openEditModal(index: number) {
 
 function uploadFotos() {
     //TODO: Webworker
+    
     pictures.value.forEach(async (picture, index) => {
         let foto = new Foto();
         foto.name = "test" + index;
-        foto.base64image = picture.base64;
+        foto.base64image = getBase64FromIndex(picture, index);
 
-        let response = await FotoRepository.uploadFotos(foto);
+        /*let response = await FotoRepository.uploadFotos(foto);
         console.log(response);
         
         if (response.success)
-            removeAllFiles();
+            removeAllFiles();*/
+        test.value = foto.base64image;
     });
     
+}
+
+function getBase64FromIndex(picture: EditedPicture, index: number) {
+    const images = document.getElementsByClassName("imgToUpload");
+    const imageToUpload = images[index].getElementsByTagName('img')[0]; 
+    var canvas = document.createElement('CANVAS') as HTMLCanvasElement;
+    canvas.height = imageToUpload.naturalHeight;
+    canvas.width = imageToUpload.naturalWidth;
+    var context = canvas.getContext('2d');
+    if (!context)
+        return;
+    //context.filter = `hue-rotate(-180deg) saturate(${picture.saturation}%) contrast(${picture.contrast}'%) brightness(${picture.exposition}%)`;
+    context.filter = window.getComputedStyle(images[index]).filter;
+    context.drawImage(imageToUpload, 1, 1);
+    console.log("Test de base64 = " + picture.base64 == canvas.toDataURL('image/jpeg'));
+    return canvas.toDataURL();
+
 }
 
 </script>
