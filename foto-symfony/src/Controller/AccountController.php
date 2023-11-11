@@ -59,7 +59,7 @@ class AccountController extends AbstractController
         }
 
         return $this->json([
-            'user' => $user->getOneById(),
+            'user' => $user->getAll(),
         ], JsonResponse::HTTP_OK);
     }
 

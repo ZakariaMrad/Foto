@@ -88,31 +88,37 @@ const props = defineProps({
     // accounts: Account
 })
 
-const idAccount = useRoute().params.idAccount[0];
+const idAccount = ref<string>();
 
 const posts = ref<Post[]>([])
 const account = ref<Account>()
 
 onMounted(async () => {
-    console.log("le test", idAccount);
+    const param = useRoute().params.idAccount;
+    idAccount.value = param.toString();
+    console.log("le test", idAccount.value);
 
     if (!idAccount) {
         console.log(account.value);
         return;
     }
 
-
-
-    let apiResponse = await AccountRepository.getOtherUserAccount(parseInt(idAccount));
+    let apiResponse = await AccountRepository.getOtherUserAccount(parseInt(idAccount.value));
     if (!apiResponse.success) return;
     account.value = apiResponse.data;
 
-    console.log(account.value);
+    console.log("ID ACCOUNT: " + idAccount.value);
 
 
     let apiPostResponse = await PostRepository.getPosts();
     if (!apiPostResponse.success) return;
     posts.value = apiPostResponse.data;
+    posts.value = posts.value.filter((post: Post) => {
+        if (post.foto)
+            return post;
+        else
+            return;
+    });
 })
 
 function openPostModal(idPost : number) {

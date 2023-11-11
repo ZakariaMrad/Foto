@@ -35,12 +35,7 @@
                             </v-list>
                         </v-menu>
 
-                        <v-btn class="ms-2">Follow</v-btn>
                         <v-btn class="ms-2" color="red-darken-3" v-if="isAdmin" @click="openAdminPage()">Admin</v-btn>
-                    </v-col>
-                    <v-col cols="12">
-                        <p>sandra_a88@gmail.com</p>
-
                     </v-col>
                 </v-row>
                 <v-row cols="12" class="pa-3 font-weight-bold">
