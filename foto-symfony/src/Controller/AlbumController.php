@@ -27,16 +27,6 @@ class AlbumController extends AbstractController
         $this->em = $doctrine->getManager();
         $this->jwtHandler = new JWTHandler($jwtEncoder);
     }
-    #[Route('/album', name: 'app_get_album', methods: ['GET'])]
-    public function getAlbum(): JsonResponse
-    {
-        $album = $this->getAlbumById(3);
-        // dd($album);
-        return $this->json([
-            'album' => $album->getAll(),
-            'message' => 'Album créé avec succès.'
-        ], JsonResponse::HTTP_OK);
-    }
 
     #[Route('/album', name: 'app_create_album', methods: ['POST'])]
     public function index(Request $request, ValidatorInterface $validator): JsonResponse
@@ -56,6 +46,7 @@ class AlbumController extends AbstractController
         unset($data['spectators']);
         $grid = $data['grid'] ?? null;
         unset($data['grid']);
+        unset($data['isPublic']);
 
         $album = new Album();
         $form = $this->createForm(CreateAlbumFormType::class, $album);
@@ -75,14 +66,40 @@ class AlbumController extends AbstractController
             $album->addSpectator($this->getUserById($spectator['idAccount']));
         }
         $album->setGrid($grid);
+        $album->setIsPublic(true);
         
         $this->em->persist($album);
         $this->em->flush();
-        dd($album);
-
         return $this->json([
             'jwtToken' => $newJWT,
             'message' => 'Album créé avec succès.'
+        ], JsonResponse::HTTP_OK);
+    }
+    #[Route('/albums', name: 'app_album_get_all', methods: ['GET'])]
+    public function getAlbums(Request $request): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+        $albums = $user->getOwnedAlbums();
+        $albumArray = array_map(function (Album $album) {
+            return $album->getAll();
+        }, $albums->toArray());
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'albums' => $albumArray,
         ], JsonResponse::HTTP_OK);
     }
     private function getUserById(int $idUser): ?User
