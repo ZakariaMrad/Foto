@@ -169,6 +169,7 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undef
     connectedAccount.value = account[0];
 })
 
+
 const profileLinks = ref<{ icon: string, text: string, click: any }[]>(
     [
         { icon: 'mdi-pencil-outline', text: 'Modifier le profil', click: openProfileModificationModal },

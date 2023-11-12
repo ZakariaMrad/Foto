@@ -3,6 +3,8 @@
         <v-card>
             <v-card-text>
                 <h3 class="text-center" md="12">Créer un album</h3>
+                <p class="text-danger">{{ errorMessage }}</p>
+                <p class="text-success">{{ successMessage }}</p>
                 <v-responsive :aspect-ratio="3 / 1">
                     <v-card height="99%">
                         <v-tabs v-model="tab"  color="deep-purple-accent-4" fixed-tabs>
@@ -61,8 +63,13 @@ import PickFotos from '../CreateAlbumComponents/PickFotos.vue';
 import Display from '../CreateAlbumComponents/Display.vue';
 import Collaboraters from '../CreateAlbumComponents/Collaboraters.vue';
 import Finalization from '../CreateAlbumComponents/Finalization.vue';
+import { EventsBus, Events } from '../../core/EventBus';
+
 //@ts-ignore
 import delay from 'delay';
+import AlbumRepository from '../../repositories/AlbumRepository';
+
+const { eventBusEmit } = EventsBus();
 
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
@@ -75,6 +82,8 @@ const displayKey = ref<number>(0);
 const collaboratersKey = ref<number>(0);
 const finalizationKey = ref<number>(0);
 const collabDisabled = ref<boolean>(false);
+    const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 
 const disabledTabs = ref<{ infos: boolean, fotos: boolean, display: boolean, collaboraters: boolean, finalization: boolean }>({ infos:false, fotos: true, display: true, collaboraters: true, finalization: true });
 
@@ -137,12 +146,18 @@ function finalizationToCollaboraters() {
 }
 
 async function finalization(album: Partial<Album>) {
+    albumInProgress.value = album;
+    let apiResult = await AlbumRepository.createAlbum(album as Album);
+    if (!apiResult.success) {
+        errorMessage.value = apiResult.errors![0].message;
+        return
+    }
+    //@ts-ignore
+    successMessage.value = apiResult.data!.message;
+    await delay(2000);
     tab.value = 0;
     disabledTabs.value = { infos:true,fotos: true, display: true, collaboraters: true, finalization: true };
-    console.log(album);
-    albumInProgress.value = album;
-    await delay(2000);
-
+    eventBusEmit(Events.RELOAD_ALBUMS)
     emit('closeDialog');
 }
 function closeDialog() {

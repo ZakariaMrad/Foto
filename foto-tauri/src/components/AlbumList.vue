@@ -11,10 +11,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import AlbumListItem from './AlbumListItem.vue';
 import Album from '../models/Album';
 import AlbumRepository from '../repositories/AlbumRepository';
+import { EventsBus, Events } from '../core/EventBus';
+
+const { bus } = EventsBus();
 
 const albums = ref<Album[]>([])
 
@@ -25,6 +28,10 @@ onMounted(async () => {
 function reload() {
     getAlbums();
 }
+
+watch(()=> bus.value.get(Events.RELOAD_ALBUMS), async () => {
+    await getAlbums();
+})
 
 
 async function getAlbums() {
