@@ -22,6 +22,7 @@ import CreateAlbum from './components/modals/CreateAlbum.vue';
 import ModifyProfile from './components/modals/ModifyProfile.vue'
 import Admin from './components/modals/Admin.vue';
 import router from './router';
+import EditedPicture from './models/EditedPicture';
 import PostModal from './components/modals/PostModal.vue';
 import {v1} from 'uuid'; 
 
@@ -30,7 +31,7 @@ const activateCreatePost = ref<boolean>(false);
 const activateCreateAlbum = ref<boolean>(false);
 const activateSearch = ref<boolean>(false);
 const activateEdit = ref<boolean>(false);
-const editImgSrc = ref<string>("");
+const editedPicture= ref<EditedPicture>();
 const activateModifyProfile = ref<boolean>(false);
 const activateAdmin = ref<boolean>(false);
 const activatePostModal = ref<boolean>(false);
@@ -81,9 +82,9 @@ watch(() => bus.value.get(Events.OPEN_ADMIN_PANEL), () => {
   activateAdmin.value = true;
 })
 
-watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: string[]) => {
+watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: EditedPicture[]) => {
     activateEdit.value = true;
-    editImgSrc.value = value[0];
+    editedPicture.value = value[0];
 });
 
 onMounted(async () => {
