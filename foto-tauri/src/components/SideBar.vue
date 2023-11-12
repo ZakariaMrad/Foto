@@ -64,7 +64,4 @@ async function logout() {
 function openSearchModal() {
     eventBusEmit(Events.OPEN_SEARCH_MODAL)
 }
-function createAlbum() {
-    eventBusEmit(Events.CREATE_ALBUM)
-}
 </script>

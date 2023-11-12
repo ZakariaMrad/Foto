@@ -26,6 +26,7 @@ import AccountRepository from '../repositories/AccountRepository'
 import { ref } from 'vue'
 import { APIError } from '../core/API/APIError';
 import RegistrationAccount from '../models/RegistrationAccount';
+//@ts-ignore
 import delay from 'delay';
 
 const emit = defineEmits(['closeDialog', 'isRegister'])

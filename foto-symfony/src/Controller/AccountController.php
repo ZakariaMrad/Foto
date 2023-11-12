@@ -93,8 +93,8 @@ class AccountController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/account/isAdmin', name: 'app_user_is_admin', methods: ['GET'])]
-    public function isAdmin(Request $request): JsonResponse
+    #[Route('/account/isAdmin/{idUser}', name: 'app_user_is_admin', methods: ['GET'])]
+    public function isAdmin($idUser,Request $request): JsonResponse
     {
         $data["jwtToken"] = $request->query->get('jwtToken');
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
@@ -103,7 +103,7 @@ class AccountController extends AbstractController
                 'error' => $this->jwtHandler->error,
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
-        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+        $user = $this->getUserById($idUser);
         if (!$user) {
             return $this->json([
                 'error' => ['Erreur: Compte non trouvé.'],

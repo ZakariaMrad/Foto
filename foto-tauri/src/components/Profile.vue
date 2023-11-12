@@ -35,7 +35,6 @@
                             </v-list>
                         </v-menu>
 
-                        <v-btn class="ms-2" color="red-darken-3" v-if="isAdmin" @click="openAdminPage()">Admin</v-btn>
                     </v-col>
                 </v-row>
                 <v-row cols="12" class="pa-3 font-weight-bold">
@@ -144,8 +143,10 @@ onMounted( async () => {
     }
 
     let apiResponse = await AccountRepository.isAdmin()
+    console.log(apiResponse);
     if (apiResponse.success)
         isAdmin.value = apiResponse.data
+    
 
     let apiPostResponse = await PostRepository.getPosts();
     if (apiPostResponse.success) {

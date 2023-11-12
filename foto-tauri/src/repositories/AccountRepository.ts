@@ -23,8 +23,11 @@ class AccountRepository extends Repository {
     async isAdmin(): Promise<APIResult<boolean>> {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
+        let APIResponse= await this.getAccount();
+        if (!APIResponse.success) return { errors: APIResponse.errors, success: false };
+        let idAccount = APIResponse.data.idAccount;
         try {
-            const response = await client.get(`${this.url}/account/isAdmin?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            const response = await client.get(`${this.url}/account/isAdmin/${idAccount}?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
             let data = response.data as any;
 
             if (response.status === 200) {

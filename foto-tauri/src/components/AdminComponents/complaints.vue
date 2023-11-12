@@ -41,6 +41,7 @@ import complaint from './complaint.vue';
 import ComplaintRepository from '../../repositories/ComplaintRepository';
 import Constants from '../../core/Constants';
 
+const emit = defineEmits(['reloadComplaints']);
 const complaints = ref<Complaint[]>([]);
 onMounted(async () => {
     await reloadComplaints();
@@ -51,8 +52,7 @@ async function reloadComplaints() {
         let apiResponse = await ComplaintRepository.getComplaints();
         if (!apiResponse.success || !apiResponse.data) return;
         complaints.value = apiResponse.data as Complaint[];
-    console.log(complaints.value);
-    
+    emit('reloadComplaints');    
 }
 </script>
 
