@@ -4,7 +4,7 @@
   <LoginRegister :key="v1()" :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
   <CreatePost :key="v1()" :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
   <Search :key="v1()" :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
-  <EditPicture :key="v1()" :activate="activateEdit" @close-dialog="() => closeEditDialog()" :img-src="editImgSrc"/>
+  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" :editedPicture="editedPicture"/>
   <CreateAlbum :key="v1()" :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
   <ModifyProfile :key="v1()" :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
   <Admin :key="v1()" :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
