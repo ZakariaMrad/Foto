@@ -47,8 +47,6 @@
                 Téléverser
             </v-btn>
         </div>
-        <img :src="test">
-        
     </DefaultLayout>
 </template>
 
@@ -63,7 +61,6 @@ const {eventBusEmit} = EventsBus();
 
 const pictures = ref<Array<EditedPicture>>([]);
 const files = ref([]);
-const test = ref();
 
 function readFiles() {
     files.value.forEach((file, index) => {
@@ -103,18 +100,17 @@ function uploadFotos() {
     pictures.value.forEach(async (picture, index) => {
         let foto = new Foto();
         foto.name = "test" + index;
-        foto.base64image = getBase64FromIndex(picture, index);
+        foto.base64image = picture.base64;
 
-        /*let response = await FotoRepository.uploadFotos(foto);
-        console.log(response);
+        let response = await FotoRepository.uploadFotos(foto);
         
         if (response.success)
-            removeAllFiles();*/
-        test.value = foto.base64image;
+            removeAllFiles();
     });
     
 }
 
+/*
 function getBase64FromIndex(picture: EditedPicture, index: number) {
     const images = document.getElementsByClassName("imgToUpload");
     const imageToUpload = images[index].getElementsByTagName('img')[0]; 
@@ -130,7 +126,7 @@ function getBase64FromIndex(picture: EditedPicture, index: number) {
     console.log("Test de base64 = " + picture.base64 == canvas.toDataURL('image/jpeg'));
     return canvas.toDataURL();
 
-}
+}*/
 
 </script>
 
