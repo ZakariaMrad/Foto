@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Album;
 use App\Entity\Foto;
 use App\Entity\Post;
 use App\Entity\User;
@@ -49,17 +50,28 @@ class PostController extends AbstractController
                 'error' => ['Erreur: Compte non trouvé.'],
             ], JsonResponse::HTTP_NOT_FOUND);
         }
-
-        $foto = $this->getFotoById($data['id']);
-        if (!$foto) {
-            return $this->json([
-                'error' => ['Erreur: Foto non trouvée.'],
-            ], JsonResponse::HTTP_NOT_FOUND);
+        if ($data['isFoto'] == 'true') {
+            $foto = $this->getFotoById($data['id']);
+            if (!$foto) {
+                return $this->json([
+                    'error' => ['Erreur: Foto non trouvée.'],
+                ], JsonResponse::HTTP_NOT_FOUND);
+            }
+            $post->setFoto($foto);
+        } else {
+            $album = $this->getAlbumById($data['id']);
+            if (!$album) {
+                return $this->json([
+                    'error' => ['Erreur: Album non trouvé.'],
+                ], JsonResponse::HTTP_NOT_FOUND);
+            }
+            $post->setAlbum($album);
         }
+
+
 
         $post->setCreationDate(new \DateTime());
         $post->setOwner($user);
-        $post->setFoto($foto);
 
         $this->em->persist($post);
         $this->em->flush();
@@ -84,13 +96,13 @@ class PostController extends AbstractController
         $posts = $this->em->getRepository(Post::class)->findAll();
 
         //order the post by the inversed datetime (new post at the start of the array)
-        usort($posts, function($a,$b){
+        usort($posts, function ($a, $b) {
             return $b->getCreationDate() <=> $a->getCreationDate();
         });
-        $posts = array_map(function($post){
+        $posts = array_map(function ($post) {
             return $post->getAll();
-        },$posts);
-        
+        }, $posts);
+
 
         return $this->json([
             'jwtToken' => $newJWT,
@@ -104,5 +116,9 @@ class PostController extends AbstractController
     private function getFotoById(int $idFoto): ?Foto
     {
         return $this->em->getRepository(Foto::class)->findOneBy(['idFoto' => $idFoto]);
+    }
+    private function getAlbumById(int $idAlbum): ?Album
+    {
+        return $this->em->getRepository(Album::class)->findOneBy(['idAlbum' => $idAlbum]);
     }
 }

@@ -136,7 +136,7 @@ class FotoController extends AbstractController
             $foto = $this->em->getRepository(Foto::class)->findOneBy(['idFoto' => $idFoto]);
             if (!$foto) {
                 return $this->json([
-                    'error' => ['Erreur: Foto avec id '. $idFoto.' non trouvée.'],
+                    'error' => ['Erreur: Foto avec id '. $idFoto.' non trouvé.'],
                 ], JsonResponse::HTTP_NOT_FOUND);
             }
             $fotos[] = $foto;

@@ -1,12 +1,13 @@
 <template>
   <RouterView />
-  <LoginRegister :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
-  <CreatePost :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
-  <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
-  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" :editedPicture="editedPicture"/>
-  <CreateAlbum :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
-  <ModifyProfile :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
-  <Admin :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
+  <PostModal :key="v1()" :idPost="idPost" :activate="activatePostModal" @close-dialog="closePostModal()"/>
+  <LoginRegister :key="v1()" :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
+  <CreatePost :key="v1()" :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
+  <Search :key="v1()" :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
+  <EditPicture :key="v1()" :activate="activateEdit" @close-dialog="() => closeEditDialog()" :img-src="editImgSrc"/>
+  <CreateAlbum :key="v1()" :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
+  <ModifyProfile :key="v1()" :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
+  <Admin :key="v1()" :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
 </template>
 
 <script setup lang="ts">
@@ -22,6 +23,8 @@ import ModifyProfile from './components/modals/ModifyProfile.vue'
 import Admin from './components/modals/Admin.vue';
 import router from './router';
 import EditedPicture from './models/EditedPicture';
+import PostModal from './components/modals/PostModal.vue';
+import {v1} from 'uuid'; 
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
@@ -31,6 +34,9 @@ const activateEdit = ref<boolean>(false);
 const editedPicture= ref<EditedPicture>();
 const activateModifyProfile = ref<boolean>(false);
 const activateAdmin = ref<boolean>(false);
+const activatePostModal = ref<boolean>(false);
+const idPost = ref<number | undefined>();
+const idAccount = ref<number>();
 
 const { bus, eventBusEmit } = EventsBus();
 
@@ -45,6 +51,7 @@ watch(() => bus.value.get(Events.LOGOUT), () => {
 watch(() => bus.value.get(Events.CREATE_POST), () => {
   activateCreatePost.value = true;
 })
+
 watch(() => bus.value.get(Events.OPEN_SEARCH_MODAL), () => {
   activateSearch.value = true;
 })
@@ -53,6 +60,17 @@ watch(()=> bus.value.get(Events.CREATE_ALBUM), () => {
 })
 watch(()=> bus.value.get(Events.RELOAD_CONNECTED_ACCOUNT), () => {
   getAccount();
+})
+
+watch(() => bus.value.get(Events.OPEN_USER_PROFILE ), (value) => {
+  idAccount.value = value[0];
+  // activateOthersProfile.value = true;
+  router.push({name :'otherUserProfile', params: {idAccount: idAccount.value}});
+})
+
+watch(() => bus.value.get(Events.OPEN_POST_MODAL), (value) => {
+  idPost.value = value[0];  
+  activatePostModal.value = true;
 })
 
 watch(() => bus.value.get(Events.OPEN_MODIFY_PROFILE_MODAL), () => {
@@ -78,22 +96,23 @@ onMounted(async () => {
 function closeEditDialog() {
     activateEdit.value = false;
 }
-
 function closeSearchDialog() {
   activateSearch.value = false;
 }
-
 function closeModifyProfileDialog() {
   activateModifyProfile.value = false;
 }
 function closeAdminPanel() {
   activateAdmin.value = false;
 }
-
 async function closeLoginRegisterDialog(val: boolean) {
   activateLogin.value = false;
   if (!val) return;
   await getAccount();
+}
+
+function closePostModal(){
+  activatePostModal.value = false;
 }
 
 async function Logout() {
@@ -103,19 +122,16 @@ async function Logout() {
   router.push({ name: 'home' })
   console.log();
 }
-
 async function getAccount() {
   let apiResponse = await AccountRepository.getAccount();
-  console.log(apiResponse);
+  // console.log(apiResponse);
   
   if (!apiResponse.success) return;
   let account = apiResponse.data;
-  console.log(account);
+  // console.log(account);
   
   eventBusEmit(Events.CONNECTED_ACCOUNT, account)
 }
-
-
 </script>
 
 <style scoped></style>

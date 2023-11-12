@@ -4,6 +4,7 @@ import { JWTToken } from "../models/JWTToken";
 import AccountDatastore from "./datastore/AccountDatastore";
 
 export class Repository {
+    protected url = 'http://localhost:8000';
     protected getAPIError(errors: any): APIError[] {
         let keys = Object.keys(errors);
         let errorsArray: APIError[] = [];

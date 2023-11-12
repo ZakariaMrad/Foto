@@ -58,7 +58,7 @@ const emit = defineEmits<{ (event: 'nextStep', album: Partial<Album>): void, (ev
 onMounted(async () => {
     register('collaboraters', { defaultValue: [] })
     register('spectators', { defaultValue: [] })
-    console.log(props.album.isPublic);
+    console.log('ispublic',props.album);
     
 })
 

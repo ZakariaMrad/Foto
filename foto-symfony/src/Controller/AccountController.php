@@ -47,7 +47,22 @@ class AccountController extends AbstractController
             'jwtToken' => $newJWT
         ], JsonResponse::HTTP_OK);
     }
-     
+
+    #[Route('/account/{id}', name: 'app_other_user_account', methods: ['GET'])]
+    public function getOtherUserAccount($id): JsonResponse
+    {
+        $user = $this->em->getRepository(User::class)->findOneBy(['idUser' => $id]);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        return $this->json([
+            'user' => $user->getAll(),
+        ], JsonResponse::HTTP_OK);
+    }
+
     #[Route('/account/search', name: 'app_user_search', methods: ['GET'])]
     public function search(Request $request): JsonResponse
     {
@@ -64,8 +79,8 @@ class AccountController extends AbstractController
                 'error' => ['Erreur: Compte non trouvé.'],
             ], JsonResponse::HTTP_NOT_FOUND);
         }
-        $searchValue = $request->query->get('searchValue')?? '';
-    
+        $searchValue = $request->query->get('searchValue') ?? '';
+
         $users = $this->em->getRepository(User::class)->getUserBySearchValue($searchValue);
         $users = array_map(function ($user) {
             return $user->getAll();
@@ -102,6 +117,8 @@ class AccountController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
+
+
     #[Route('/account/login', name: 'app_account_login', methods: ['POST'])]
     public function login(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
@@ -122,6 +139,11 @@ class AccountController extends AbstractController
         if (!$passwordHasher->isPasswordValid($user, $form->get('password')->getData())) {
             return $this->json([
                 'error' => ['Courriel ou mot de passe incorrect.'],
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+        if($user->getBlock()){
+            return $this->json([
+                'error' => ['Votre compte est bloqué, Raison: '.$user->getBlock()->getReason().'.'],
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
         return $this->json([

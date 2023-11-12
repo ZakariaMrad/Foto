@@ -57,6 +57,9 @@ import {EventsBus, Events} from '../../core/EventBus';
 import FotoRepository from '../../repositories/FotoRepository';
 import Foto from '../../models/Foto';
 import EditedPicture from '../../models/EditedPicture';
+import router from '../../router';
+
+
 const {eventBusEmit} = EventsBus();
 
 const pictures = ref<Array<EditedPicture>>([]);
@@ -105,9 +108,12 @@ function uploadFotos() {
 
         let response = await FotoRepository.uploadFotos(foto);
         
-        if (response.success)
+        if (response.success) {
             removeAllFiles();
-    });
+            router.push({ name: 'profil', query: { tab: 'fotos' }});
+        }
+    })
+
     
 }
 
