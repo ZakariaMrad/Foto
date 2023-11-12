@@ -147,7 +147,7 @@ class AccountController extends AbstractController
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
         return $this->json([
-            "message" => "User logged in successfully.",
+            "message" => "Utilisateur connecté avec succès.",
             "jwtToken" => $this->jwtHandler->create($user->getEmail(), $user->getIdUser())
         ]);
     }

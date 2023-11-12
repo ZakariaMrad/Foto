@@ -55,6 +55,19 @@
                                 </tr>
                             </tbody>
                         </v-table>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+
+                            <v-list>{{ props.post?.likes }}</v-list>
+
+                            <v-btn size="small" :color="props.post?.isLiked ? 'red' : 'surface-variant'" variant="text"
+                                icon="mdi-heart" @click="toggleLike()"></v-btn>
+
+                            <v-list class="ml-2">{{ props.post?.comments }}</v-list>
+                            <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment"></v-btn>
+                            <v-btn size="small" color="surface-variant" variant="text" icon="mdi-share-variant"></v-btn>
+                            <v-btn size="small" color="surface-variant" variant="text" icon="mdi-exclamation" @click="report()"/>
+                        </v-card-actions>
                     </v-card>
                 </v-col>
             </v-row>
