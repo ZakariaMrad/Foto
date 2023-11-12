@@ -95,6 +95,7 @@ const account = ref<Account>()
 
 onMounted(async () => {
     const param = useRoute().params.idAccount;
+    console.log("route: " + useRoute());
     idAccount.value = param.toString();
     console.log("le test", idAccount.value);
 

@@ -117,6 +117,7 @@ import PostRepository from '../repositories/PostRepository';
 import FotoRepository from '../repositories/FotoRepository';
 import Foto from '../models/Foto';
 import AssetLister from './AssetLister.vue';
+import { useRoute } from 'vue-router';
 
 const { eventBusEmit, bus } = EventsBus();
 
@@ -127,15 +128,31 @@ const fotos = ref<Foto[]>([]);
 
 const tab = ref<string>();
 
-onMounted(async () => {
+onMounted( async () => {
+    const query = useRoute().query;
+    console.log(query);
+    if (query.tab) {
+        console.log(query.tab);
+        if (query.tab === "fotos")
+            tab.value = query.tab;
+    }
+
     let apiResponse = await AccountRepository.isAdmin()
-    if (!apiResponse.success) return;
-    isAdmin.value = apiResponse.data
+    if (apiResponse.success)
+        isAdmin.value = apiResponse.data
 
     let apiPostResponse = await PostRepository.getPosts();
-    if (!apiPostResponse.success) return;
-    posts.value = apiPostResponse.data;
+    if (apiPostResponse.success) {
+        posts.value = apiPostResponse.data;
+        posts.value = posts.value.filter((post: Post) => {
+        if (post.foto)
+            return post;
+        else
+            return;
+        });
+    }
 
+    await Promise.all([getFotos()]);
 });
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
@@ -144,11 +161,6 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undef
 
     connectedAccount.value = account[0];
 })
-
-watch(() => tab.value, async (tab: string | undefined) => {
-    if (tab === "fotos")
-        await Promise.all([getFotos()]);
-}) 
 
 const profileLinks = ref<{ icon: string, text: string, click: any }[]>(
     [
@@ -177,10 +189,8 @@ function createPost() {
 
 async function getFotos() {
     let apiResponse = await FotoRepository.getFotos()
-    console.log(apiResponse);
     if (!apiResponse.success) return
     fotos.value = apiResponse.data
-    console.log("les fotos: " + fotos.value);
 }
 </script>
 
