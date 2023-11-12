@@ -93,7 +93,7 @@
 
                     <v-window-item key="3" value="fotos">
                         <v-container fluid>
-                            <AssetLister :items="fotos" title=""/>
+                            <AssetLister :items="fotos.reverse()" title=""/>
                         </v-container>
                     </v-window-item>
                 </v-window>
