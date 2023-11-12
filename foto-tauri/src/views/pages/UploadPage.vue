@@ -60,13 +60,13 @@ import EditedPicture from '../../models/EditedPicture';
 const {eventBusEmit} = EventsBus();
 
 const pictures = ref<Array<EditedPicture>>([]);
-const files = ref([]);
+const files = ref<File[]>([]);
 
 function readFiles() {
     files.value.forEach((file, index) => {
         const reader = new FileReader();
         reader.onloadend = function() {
-            pictures.value[index] = new EditedPicture((reader.result as string));
+            pictures.value[index] = new EditedPicture(file.name, (reader.result as string));
         }
         if (file) {
             reader.readAsDataURL(file);
@@ -97,9 +97,10 @@ function openEditModal(index: number) {
 function uploadFotos() {
     //TODO: Webworker
     
-    pictures.value.forEach(async (picture, index) => {
+    pictures.value.forEach(async (picture) => {
         let foto = new Foto();
-        foto.name = "test" + index;
+        foto.name = picture.name;
+        foto.description = picture.description;
         foto.base64image = picture.base64;
 
         let response = await FotoRepository.uploadFotos(foto);
