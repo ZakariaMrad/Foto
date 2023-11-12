@@ -18,7 +18,7 @@
                         </v-window-item>
                         <v-window-item value="1">
                             <p class="text-center text-danger">{{ errorMessage }}</p>
-                            <Grid :fotos="album.fotos!" @finishedGrid="finishedGrid" />
+                            <Grid :fotos="album.fotos!" :album="(props.album as Album)" @finishedGrid="finishedGrid" />
                         </v-window-item>
                     </v-window>
                 </v-card-text>
@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Album from '../../models/Album';
 import Grid from './Grid.vue';
 import { useFormHandler } from 'vue-form-handler'
@@ -45,6 +45,9 @@ const tabToType = ['carousel', 'grid']
 const albumGrid = ref<AlbumGrid | undefined>(undefined);
 const errorMessage = ref<string | undefined>(undefined);
 
+onMounted(() => {
+  tab.value = props.album.type == 'carousel' ? 0 : 1; 
+})
 const { register, handleSubmit, formState, unregister } = useFormHandler({
     validationMode: 'always',
 })

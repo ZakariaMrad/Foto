@@ -1,5 +1,8 @@
 <template>
     <v-card>
+        <v-card-title>
+            <h5>{{ props.album.title }}</h5>
+        </v-card-title>
         <v-list style="display: flex; flex-wrap: wrap; flex-direction:row;">
             <v-list-item subtitle="Owner" :title="props.album.owner!.name" />
             <v-list-item v-for="collaboraters in props.album.collaborators" subtitle="Collaborater"
@@ -37,8 +40,9 @@
             </v-row>
         </v-container>
     </v-card>
-    <AlbumModification :album="props.album" :activate="activateModification" @close-dialog="toggleModifyAlbum" />
-    <AlbumDelete :album="props.album" :activate="activateDelete" @close-dialog="toggleDeleteAlbum" @deleted-album="deletedAlbum" />
+    <AlbumModification :album="props.album" :activate="activateModification" @close-dialog="toggleModifyAlbum"  :key="v1()"/>
+    <AlbumDelete :album="props.album" :activate="activateDelete" @close-dialog="toggleDeleteAlbum" :key="v1()"
+        @deleted-album="deletedAlbum" />
 </template>
 
 <script setup lang="ts">
@@ -46,6 +50,7 @@ import { onMounted, ref } from 'vue';
 import Album from '../models/Album';
 import AlbumModification from './modals/AlbumModification.vue';
 import AlbumDelete from './modals/AlbumDelete.vue';
+import {v1} from 'uuid';
 
 const emit = defineEmits(['deletedAlbum'])
 
@@ -68,12 +73,13 @@ const getPath = (index: number) => {
 
 function toggleModifyAlbum() {
     activateModification.value = !activateModification.value;
+    emit('deletedAlbum');
 }
 function toggleDeleteAlbum() {
     activateDelete.value = !activateDelete.value;
 }
 async function deletedAlbum() {
-    
+
     emit('deletedAlbum');
 }
 </script>

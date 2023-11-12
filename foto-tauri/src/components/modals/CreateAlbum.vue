@@ -3,8 +3,6 @@
         <v-card>
             <v-card-text>
                 <h3 class="text-center" md="12">Créer un album</h3>
-                <p class="text-danger">{{ errorMessage }}</p>
-                <p class="text-success">{{ successMessage }}</p>
                 <v-responsive :aspect-ratio="3 / 1">
                     <v-card height="99%">
                         <v-tabs v-model="tab"  color="deep-purple-accent-4" fixed-tabs>
@@ -36,8 +34,8 @@
                                         @next-step="(album) => displayToCollaboraters(album)" @close-dialog="closeDialog()"
                                         @back="displayToFotos()" />
                                 </v-window-item>
-                                <v-window-item value="3">
-                                    <Collaboraters :key="collaboratersKey" :album="albumInProgress"
+                                <v-window-item value="3" :disabled="collabDisabled">
+                                    <Collaboraters :key="collaboratersKey" :album="albumInProgress" :disabled="false"
                                         @next-step="(album) => collaboratersToFinalization(album)"
                                         @close-dialog="closeDialog()" @back="collaboratersToDisplay()" />
                                 </v-window-item>
@@ -56,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import {  ref } from 'vue';
 import Information from '../CreateAlbumComponents/Information.vue';
 import Album from '../../models/Album';
 import PickFotos from '../CreateAlbumComponents/PickFotos.vue';
@@ -65,7 +63,6 @@ import Collaboraters from '../CreateAlbumComponents/Collaboraters.vue';
 import Finalization from '../CreateAlbumComponents/Finalization.vue';
 //@ts-ignore
 import delay from 'delay';
-import AlbumRepository from '../../repositories/AlbumRepository';
 
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
@@ -77,10 +74,10 @@ const fotosKey = ref<number>(0);
 const displayKey = ref<number>(0);
 const collaboratersKey = ref<number>(0);
 const finalizationKey = ref<number>(0);
-const errorMessage = ref<string>('');
-const successMessage = ref<string>('');
+const collabDisabled = ref<boolean>(false);
 
 const disabledTabs = ref<{ infos: boolean, fotos: boolean, display: boolean, collaboraters: boolean, finalization: boolean }>({ infos:false, fotos: true, display: true, collaboraters: true, finalization: true });
+
 
 function infoToFotos(album: Partial<Album>) {
     tab.value = 1;
@@ -140,18 +137,12 @@ function finalizationToCollaboraters() {
 }
 
 async function finalization(album: Partial<Album>) {
-    albumInProgress.value = album;
-    let apiResult = await AlbumRepository.createAlbum(album as Album);
-    if (!apiResult.success) {
-        errorMessage.value = apiResult.errors![0].message;
-        return
-    }
-    //@ts-ignore
-    successMessage.value = apiResult.data!.message;
-    await delay(2000);
     tab.value = 0;
     disabledTabs.value = { infos:true,fotos: true, display: true, collaboraters: true, finalization: true };
     console.log(album);
+    albumInProgress.value = album;
+    await delay(2000);
+
     emit('closeDialog');
 }
 function closeDialog() {

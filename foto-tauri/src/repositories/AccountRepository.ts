@@ -139,7 +139,7 @@ class AccountRepository extends Repository {
         if (!jwt.success) return { errors: jwt.errors, success: false };
 
         try {
-            const response = await client.get(`${this.url}/account/${idUser}`, { responseType: ResponseType.JSON });
+            const response = await client.get(`${this.url}/account/find/${idUser}`, { responseType: ResponseType.JSON });
             let data = response.data as any;
             console.log(data);
 

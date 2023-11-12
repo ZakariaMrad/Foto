@@ -48,7 +48,7 @@ class AccountController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/account/{id}', name: 'app_other_user_account', methods: ['GET'])]
+    #[Route('/account/find/{id}', name: 'app_other_user_account', methods: ['GET'])]
     public function getOtherUserAccount($id): JsonResponse
     {
         $user = $this->em->getRepository(User::class)->findOneBy(['idUser' => $id]);
@@ -72,12 +72,6 @@ class AccountController extends AbstractController
             return $this->json([
                 'error' => $this->jwtHandler->error,
             ], JsonResponse::HTTP_UNAUTHORIZED);
-        }
-        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
-        if (!$user) {
-            return $this->json([
-                'error' => ['Erreur: Compte non trouvé.'],
-            ], JsonResponse::HTTP_NOT_FOUND);
         }
         $searchValue = $request->query->get('searchValue') ?? '';
 

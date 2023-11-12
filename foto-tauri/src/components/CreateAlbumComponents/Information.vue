@@ -6,13 +6,13 @@
                     <v-row>
                         <v-col>
                             <v-text-field class="mb-1" label="Titre" required v-bind="register('title')"
-                                :error-messages="titleErrorMessage" />
+                                :error-messages="titleErrorMessage" v-model="props.album.title" />
                             <v-switch hide-details color="blue"
                                 v-model="isPublic" label="Public" />
-                            <v-textarea rows="2" v-bind="register('notes')" type="" label="Notes" />
+                            <v-textarea rows="2" v-bind="register('notes')" v-model="props.album.notes" type="" label="Notes" />
                         </v-col>
                         <v-col>
-                            <v-textarea rows="8" v-bind="register('description')" type="" label="Description" />
+                            <v-textarea rows="8" v-bind="register('description')" type="" label="Description" v-model="props.album.description" />
                         </v-col>
                     </v-row>
                 </v-card-text>
@@ -29,7 +29,7 @@
   
 <script setup lang="ts">
 //TODO: il faut être capable de faire un reset du formulaire lors d'un back()
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Album from '../../models/Album';
 import { useFormHandler } from 'vue-form-handler'
 const { register, handleSubmit, formState, unregister } = useFormHandler({
@@ -43,11 +43,19 @@ const success = ref(false);
 const titleErrorMessage = ref();
 const isPublic = ref(false);
 
+onMounted(() => {
+  if(props.album.title) register('title', { defaultValue: props.album.title })
+    if(props.album.notes) register('notes', { defaultValue: props.album.notes })
+    if(props.album.description) register('description', { defaultValue: props.album.description })
+    if(props.album.isPublic) register('isPublic', { defaultValue: props.album.isPublic })  
+})
+
 
 const successFn = async (partialAlbum: Partial<Album>) => {
     loading.value = true;
     titleErrorMessage.value = undefined;
-    const album = { ...props.album, ...partialAlbum };
+    const album = { ...partialAlbum,...props.album };
+    
     if (!album.title) {
         loading.value = false;
         return;
@@ -67,7 +75,7 @@ const successFn = async (partialAlbum: Partial<Album>) => {
 const submitFn = () => {
     try {
         unregister('isPublic');
-        register('isPublic', { defaultValue: isPublic.value })
+        register('isPublic', { defaultValue: isPublic.value })        
         handleSubmit(successFn)
     } catch {
         //do anything with errors

@@ -1,6 +1,6 @@
 <template>
     <v-dialog width="40%" v-model="props.activate">
-        <v-card :title="'Suppression de l\'album '+ props.album.title">
+        <v-card :title="'Suppression de l\'album \''+ props.album.title+ '\' '">
             <v-card-text>
                 Êtes-vous sûr de vouloir supprimer l'album ?
                 <p class="text-danger">{{errorMessage}}</p>

@@ -40,8 +40,9 @@ import { onMounted, ref } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next';
 import Foto from '../../models/Foto';
 import AlbumGrid from '../../models/AlbumGrid';
+import Album from '../../models/Album';
 
-const props = defineProps<{ fotos: Foto[] }>()
+const props = defineProps<{ fotos: Foto[], album:Album }>()
 const emit = defineEmits<{ (event: 'finishedGrid', grid: AlbumGrid | undefined): void }>()
 
 const nbColumns = ref<number>(1);
@@ -51,8 +52,17 @@ const fotosInGrid = ref<(Foto | undefined)[]>([]);
 const nbFotos = ref<number>(0);
 
 onMounted(() => {
-    fotos.value = props.fotos;
+
+    fotos.value =props.fotos;
     nbFotos.value = fotos.value.length;
+    nbColumns.value = props.album.grid?.nbCols || 1;
+    if (props.album.grid?.fotosPosition) {
+        props.album.grid.fotosPosition.forEach((id, index) => {
+            fotosInGrid.value[index] = fotos.value.find(f => f.idFoto === id);
+        })
+        fotos.value = fotos.value.filter(f => !props.album.grid?.fotosPosition.includes(f.idFoto));
+        onDragEnd();
+    }
 })
 
 function onDragStart(foto: Foto) {
@@ -64,7 +74,9 @@ function onDragEnd() {
     console.log('dragend');
     draggedFoto.value = undefined;
     if (fotos.value.length === 0) {
-        let grid = new AlbumGrid();
+        let grid = props.album.grid || new AlbumGrid();
+        console.log('gid',grid);
+        
         grid.nbCols = nbColumns.value;
         console.log(nbColumns.value);
 

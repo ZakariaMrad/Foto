@@ -2,7 +2,7 @@
     <v-card>
         <v-list style="display: flex; flex-wrap: wrap; flex-direction:row;">
             <v-list-item subtitle="Owner" :title="account?.name" />
-            <v-list-item v-for="collaboraters in props.album.collaboraters" subtitle="Collaborater"
+            <v-list-item v-for="collaboraters in props.album.collaborators" subtitle="Collaborater"
                 :title="collaboraters.name" />
             <v-list-item v-for="spectator in props.album.spectators" subtitle="Spectator" :title="spectator.name" />
             <v-list-item />

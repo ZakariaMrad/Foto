@@ -116,6 +116,11 @@ class Album
     {
         return $this->idAlbum;
     }
+    public function setIdAlbum($idAlbum): static
+    {
+        $this->idAlbum = $idAlbum;
+        return $this;
+    }
 
 
     public function getDescription(): ?string

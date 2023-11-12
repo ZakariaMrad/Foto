@@ -28,6 +28,7 @@ class AlbumController extends AbstractController
         $this->jwtHandler = new JWTHandler($jwtEncoder);
     }
 
+    
     #[Route('/album', name: 'app_create_album', methods: ['POST'])]
     public function index(Request $request, ValidatorInterface $validator): JsonResponse
     {
@@ -75,6 +76,65 @@ class AlbumController extends AbstractController
             'message' => 'Album créé avec succès.'
         ], JsonResponse::HTTP_OK);
     }
+    #[Route('/modifyalbum/{idAlbum}', name: 'app_modify_album', methods: ['POST'])]
+    public function modAlbum($idAlbum,Request $request, ValidatorInterface $validator): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+        $fotos = $data['fotos'];
+        unset($data['fotos']);
+        $collaborators = $data['collaborators'];
+        unset($data['collaborators']);
+        unset($data['collaboraters']);
+        $spectators = $data['spectators'];
+        unset($data['spectators']);
+        $grid = $data['grid'] ?? null;
+        unset($data['grid']);
+        unset($data['isPublic']);
+        unset($data['idAlbum']);
+        $creationDate = $data['creationDate'];
+        unset($data['creationDate']);
+
+        $owner = $data['owner'];
+        unset($data['owner']);
+        // return $this->json([
+        //     'error' => [$creationDate],
+        // ], JsonResponse::HTTP_UNAUTHORIZED);
+        $album = new Album();
+        $form = $this->createForm(CreateAlbumFormType::class, $album);
+        $formHandler = new FormHandler($form);
+        if (!$formHandler->handle($data)) {
+            return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
+        }
+        $album->setCreationDate(new \DateTime($creationDate["date"]));
+        $album->setOwner($this->getUserById($owner["idAccount"]));
+        foreach ($fotos as $foto) {
+            $album->addFoto($this->getFotoById($foto['idFoto']));
+        }
+        foreach ($collaborators as $collaborator) {
+            $album->addCollaborator($this->getUserById($collaborator['idAccount']));
+        }
+        foreach ($spectators as $spectator) {
+            $album->addSpectator($this->getUserById($spectator['idAccount']));
+        }
+        $album->setGrid($grid);
+        $album->setIsPublic(true);
+
+        $this->em->remove($this->getAlbumById($idAlbum));
+        $this->em->flush();
+        $album->setIdAlbum($idAlbum);
+        $this->em->persist($album);
+        $this->em->flush();
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'message' => 'Album modifié avec succès.'
+        ], JsonResponse::HTTP_OK);
+    }
     #[Route('/albums', name: 'app_album_get_all', methods: ['GET'])]
     public function getAlbums(Request $request): JsonResponse
     {
@@ -96,6 +156,17 @@ class AlbumController extends AbstractController
         $albumArray = array_map(function (Album $album) {
             return $album->getAll();
         }, $albums->toArray());
+
+        $collaboratedAlbums = $user->getCollaboretedAlbums();
+        foreach ($collaboratedAlbums as $album) {
+            $albumArray[] = $album->getAll();
+        }
+        $spectatedAlbums = $user->getSpectatedAlbums();
+        foreach ($spectatedAlbums as $album) {
+            $albumArray[] = $album->getAll();
+        }
+
+
         return $this->json([
             'jwtToken' => $newJWT,
             'albums' => $albumArray,

@@ -79,6 +79,7 @@ const submitFn = () => {
     }
 }
 
+
 const loading = ref(false);
 const success = ref(false);
 
@@ -92,11 +93,13 @@ onMounted(async () => {
     if (!apiResponse.success) return
 
     fotos.value = apiResponse.data
-    registerItems([]);    
+    registerItems([]);  
+    if (props.album.fotos) register('fotos', { defaultValue: props.album.fotos })
+    selectedfotos.value = props.album.fotos || []  
 })
 
 function setItems(items: Foto[]) {
-    selectedfotos.value = items;
+    selectedfotos.value = [...props.album.fotos || [], ...items]
     registerItems(selectedfotos.value)
 
 }
