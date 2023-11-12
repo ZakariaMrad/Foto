@@ -55,6 +55,8 @@ import { ref } from 'vue';
 import {EventsBus, Events} from '../../core/EventBus';
 import FotoRepository from '../../repositories/FotoRepository';
 import Foto from '../../models/Foto';
+import router from '../../router';
+
 const {eventBusEmit} = EventsBus();
 
 const imgSrc = ref<Array<string | null | ArrayBuffer>>([]);
@@ -101,8 +103,10 @@ function uploadFotos() {
         let response = await FotoRepository.uploadFotos(foto);
         console.log(response);
         
-        if (response.success)
+        if (response.success) {
             removeAllFiles();
+            router.push({ name: 'profil', query: { tab: 'fotos' }});
+        }
     })
     
 }

@@ -67,12 +67,13 @@
         </v-row>
         <v-row justify="center">
             <v-col cols="10">
-                <v-tabs color="deep-purple-accent-4" align-tabs="center">
-                    <v-tab :value="1">Photos</v-tab>
-                    <v-tab :value="2">Albums</v-tab>
+                <v-tabs color="deep-purple-accent-4" align-tabs="center" v-model="tab">
+                    <v-tab value="posts">Publications</v-tab>
+                    <v-tab value="albums">Albums</v-tab>
+                    <v-tab value="fotos">Portefolio</v-tab>
                 </v-tabs>
-                <v-window>
-                    <v-window-item v-for="n in 3" :key="n" :value="n">
+                <v-window v-model="tab">
+                    <v-window-item key="1" value="posts">
                         <v-container fluid>
                             <v-row>
                                 <v-col v-for="post in posts" cols="12" md="4">
@@ -81,6 +82,23 @@
                                         :src="`${post.foto.path}`" aspect-ratio="2"></v-img>
                                 </v-col>
                             </v-row>
+                        </v-container>
+                    </v-window-item>
+
+                    <v-window-item key="2" value="albums">
+                        <v-container fluid>
+
+                        </v-container>
+                    </v-window-item>
+
+                    <v-window-item key="3" value="fotos">
+                        <v-container fluid class="mt-3">
+                            <v-row justify="center">
+                                <v-btn prepend-icon="mdi-plus-box" @click="createPost">
+                                    Créer une publication
+                                </v-btn>
+                            </v-row>
+                            <AssetLister :items="fotos.reverse()" title=""/>
                         </v-container>
                     </v-window-item>
                 </v-window>
@@ -96,22 +114,46 @@ import Account from '../models/Account';
 import AccountRepository from '../repositories/AccountRepository';
 import Post from '../models/Post';
 import PostRepository from '../repositories/PostRepository';
+import FotoRepository from '../repositories/FotoRepository';
+import Foto from '../models/Foto';
+import AssetLister from './AssetLister.vue';
+import { useRoute } from 'vue-router';
 
 const { eventBusEmit, bus } = EventsBus();
 
 const connectedAccount = ref<Account>()
 const posts = ref<Post[]>([])
 const isAdmin = ref<boolean>(false)
+const fotos = ref<Foto[]>([]);
 
-onMounted(async () => {
+const tab = ref<string>();
+
+onMounted( async () => {
+    const query = useRoute().query;
+    console.log(query);
+    if (query.tab) {
+        console.log(query.tab);
+        if (query.tab === "fotos")
+            tab.value = query.tab;
+    }
+
     let apiResponse = await AccountRepository.isAdmin()
-    if (!apiResponse.success) return;
-    isAdmin.value = apiResponse.data
+    if (apiResponse.success)
+        isAdmin.value = apiResponse.data
 
     let apiPostResponse = await PostRepository.getPosts();
-    if (!apiPostResponse.success) return;
-    posts.value = apiPostResponse.data;
-})
+    if (apiPostResponse.success) {
+        posts.value = apiPostResponse.data;
+        posts.value = posts.value.filter((post: Post) => {
+        if (post.foto)
+            return post;
+        else
+            return;
+        });
+    }
+
+    await Promise.all([getFotos()]);
+});
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
     if (!account)
@@ -139,6 +181,16 @@ function openProfileModificationModal() {
 
 function openPostModal(idPost : number) {
     eventBusEmit(Events.OPEN_POST_MODAL, idPost)
+}
+
+function createPost() {
+    eventBusEmit(Events.CREATE_POST)
+}
+
+async function getFotos() {
+    let apiResponse = await FotoRepository.getFotos()
+    if (!apiResponse.success) return
+    fotos.value = apiResponse.data
 }
 </script>
 
