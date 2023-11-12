@@ -141,6 +141,21 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         ];
     }
 
+
+    public function getOneById()
+    {
+        return [
+            'idAccount'=> $this->idUser,
+            'email' => $this->email,
+            'picturePath' => $this->picturePath,
+            'bio' => $this->bio,
+            'name' => $this->name,
+            'birthDate' => $this->birthDate,
+            'fotos' => $this->fotos
+        ];
+    }
+
+
     public function getIdUser(): ?int
     {
         return $this->idUser;

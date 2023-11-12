@@ -62,7 +62,7 @@ class PostController extends AbstractController
             $album = $this->getAlbumById($data['id']);
             if (!$album) {
                 return $this->json([
-                    'error' => ['Erreur: Album non trouvée.'],
+                    'error' => ['Erreur: Album non trouvé.'],
                 ], JsonResponse::HTTP_NOT_FOUND);
             }
             $post->setAlbum($album);
