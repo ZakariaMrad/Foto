@@ -4,7 +4,7 @@ import { JWTToken } from "../models/JWTToken";
 import AccountDatastore from "./datastore/AccountDatastore";
 
 export class Repository {
-    protected url = 'http://localhost:8000';
+    protected url = 'https://foto.1839783.techinfo-cstj.ca';
     protected getAPIError(errors: any): APIError[] {
         let keys = Object.keys(errors);
         let errorsArray: APIError[] = [];

@@ -24,7 +24,7 @@
                                     <v-list-item>752 Suiveurs</v-list-item>
                                     <v-list-item>1,5k Suivi</v-list-item>
                                     <v-list-item>
-                                        <v-btn color="primary" icon="mdi-dots-horizontal" v-bind="props">
+                                        <v-btn color="primary" icon="mdi-dots-horizontal">
                                         </v-btn>
                                     </v-list-item>
 

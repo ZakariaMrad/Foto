@@ -11,8 +11,10 @@
                             <p class="text-success">{{ successMessage }} </p>
                         </v-col>
                         <v-col cols=2>
-                            <v-btn type="submit" :loading="loading" class="text-white" color="green-darken-3"
+                            <v-btn type="submit" :loading="loading" class="text-white ma-1" color="green-darken-3"
                                 text="Suivant" />
+                            <v-btn class="text-white ma-1" color="red-darken-3"
+                                text="Annuler" @click="emit('done')"/>
                         </v-col>
 
                     </v-row>

@@ -27,10 +27,6 @@ import UserBlock from '../../models/UserBlock';
 const loading = ref<boolean>(false)
 const blockedAccounts = ref<UserBlock[]>([])
 
-const emit = defineEmits<{ 
-    (event: 'user', user: UserBlock): void 
-}>()
-
 onMounted(() => {    
     submitFn();    
 })

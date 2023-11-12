@@ -82,11 +82,6 @@ import { useRoute } from 'vue-router';
 
 const { eventBusEmit } = EventsBus();
 
-const props = defineProps({
-    
-    post: Post
-    // accounts: Account
-})
 
 const idAccount = ref<string>();
 

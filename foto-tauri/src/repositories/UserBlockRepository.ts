@@ -4,7 +4,6 @@ import Complaint from "../models/Complaint";
 import { APIError } from "../core/API/APIError";
 import { JWTToken } from "../models/JWTToken";
 import UserBlockPost from "../models/UserBlockPost";
-import Account from "../models/Account";
 import UserBlock from "../models/UserBlock";
 
 const client = await getClient();
