@@ -2,7 +2,7 @@
     <v-card class="mx-auto ma-10" max-width="1200px">
         <v-list>
             <v-list-item prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" :title="props.post?.owner.name"
-                :subtitle="props.post?.owner.email" @click="openUserProfile(props.post?.owner.idAccount)"></v-list-item>
+                :subtitle="props.post?.owner.email" @click="openUserProfile(props.post?.owner.idAccount!)"></v-list-item>
             <v-list-item>
                 {{ props.post?.description }}
             </v-list-item>

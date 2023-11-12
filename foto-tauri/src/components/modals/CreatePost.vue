@@ -119,7 +119,7 @@ function setItems(items: Foto[] | Album[]) {
 async function successFn(form: any) {
     loading.value = true
     form.id = choosenId;
-    form.isFoto = !isFotos?'true':'false';
+    form.isFoto = isFotos.value==0?'true':'false';
     console.log('form', form);
 
     let apiResult = await PostRepository.createPost(form)
