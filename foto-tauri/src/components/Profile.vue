@@ -86,8 +86,13 @@
                     </v-window-item>
 
                     <v-window-item key="2" value="albums">
-                        <v-container fluid>
-
+                        <v-container fluid class="mt-3">
+                            <v-row justify="center">
+                                <v-btn prepend-icon="mdi-plus-box" @click="createAlbum">
+                                    Créer un album
+                                </v-btn>
+                            </v-row>
+                            <AlbumList/>
                         </v-container>
                     </v-window-item>
 
@@ -118,6 +123,7 @@ import FotoRepository from '../repositories/FotoRepository';
 import Foto from '../models/Foto';
 import AssetLister from './AssetLister.vue';
 import { useRoute } from 'vue-router';
+import AlbumList from './AlbumList.vue';
 
 const { eventBusEmit, bus } = EventsBus();
 
@@ -185,6 +191,9 @@ function openPostModal(idPost : number) {
 
 function createPost() {
     eventBusEmit(Events.CREATE_POST)
+}
+function createAlbum() {
+    eventBusEmit(Events.CREATE_ALBUM)
 }
 
 async function getFotos() {
