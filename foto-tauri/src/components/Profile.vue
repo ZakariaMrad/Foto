@@ -67,13 +67,13 @@
         </v-row>
         <v-row justify="center">
             <v-col cols="10">
-                <v-tabs color="deep-purple-accent-4" align-tabs="center">
-                    <v-tab :value="1">Publications</v-tab>
-                    <v-tab :value="2">Albums</v-tab>
-                    <v-tab :value="3">Portefolio</v-tab>
+                <v-tabs color="deep-purple-accent-4" align-tabs="center" v-model="tab">
+                    <v-tab value="posts">Publications</v-tab>
+                    <v-tab value="albums">Albums</v-tab>
+                    <v-tab value="fotos">Portefolio</v-tab>
                 </v-tabs>
-                <v-window>
-                    <v-window-item v-for="n in 3" :key="n" :value="n">
+                <v-window v-model="tab">
+                    <v-window-item key="1" value="posts">
                         <v-container fluid>
                             <v-row>
                                 <v-col v-for="post in posts" cols="12" md="4">
@@ -82,6 +82,18 @@
                                         :src="`${post.foto.path}`" aspect-ratio="2"></v-img>
                                 </v-col>
                             </v-row>
+                        </v-container>
+                    </v-window-item>
+
+                    <v-window-item key="2" value="albums">
+                        <v-container fluid>
+
+                        </v-container>
+                    </v-window-item>
+
+                    <v-window-item key="3" value="fotos">
+                        <v-container fluid>
+                            <AssetLister :items="fotos" title=""/>
                         </v-container>
                     </v-window-item>
                 </v-window>
@@ -97,12 +109,18 @@ import Account from '../models/Account';
 import AccountRepository from '../repositories/AccountRepository';
 import Post from '../models/Post';
 import PostRepository from '../repositories/PostRepository';
+import FotoRepository from '../repositories/FotoRepository';
+import Foto from '../models/Foto';
+import AssetLister from './AssetLister.vue';
 
 const { eventBusEmit, bus } = EventsBus();
 
 const connectedAccount = ref<Account>()
 const posts = ref<Post[]>([])
 const isAdmin = ref<boolean>(false)
+const fotos = ref<Foto[]>([]);
+
+const tab = ref<string>();
 
 onMounted(async () => {
     let apiResponse = await AccountRepository.isAdmin()
@@ -112,7 +130,8 @@ onMounted(async () => {
     let apiPostResponse = await PostRepository.getPosts();
     if (!apiPostResponse.success) return;
     posts.value = apiPostResponse.data;
-})
+
+});
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
     if (!account)
@@ -120,6 +139,11 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undef
 
     connectedAccount.value = account[0];
 })
+
+watch(() => tab.value, async (tab: string | undefined) => {
+    if (tab === "fotos")
+        await Promise.all([getFotos()]);
+}) 
 
 const profileLinks = ref<{ icon: string, text: string, click: any }[]>(
     [
@@ -140,6 +164,14 @@ function openProfileModificationModal() {
 
 function openPostModal(idPost : number) {
     eventBusEmit(Events.OPEN_POST_MODAL, idPost)
+}
+
+async function getFotos() {
+    let apiResponse = await FotoRepository.getFotos()
+    console.log(apiResponse);
+    if (!apiResponse.success) return
+    fotos.value = apiResponse.data
+    console.log("les fotos: " + fotos.value);
 }
 </script>
 
