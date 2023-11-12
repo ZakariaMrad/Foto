@@ -92,7 +92,12 @@
                     </v-window-item>
 
                     <v-window-item key="3" value="fotos">
-                        <v-container fluid>
+                        <v-container fluid class="mt-3">
+                            <v-row justify="center">
+                                <v-btn prepend-icon="mdi-plus-box" @click="createPost">
+                                    Créer une publication
+                                </v-btn>
+                            </v-row>
                             <AssetLister :items="fotos.reverse()" title=""/>
                         </v-container>
                     </v-window-item>
@@ -164,6 +169,10 @@ function openProfileModificationModal() {
 
 function openPostModal(idPost : number) {
     eventBusEmit(Events.OPEN_POST_MODAL, idPost)
+}
+
+function createPost() {
+    eventBusEmit(Events.CREATE_POST)
 }
 
 async function getFotos() {

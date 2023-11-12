@@ -19,7 +19,6 @@
                 <v-list-item v-if="account" prepend-icon="mdi-account-heart" title="Mes amis" :to="{name: 'friendsList'}"/>
                 <v-list-item v-if="account" prepend-icon="mdi-upload" title="Téléverser" :to="{ name: 'upload' }"></v-list-item>
                 <v-list-item v-if="account" prepend-icon="mdi-image-album" title="Mes albums" :to="{ name: 'albums' }"></v-list-item>
-                <v-list-item v-if="account" prepend-icon="mdi-plus-box" title="Créer une publication" @click="createPost" />
                 <v-list-item v-if="account" prepend-icon="mdi-album" title="Créer un album" @click="createAlbum" />
                 <v-list-item v-if="account" prepend-icon="mdi-logout-variant" title="Se déconnecter" @click="logout" />
             </v-list>
@@ -65,10 +64,6 @@ async function logout() {
     eventBusEmit(Events.LOGOUT)
 }
 
-
-function createPost() {
-    eventBusEmit(Events.CREATE_POST)
-}
 function openSearchModal() {
     eventBusEmit(Events.OPEN_SEARCH_MODAL)
 }
