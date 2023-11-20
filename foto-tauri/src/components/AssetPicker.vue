@@ -31,6 +31,7 @@ const emit = defineEmits<{ (event: 'itemsSelected', items: typeof props.items[nu
 const activeItemsId = ref<number[]>([]);
 let activeItems: (Foto | Album)[] = [];
 onMounted(() => {
+  props.items.reverse();
   console.log('assetPicker', props.items);
 })
 

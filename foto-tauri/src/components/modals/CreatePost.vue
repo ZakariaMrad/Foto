@@ -31,11 +31,11 @@
                             <v-card-text>
                                 <v-window v-model="isFotos">
                                     <v-window-item value="0">
-                                        <AssetPicker :itemSize="6" :items="fotos.reverse()" :multiple="false" title=""
+                                        <AssetPicker :itemSize="6" :items="fotos" :multiple="false" title=""
                                             @items-selected="(items) => setItems(items as Foto[])" />
                                     </v-window-item>
                                     <v-window-item value="1">
-                                        <AssetPicker :itemSize="6" :items="albums.reverse()" :multiple="false" title=""
+                                        <AssetPicker :itemSize="6" :items="albums" :multiple="false" title=""
                                             @items-selected="(items) => setItems(items as Album[])" />
                                     </v-window-item>
                                 </v-window>

@@ -102,7 +102,7 @@
                                     Créer une publication
                                 </v-btn>
                             </v-row>
-                            <AssetLister :items="fotos.reverse()" title=""/>
+                            <AssetLister :items="fotos" title=""/>
                         </v-container>
                     </v-window-item>
                 </v-window>
@@ -147,7 +147,6 @@ onMounted( async () => {
     if (apiResponse.success)
         isAdmin.value = apiResponse.data
     
-
     let apiPostResponse = await PostRepository.getPosts();
     if (apiPostResponse.success) {
         posts.value = apiPostResponse.data;
@@ -167,6 +166,10 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undef
         return;
 
     connectedAccount.value = account[0];
+})
+
+watch(() => tab.value, (value) => {
+    console.log("TEST TAB = " + value);
 })
 
 

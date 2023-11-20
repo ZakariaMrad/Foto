@@ -18,10 +18,18 @@
   <script setup lang="ts">
   import Foto from '../models/Foto';
   import Album from '../models/Album';
+  import { onMounted } from 'vue';
+
   const props = defineProps<{ items: (Foto[] | Album[]), title?: string }>()
+
+  onMounted(() => {
+    props.items.reverse();
+  });
+
   </script>
   
   <style scoped>
+
   .max-height-60 {
     max-height: 40vh;
     overflow-y: auto;
