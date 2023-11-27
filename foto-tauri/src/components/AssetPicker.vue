@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import Foto from '../models/Foto';
 import Album from '../models/Album';
 const props = defineProps<{ items: (Foto[] | Album[]), itemSize: number, multiple: boolean, unselectable?: boolean, title?: string }>()
@@ -39,9 +39,12 @@ const emit = defineEmits<{ (event: 'itemsSelected', items: typeof props.items[nu
 const activeItemsId = ref<number[]>([]);
 let activeItems: (Foto | Album)[] = [];
 onMounted(() => {
-  props.items.reverse();
   console.log('assetPicker', props.items);
 })
+
+watch(() => (props.items), (value: Foto[] | Album[]) => {
+    value.reverse();
+});
 
 function setActive(index: number) {
   if (props.unselectable) return;

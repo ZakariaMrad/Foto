@@ -30,8 +30,6 @@
 
   const props = defineProps<{ items: (Foto[] | Album[]), title?: string }>()
 
-  const date: Date = new Date();
-
   onMounted(() => {
     props.items.reverse();
   });
