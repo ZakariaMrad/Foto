@@ -30,11 +30,11 @@
                                 color="rgba(0, 0, 0, 0)"
                             >
                                 <template v-slot:prepend>
-                                    <v-btn variant="tonal" icon="mdi-pencil" @click="openEditModal(index)"></v-btn>
+                                    <v-btn class="toolbar-btn" variant="tonal" icon="mdi-pencil" @click="openEditModal(index)"></v-btn>
                                 </template>
 
                                 <template v-slot:append>
-                                    <v-btn variant="tonal" icon="$close" @click="removeFromFiles(file)"></v-btn>
+                                    <v-btn class="toolbar-btn" variant="tonal" icon="$close" @click="removeFromFiles(file)"></v-btn>
                                 </template>
                             </v-toolbar>
                         </v-img>
@@ -138,6 +138,10 @@ function getBase64FromIndex(picture: EditedPicture, index: number) {
 </script>
 
 <style scoped>
+
+.toolbar-btn {
+    mix-blend-mode: difference !important;
+}
 
 .image-input {
   margin-top: 100px;
