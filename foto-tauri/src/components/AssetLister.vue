@@ -9,6 +9,14 @@
                 </h5>
                 <v-img v-if="'idFoto' in item" :src="item.path" aspect-ratio="1" />
                 <v-img v-if="'idAlbum' in item" :src="item.fotos[0].path" aspect-ratio="1" />
+                <small class="text-muted text-center d-block">
+                    {{ 'idFoto' in item ? (new Date(item.uploadDate.date).getDate() + '-' +
+                                           new Date(item.uploadDate.date).getMonth() + '-' + 
+                                           new Date(item.uploadDate.date).getFullYear()) 
+                                           : (new Date(item.creationDate.date).getDate() + '-' +
+                                           new Date(item.creationDate.date).getMonth() + '-' + 
+                                           new Date(item.creationDate.date).getFullYear())  }}
+                </small>
             </v-card>
             </v-col>
         </v-row>

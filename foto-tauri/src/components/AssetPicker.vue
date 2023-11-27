@@ -12,6 +12,14 @@
                 </h5>
                 <v-img v-if="'idFoto' in item" :src="item.path" aspect-ratio="1" />
                 <v-img v-if="'idAlbum' in item" :src="item.fotos[0].path" aspect-ratio="1" />
+                <small class="text-muted text-center d-block">
+                    {{ 'idFoto' in item ? (new Date(item.uploadDate.date).getDate() + '-' +
+                                           new Date(item.uploadDate.date).getMonth() + '-' + 
+                                           new Date(item.uploadDate.date).getFullYear()) 
+                                           : (new Date(item.creationDate.date).getDate() + '-' +
+                                           new Date(item.creationDate.date).getMonth() + '-' + 
+                                           new Date(item.creationDate.date).getFullYear())  }}
+                </small>
               </v-card>
             </v-col>
           </v-row>
@@ -22,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import Foto from '../models/Foto';
 import Album from '../models/Album';
 const props = defineProps<{ items: (Foto[] | Album[]), itemSize: number, multiple: boolean, unselectable?: boolean, title?: string }>()
@@ -31,9 +39,12 @@ const emit = defineEmits<{ (event: 'itemsSelected', items: typeof props.items[nu
 const activeItemsId = ref<number[]>([]);
 let activeItems: (Foto | Album)[] = [];
 onMounted(() => {
-  props.items.reverse();
   console.log('assetPicker', props.items);
 })
+
+watch(() => (props.items), (value: Foto[] | Album[]) => {
+    value.reverse();
+});
 
 function setActive(index: number) {
   if (props.unselectable) return;
