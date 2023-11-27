@@ -16,5 +16,5 @@ export default class Album extends JWTToken implements APIResponse {
     grid: AlbumGrid = new AlbumGrid();
     collaborators: Account[] = [];
     spectators: Account[] = [];
-    creationDate: Date = new Date();
+    creationDate = {date: ""};
 }
