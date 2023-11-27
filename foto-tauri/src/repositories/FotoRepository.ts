@@ -13,6 +13,7 @@ class FotoRepository extends Repository {
         if (!jwt.success) return { errors: jwt.errors, success: false };
         foto.jwtToken = jwt.data.jwtToken;
         try {
+            delete foto.uploadDate;
             const response = await client.post(`${this.url}/foto`, Body.json(foto),{ responseType: ResponseType.JSON });
             console.log(response.data);
             

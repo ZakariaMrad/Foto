@@ -5,12 +5,21 @@
                 <v-container>
                     <v-row>
                         <v-col cols="9">
-                            <v-img
+                            <!--<v-img
                             max-height="600"
                             :src="editedPicture?.base64"
                             :style="{filter: 'saturate(' + saturation +'%) contrast(' + contrast +'%) brightness(' + exposition +'%)'}">
                         
-                        </v-img>
+                        </v-img>-->
+                        <VuePictureCropper
+                            :img="editedPicture?.base64"
+                            :style="{filter: 'saturate(' + saturation +'%) contrast(' + contrast +'%) brightness(' + exposition +'%)', maxHeigh: '600px'}"
+                            :options="{
+                                viewMode: 1,
+                                dragMode: 'crop',
+                            }"                   
+                            />
+
                         </v-col>
                         <v-col cols="3">
                             <div class="text-caption">Exposition</div>
@@ -39,6 +48,7 @@
 import { ref } from 'vue';
 import EditedPicture from '../../models/EditedPicture';
 import { watch } from 'vue';
+import VuePictureCropper, { cropper } from 'vue-picture-cropper';
 
 const max = ref(200);
 const min = ref(0);
@@ -77,6 +87,8 @@ function resetSliders() {
     exposition.value = defaultValue;
     contrast.value = defaultValue;
     saturation.value = defaultValue;
+    if(!cropper) return;
+    cropper.reset();
 }
 
 function save() {
@@ -87,6 +99,8 @@ function save() {
     props.editedPicture.saturation = saturation.value;
     props.editedPicture.name = name.value;
     props.editedPicture.description = description.value;
+    if(!cropper) return;
+    props.editedPicture.base64 = cropper.getDataURL();
     
     closeDialog();
 }
@@ -94,4 +108,12 @@ function save() {
 </script>
 
 <style scoped>
+.vue--picture-cropper__wrap {
+    max-height: 600px;
+    width: auto;
+}
+
+.cropper-bg {
+    background-image: none !important;
+}
 </style>

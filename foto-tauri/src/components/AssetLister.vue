@@ -26,12 +26,18 @@
   <script setup lang="ts">
   import Foto from '../models/Foto';
   import Album from '../models/Album';
-  import { onMounted } from 'vue';
+  import { onMounted, watch } from 'vue';
 
   const props = defineProps<{ items: (Foto[] | Album[]), title?: string }>()
 
   onMounted(() => {
+    console.log("MOUNTED");
     props.items.reverse();
+  });
+
+  watch(() => (props.items), (value: (Foto[] | Album[])) => {
+    value.reverse();
+
   });
 
   </script>

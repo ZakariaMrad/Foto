@@ -97,7 +97,7 @@ function openEditModal(index: number) {
     eventBusEmit(Events.OPEN_EDIT_MODAL, pictures.value[index]);
 }
 
-function uploadFotos() {
+async function uploadFotos() {
     //TODO: Webworker
     
     pictures.value.forEach(async (picture) => {
@@ -110,6 +110,7 @@ function uploadFotos() {
         
         if (response.success) {
             removeAllFiles();
+            console.log("test");
             router.push({ name: 'profil', query: { tab: 'fotos' }});
         }
     })
