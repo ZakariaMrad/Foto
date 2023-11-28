@@ -69,7 +69,9 @@ function readFiles() {
     files.value.forEach((file, index) => {
         const reader = new FileReader();
         reader.onloadend = function() {
-            pictures.value[index] = new EditedPicture(file.name, (reader.result as string));
+            const fotoName = (file.name.substring(0, file.name.lastIndexOf('.')) || file.name);
+            pictures.value[index] = new EditedPicture(fotoName, (reader.result as string));
+            
         }
         if (file) {
             reader.readAsDataURL(file);

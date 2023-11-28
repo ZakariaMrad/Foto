@@ -41,7 +41,7 @@
                 </v-container>
                 <div class="d-flex justify-space-between">
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
-                    <v-btn class="btn" @click="resetSliders()">Retour à l'original</v-btn>
+                    <v-btn class="btn" @click="returnToOriginal()">Retour à l'original</v-btn>
                     <v-btn class="btn btn-success" @click="save()" color="green-darken-3">Sauvegarder modifications</v-btn>
                 </div>
             </v-card-text>
@@ -94,6 +94,13 @@ function resetSliders() {
     saturation.value = defaultValue;
     if(!cropper) return;
     cropper.clear();
+}
+
+function returnToOriginal() {
+    if (!props.editedPicture)
+        return;
+    resetSliders();
+    props.editedPicture.base64 = props.editedPicture.originalBase64;
 }
 
 function save() {
