@@ -17,7 +17,12 @@
                             :options="{
                                 viewMode: 1,
                                 dragMode: 'crop',
-                            }"                   
+                            }"
+                            :box-style="{
+                                height: '100%',
+                                width: '100%'
+                            }"
+                            @ready="cropper_ready()"
                             />
 
                         </v-col>
@@ -88,7 +93,7 @@ function resetSliders() {
     contrast.value = defaultValue;
     saturation.value = defaultValue;
     if(!cropper) return;
-    cropper.reset();
+    cropper.clear();
 }
 
 function save() {
@@ -105,15 +110,16 @@ function save() {
     closeDialog();
 }
 
+function cropper_ready() {
+    if(!cropper) return;
+    cropper.clear();
+}
+
 </script>
 
 <style scoped>
 .vue--picture-cropper__wrap {
     max-height: 600px;
     width: auto;
-}
-
-.cropper-bg {
-    background-image: none !important;
 }
 </style>
