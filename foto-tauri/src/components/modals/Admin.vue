@@ -24,9 +24,9 @@
                     </v-card>
                 </v-responsive>
             </v-card-text>
-            <v-card-action>
+            <v-card-actions>
                 <v-btn class="mb-5 ms-5" color="red-darken-3" @click="closeDialog()">Quitter</v-btn>
-            </v-card-action>
+            </v-card-actions>
         </v-card>
     </v-dialog>
 </template>

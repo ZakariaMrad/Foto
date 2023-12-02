@@ -8,6 +8,7 @@
   <CreateAlbum :key="v1()" :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
   <ModifyProfile :key="v1()" :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
   <Admin :key="v1()" :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
+  <Comments :key="v1()" :activate="activateComments" @close-dialog="closeComments()"/>
 </template>
 
 <script setup lang="ts">
@@ -24,6 +25,7 @@ import Admin from './components/modals/Admin.vue';
 import router from './router';
 import EditedPicture from './models/EditedPicture';
 import PostModal from './components/modals/PostModal.vue';
+import Comments from './components/modals/Comments.vue';
 import {v1} from 'uuid'; 
 
 const activateLogin = ref<boolean>(false);
@@ -35,6 +37,7 @@ const editedPicture= ref<EditedPicture>();
 const activateModifyProfile = ref<boolean>(false);
 const activateAdmin = ref<boolean>(false);
 const activatePostModal = ref<boolean>(false);
+const activateComments = ref<boolean>(false);
 const idPost = ref<number | undefined>();
 const idAccount = ref<number>();
 
@@ -46,6 +49,11 @@ watch(() => bus.value.get(Events.LOGIN), () => {
 
 watch(() => bus.value.get(Events.LOGOUT), () => {
   Logout();
+})
+
+watch(() => bus.value.get(Events.OPEN_COMMENTS), () => {
+    activateComments.value = true;
+    console.log("COMMENTS" + activateComments.value);
 })
 
 watch(() => bus.value.get(Events.CREATE_POST), () => {
@@ -96,15 +104,23 @@ onMounted(async () => {
 function closeEditDialog() {
     activateEdit.value = false;
 }
+
 function closeSearchDialog() {
   activateSearch.value = false;
 }
+
 function closeModifyProfileDialog() {
   activateModifyProfile.value = false;
 }
+
+function closeComments() {
+    activateComments.value = false;
+}
+
 function closeAdminPanel() {
   activateAdmin.value = false;
 }
+
 async function closeLoginRegisterDialog(val: boolean) {
   activateLogin.value = false;
   if (!val) return;
