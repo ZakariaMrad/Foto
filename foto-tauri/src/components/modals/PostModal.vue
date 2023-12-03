@@ -6,7 +6,9 @@
                     <div v-if="post.idPost == props.idPost">
                         <h4>{{ post.description }}</h4>
                         <hr>
-                        <img class="w-100" :src="`${post.foto.path}`" alt="">
+                        <img class="w-100" :src="`${post.foto.path}`" alt=""
+                        :style="{filter: 'saturate(' + post.foto.saturation +'%) contrast(' + post.foto.contrast +'%) brightness(' + post.foto.exposition +'%)'}"
+                            >
                         <v-card-actions>
                             <v-spacer></v-spacer>
 

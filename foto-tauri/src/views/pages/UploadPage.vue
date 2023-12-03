@@ -107,6 +107,10 @@ async function uploadFotos() {
         foto.name = picture.name;
         foto.description = picture.description;
         foto.base64image = picture.base64;
+        foto.original64image = picture.originalBase64;
+        foto.saturation = picture.saturation;
+        foto.exposition = picture.exposition;
+        foto.contrast = picture.contrast;
 
         let response = await FotoRepository.uploadFotos(foto);
         
