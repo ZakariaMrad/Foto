@@ -11,7 +11,9 @@
             <v-row dense>
                 <v-col>
                     <v-card>
-                        <v-img class="d-flex" cover :src="props.post?.foto.path">
+                        <v-img class="d-flex" cover :src="props.post?.foto.path"
+                        :style="{filter: 'saturate(' + props.post?.foto.saturation +'%) contrast(' + props.post?.foto.contrast +'%) brightness(' + props.post?.foto.exposition +'%)'}"
+                            >
                         </v-img>
                         <!-- <v-img v-else class="d-flex" cover :src="props.post?.album.fotos[0].path">
                         </v-img> -->
@@ -38,7 +40,9 @@
                     <v-card>
                         <v-carousel hide-delimiters height="100%" v-if="props.post?.album.type === 'carousel'">
                             <v-carousel-item v-for="(foto, i) in props.post?.album.fotos" :key="i - 1">
-                                <v-img :src="foto.path" aspect-ratio="3"></v-img>
+                                <v-img :src="foto.path" aspect-ratio="3" 
+                                :style="{filter: 'saturate(' + foto.saturation +'%) contrast(' + foto.contrast +'%) brightness(' + foto.exposition +'%)'}"
+                            ></v-img>
                             </v-carousel-item>
                         </v-carousel>
                         <v-table v-else>
@@ -48,7 +52,9 @@
                                         <v-responsive aspect-ratio="1"
                                             v-if="(y * props.post?.album.grid!.nbCols! + x) < props.post?.album.grid?.fotosPosition.length!">
                                             <v-card height="100%">
-                                                <v-img :src="getPath(y * props.post?.album.grid!.nbCols! + x)" aspect-ratio="1" />
+                                                <v-img :src="getPath(y * props.post?.album.grid!.nbCols! + x)" aspect-ratio="1" 
+                                                :style="{filter: 'saturate(' + getFoto(y * props.post?.album.grid!.nbCols! + x)?.saturation +'%) contrast(' + getFoto(y * props.post?.album.grid!.nbCols! + x)?.contrast +'%) brightness(' + getFoto(y * props.post?.album.grid!.nbCols! + x)?.exposition +'%)'}"
+                            />
                                             </v-card>
                                         </v-responsive>
                                     </td>
@@ -88,6 +94,12 @@ const getPath = (index: number) => {
     if (!props.post?.album) return;
     const id = props.post?.album.grid!.fotosPosition[index];
     return props.post?.album.fotos!.find(foto => foto.idFoto === id)?.path;
+}
+
+const getFoto = (index: number) => {
+    if (!props.post?.album) return;
+    const id = props.post?.album.grid!.fotosPosition[index];
+    return props.post?.album.fotos!.find(foto => foto.idFoto === id);
 }
 
 function openUserProfile(idAccount: number) {

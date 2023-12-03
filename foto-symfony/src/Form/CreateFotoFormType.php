@@ -6,6 +6,7 @@ use App\Entity\Foto;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -34,6 +35,24 @@ class CreateFotoFormType extends AbstractType
                     ]),
                 ],
                 'mapped' => false
+            ])
+            ->add('original64image',TextType::class,[
+                'required' => true,
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Source image: Veuillez fournir les sources de l\'image',
+                    ]),
+                ],
+                'mapped' => false
+            ])
+            ->add('saturation', NumberType::class, [
+                'required' => true
+            ])
+            ->add('contrast', NumberType::class, [
+                'required' => true
+            ])
+            ->add('exposition', NumberType::class, [
+                'required' => true
             ])
             ->add('isNSFW', CheckboxType::class,[
                 'required' => true,
