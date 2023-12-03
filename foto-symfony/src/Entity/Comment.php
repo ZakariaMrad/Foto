@@ -15,7 +15,7 @@ class Comment
     private ?int $idComment = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments', cascade: ['persist'])]
-    #[ORM\JoinColumn(name: 'idComment', referencedColumnName: 'idUser')]
+    #[ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments', cascade: ['persist'])]

@@ -4,6 +4,11 @@
             <v-btn style="position: absolute; top:5px; right: 5px; z-index: 10;" class="toolbar-btn" variant="tonal" color="black" icon="$close" @click="closeDialog()"></v-btn>
             <v-list>
                 <v-list-item v-for="comment in comments" prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg">
+                    <v-list-item-title>
+                        <small class="text-muted">
+                            {{ comment.user.email }}
+                        </small>
+                    </v-list-item-title>
                     <p>{{ comment.text }}</p>
                     <v-divider></v-divider>
                 </v-list-item>
