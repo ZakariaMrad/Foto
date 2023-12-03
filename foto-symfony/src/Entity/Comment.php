@@ -25,6 +25,14 @@ class Comment
     #[ORM\Column(length: 1024)]
     private ?string $text = null;
 
+    public function getAll(){
+        return [
+            "idComment" => $this->idComment,
+            "user" => $this->user->getAll(),
+            "text" => $this->text,
+        ];
+    }
+
     public function getIdComment(): ?int
     {
         return $this->idComment;

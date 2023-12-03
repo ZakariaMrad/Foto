@@ -8,7 +8,7 @@
   <CreateAlbum :key="v1()" :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
   <ModifyProfile :key="v1()" :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
   <Admin :key="v1()" :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
-  <Comments :key="v1()" :activate="activateComments" @close-dialog="closeComments()"/>
+  <Comments :key="v1()" :activate="activateComments" @close-dialog="closeComments()" :idPost="postComments"/>
 </template>
 
 <script setup lang="ts">
@@ -27,6 +27,7 @@ import EditedPicture from './models/EditedPicture';
 import PostModal from './components/modals/PostModal.vue';
 import Comments from './components/modals/Comments.vue';
 import {v1} from 'uuid'; 
+import Post from './models/Post';
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
@@ -40,6 +41,7 @@ const activatePostModal = ref<boolean>(false);
 const activateComments = ref<boolean>(false);
 const idPost = ref<number | undefined>();
 const idAccount = ref<number>();
+const postComments = ref<number>();
 
 const { bus, eventBusEmit } = EventsBus();
 
@@ -51,9 +53,9 @@ watch(() => bus.value.get(Events.LOGOUT), () => {
   Logout();
 })
 
-watch(() => bus.value.get(Events.OPEN_COMMENTS), () => {
+watch(() => bus.value.get(Events.OPEN_COMMENTS), (value: number[]) => {
     activateComments.value = true;
-    console.log("COMMENTS" + activateComments.value);
+    postComments.value = value[0];
 })
 
 watch(() => bus.value.get(Events.CREATE_POST), () => {
