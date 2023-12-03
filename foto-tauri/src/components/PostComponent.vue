@@ -23,8 +23,8 @@
                             <v-btn size="small" :color="props.post?.isLiked ? 'red' : 'surface-variant'" variant="text"
                                 icon="mdi-heart" @click="toggleLike()"></v-btn>
 
-                            <v-list class="ml-2">{{ props.post?.comments }}</v-list>
-                            <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment"></v-btn>
+                            <v-list class="ml-2">{{ props.post?.comments.length }}</v-list>
+                            <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment" @click="openComments()"></v-btn>
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-share-variant"></v-btn>
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-exclamation" @click="report()"/>
                         </v-card-actions>
@@ -61,10 +61,9 @@
                             <v-list>{{ props.post?.likes }}</v-list>
 
                             <v-btn size="small" :color="props.post?.isLiked ? 'red' : 'surface-variant'" variant="text"
-                                icon="mdi-heart" @click="toggleLike()"></v-btn>
-
-                            <v-list class="ml-2">{{ props.post?.comments }}</v-list>
-                            <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment"></v-btn>
+                                icon="mdi-heart"></v-btn>
+                            <v-list class="ml-2">{{ props.post?.comments.length }}</v-list>
+                            <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment" @click="openComments()"></v-btn>
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-share-variant"></v-btn>
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-exclamation" @click="report()"/>
                         </v-card-actions>
@@ -107,6 +106,10 @@ function toggleLike() {
         props.post.isLiked = true;
         props.post.likes++;
     }
+}
+
+function openComments() {
+    eventBusEmit(Events.OPEN_COMMENTS, props.post?.idPost);
 }
 
 function report() {

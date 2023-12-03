@@ -64,6 +64,9 @@ class Post
             "creationDate" => $this->creationDate,
             "foto" => $this->foto ? $this->foto->getAll() : null,
             "album" => $this->album ? $this->album->getAll() : null,
+            "comments" => array_map(function ($comment) {
+                return $comment->getAll();
+            }, $this->comments->toArray())
         ];
     }
 

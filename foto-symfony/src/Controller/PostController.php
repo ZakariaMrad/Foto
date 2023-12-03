@@ -109,6 +109,27 @@ class PostController extends AbstractController
             'posts' => $posts
         ], JsonResponse::HTTP_OK);
     }
+
+    #[Route('/posts/{idPost}', name: 'app_post_get_one', methods: ['GET'])]
+    public function getPostById(Request $request, $idPost): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $post = $this->em->getRepository(Post::class)->findOneBy(['idPost' => $idPost]);
+        $post = $post->getAll();
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'post' => $post
+        ], JsonResponse::HTTP_OK);
+    }
+
     private function getUserById(int $idUser): ?User
     {
         return $this->em->getRepository(User::class)->findOneBy(['idUser' => $idUser]);
