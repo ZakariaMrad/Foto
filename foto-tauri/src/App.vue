@@ -27,7 +27,6 @@ import EditedPicture from './models/EditedPicture';
 import PostModal from './components/modals/PostModal.vue';
 import Comments from './components/modals/Comments.vue';
 import {v1} from 'uuid'; 
-import Post from './models/Post';
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);

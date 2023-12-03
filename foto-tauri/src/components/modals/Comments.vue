@@ -40,7 +40,7 @@ onMounted(async () => {
     await Promise.all([getComments()]);
 });
 
-var comments = ref<Object>([]);
+var comments = ref<Comment[]>([]);
 const commentText = ref("");
 const emit = defineEmits(['closeDialog'])
 
@@ -60,7 +60,8 @@ async function getComments() {
     if (!apiResponse.success) return;
     console.log("COMMENTS" + props.idPost);
     console.log(apiResponse.data);
-    comments.value = apiResponse.data.comments;
+    const jsonObject = apiResponse.data.comments as Object[];
+    comments.value = Object.assign(Array<Comment>(), jsonObject)
 }
 
 async function postComment() {
