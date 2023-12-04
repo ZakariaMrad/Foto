@@ -20,7 +20,7 @@ class Comment
 
     #[ORM\ManyToOne(inversedBy: 'comments', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost')]
-    private ?post $post = null;
+    private ?Post $post = null;
 
     #[ORM\Column(length: 1024)]
     private ?string $text = null;
