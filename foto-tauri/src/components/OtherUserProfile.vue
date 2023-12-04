@@ -95,7 +95,7 @@ const props = defineProps<{
     account: Account
 }>()
 
-// const friendList = new props.account.friends
+
 
 
 onMounted(async () => {
@@ -133,6 +133,7 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undef
 
     connectedAccount.value = account[0];
 })
+
 
 function openPostModal(idPost: number) {
     eventBusEmit(Events.OPEN_POST_MODAL, idPost)

@@ -24,8 +24,21 @@
                                     <v-list-item>752 Suiveurs</v-list-item>
                                     <v-list-item>1,5k Suivi</v-list-item>
                                     <v-list-item>
-                                        <v-btn color="primary" icon="mdi-dots-horizontal">
-                                        </v-btn>
+                                        <v-menu open-on-hover>
+                                            <template v-slot:activator="{ props }">
+                                                <v-btn color="primary" icon="mdi-dots-horizontal" v-bind="props">
+                                                </v-btn>
+                                            </template>
+
+                                            <v-list>
+                                                <v-list-item v-for="friendLink in friendLinks"
+                                                    :prepend-icon="friendLink.icon" :key="friendLink.text"
+                                                    @click="friendLink.click">
+                                                    <v-list-item-title>{{ friendLink.text }}</v-list-item-title>
+                                                </v-list-item>
+                                            </v-list>
+                                        </v-menu>
+
                                     </v-list-item>
 
                                 </v-row>
@@ -51,6 +64,11 @@ import { EventsBus, Events } from '../core/EventBus';
 const { eventBusEmit, bus } = EventsBus();
 const connectedAccount = ref<Account>()
 
+const friendLinks = ref<{ icon: string, text: string, click: any }[]>(
+    [
+        { icon: 'mdi-trash-can-outline', text: 'Arreter de suivre', click: openUnfollowModal },
+    ]
+)
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
     if (!account)
@@ -60,6 +78,11 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undef
 })
 
 onMounted(async () => {
-    console.log(connectedAccount.value?.friendList);
+    //    TODO: mettre la liste damis
+    // console.log(connectedAccount.value?.friendList);
 })
+
+function openUnfollowModal() {
+    eventBusEmit(Events.OPEN_UNFOLLOW_MODAL)
+}
 </script>
