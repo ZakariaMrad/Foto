@@ -8,7 +8,9 @@
                 <v-col v-for="foto in fotos" cols="12" md="4">
                     <VueDraggableNext>
                         <v-card class="p-1" @dragstart="onDragStart(foto)" @dragend="onDragEnd">
-                            <v-img :src="foto.path" aspect-ratio="1" />
+                            <v-img :src="foto.path" aspect-ratio="1" 
+                            :style="{filter: 'saturate(' + foto.saturation +'%) contrast(' + foto.contrast +'%) brightness(' + foto.exposition +'%)'}"
+                            />
                         </v-card>
                     </VueDraggableNext>
                 </v-col>
@@ -23,7 +25,9 @@
                                 <VueDraggableNext @drop="onDrop(y * nbColumns + x)" style="height: 100%;">
                                     <v-card v-if="(y * nbColumns + x) < nbFotos" height="100%"
                                         @click="removeFoto(y * nbColumns + x)">
-                                        <v-img :src="getPath(y * nbColumns + x)" aspect-ratio="1" />
+                                        <v-img :src="getPath(y * nbColumns + x)" aspect-ratio="1" 
+                                        :style="{filter: 'saturate(' + getFoto(y * nbColumns + x)?.saturation +'%) contrast(' + getFoto(y * nbColumns + x)?.contrast +'%) brightness(' + getFoto(y * nbColumns + x)?.exposition +'%)'}"
+                            />
                                     </v-card>
                                 </VueDraggableNext>
                             </v-responsive>
@@ -101,6 +105,11 @@ function getPath(id: number) {
     const foto = fotosInGrid.value[id];
     if (!foto) return 'https://placehold.co/200';
     return foto.path;
+}
+function getFoto(id: number) {
+    const foto = fotosInGrid.value[id];
+    if (!foto) return;
+    return foto;
 }
 function removeFoto(id: number) {
     if (!fotosInGrid.value[id]) return;

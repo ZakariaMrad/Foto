@@ -1,7 +1,0 @@
-{
-  "name": "foto-capacitor",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "custom"
-}
