@@ -66,7 +66,10 @@ class Post
             "album" => $this->album ? $this->album->getAll() : null,
             "comments" => array_map(function ($comment) {
                 return $comment->getAll();
-            }, $this->comments->toArray())
+            }, $this->comments->toArray()),
+            /*"likes" => array_map(function ($like) {
+                return $like->getAll();
+            }, $this->likes->toArray())*/
         ];
     }
 

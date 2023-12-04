@@ -22,6 +22,13 @@ class Like
     #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost')]
     private ?Post $post = null;
 
+    public function getAll(){
+        return [
+            "idLike" => $this->idLike,
+            "user" => $this->user->getAll()
+        ];
+    }
+
     public function getIdLike(): ?int
     {
         return $this->idLike;
