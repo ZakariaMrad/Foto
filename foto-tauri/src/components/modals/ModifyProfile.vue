@@ -58,7 +58,7 @@ const { register, handleSubmit, formState } = useFormHandler({
 })
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefined) => {
-    console.log(value);
+    // console.log(value);
 
     if (!value) {
         account = undefined;

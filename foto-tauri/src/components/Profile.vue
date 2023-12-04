@@ -168,9 +168,9 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undef
     connectedAccount.value = account[0];
 })
 
-watch(() => tab.value, (value) => {
-    console.log("TEST TAB = " + value);
-})
+// watch(() => tab.value, (value) => {
+//     console.log("TEST TAB = " + value);
+// })
 
 
 const profileLinks = ref<{ icon: string, text: string, click: any }[]>(

@@ -44,4 +44,22 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, watch } from 'vue';
+import Account from '../models/Account';
+import { EventsBus, Events } from '../core/EventBus';
+
+const { eventBusEmit, bus } = EventsBus();
+const connectedAccount = ref<Account>()
+
+
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
+    if (!account)
+        return;
+
+    connectedAccount.value = account[0];
+})
+
+onMounted(async () => {
+    console.log(connectedAccount.value?.friendList);
+})
 </script>

@@ -14,4 +14,5 @@ export default class Post extends JWTToken implements APIResponse{
     likes: number = (Math.floor(Math.random() * 31));
     isLiked: boolean = false;
     comments: number = (Math.floor(Math.random() * 31));
+    isPublic: boolean = false;
 }
