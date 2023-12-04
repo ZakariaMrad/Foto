@@ -13,7 +13,9 @@
                     <v-card>
                         <v-carousel hide-delimiters height="100%" v-if="props.album.type === 'carousel'">
                             <v-carousel-item v-for="(foto, i) in props.album.fotos" :key="i - 1">
-                                <v-img :src="foto.path" aspect-ratio="3"></v-img>
+                                <v-img :src="foto.path" aspect-ratio="3"
+                                :style="{filter: 'saturate(' + foto.saturation +'%) contrast(' + foto.contrast +'%) brightness(' + foto.exposition +'%)'}"
+                            ></v-img>
                             </v-carousel-item>
                         </v-carousel>
                         <v-table v-else>
@@ -23,7 +25,9 @@
                                         <v-responsive aspect-ratio="1"
                                             v-if="(y * album.grid!.nbCols + x) < album.grid?.fotosPosition.length!">
                                             <v-card height="100%">
-                                                <v-img :src="getPath(y * album.grid!.nbCols + x)" aspect-ratio="1" />
+                                                <v-img :src="getPath(y * album.grid!.nbCols + x)" aspect-ratio="1" 
+                                                :style="{filter: 'saturate(' + getFoto(y * album.grid!.nbCols! + x)?.saturation +'%) contrast(' + getFoto(y * album.grid!.nbCols! + x)?.contrast +'%) brightness(' + getFoto(y * album.grid!.nbCols! + x)?.exposition +'%)'}"
+                            />
                                             </v-card>
                                         </v-responsive>
                                     </td>
@@ -50,6 +54,11 @@ const props = defineProps<{
 const getPath = (index: number) => {
     const id = props.album.grid!.fotosPosition[index];
     return props.album.fotos!.find(foto => foto.idFoto === id)?.path;
+}
+
+const getFoto = (index: number) => {
+    const id = props.album.grid!.fotosPosition[index];
+    return props.album.fotos!.find(foto => foto.idFoto === id);
 }
 </script>
 

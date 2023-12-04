@@ -16,7 +16,7 @@
                             <v-btn size="small" :color="post?.isLiked ? 'red' : 'surface-variant'" variant="text"
                                 icon="mdi-heart" @click="toggleLike()"></v-btn>
 
-                            <v-list class="ml-2">{{ post.comments }}</v-list>
+                            <v-list class="ml-2">{{ post.comments.length }}</v-list>
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment"></v-btn>
 
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-share-variant"></v-btn>
