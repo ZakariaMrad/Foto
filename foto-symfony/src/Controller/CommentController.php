@@ -58,6 +58,7 @@ class CommentController extends AbstractController
             ], JsonResponse::HTTP_NOT_FOUND);
         }
         $post = $this->getPostById($postId);
+        $comment-> setUser($user);
 
         $user->addComment($comment);
 
