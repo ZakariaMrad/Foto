@@ -5,7 +5,7 @@ import ComplaintSubject from "./ComplaintSubject";
 export default class Complain {
     idComplaint: Number = 0;
     subject: ComplaintSubject = new ComplaintSubject();
-    sentDateTime: Date = new Date();
+    sentDateTime = {date: ""};
     readDateTime: Date | undefined = undefined;
     status: string = '';
     sender: Account = new Account();
