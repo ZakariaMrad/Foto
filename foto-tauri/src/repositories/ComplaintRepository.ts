@@ -11,6 +11,7 @@ const client = await getClient();
 class ComplaintRepository extends Repository {
 
 
+
     public async createComplaint(idSubject: number, type: string, idRecipient: number) {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
@@ -83,18 +84,18 @@ class ComplaintRepository extends Repository {
         }
     }
     
-    public async deleteComplaint(idComplant: number) {
+    public async deleteComplaintSubject(idComplant: number) {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
 
         try {
-            const response = await client.delete(`${this.url}/complaint/${idComplant}?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            const response = await client.delete(`${this.url}/complaint/${idComplant}/deleteSubject?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
             let data = response.data as any;
             console.log(data);
             
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
-                return { data: data.complaints as Complaint[], success: true };
+                return { data: data.message, success: true };
             }
             // If there is an unexpected response or error status code, return an Error object
             return { errors: this.getAPIError(response.data), success: false };

@@ -3,7 +3,7 @@ import ComplaintSubject from "./ComplaintSubject";
 
 
 export default class Complaint {
-    idComplaint: Number = 0;
+    idComplaint: number = 0;
     subject: ComplaintSubject = new ComplaintSubject();
     sentDateTime = {date: ""};
     readDateTime: Date | undefined = undefined;

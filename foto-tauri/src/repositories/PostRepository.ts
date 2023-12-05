@@ -40,7 +40,7 @@ class PostRepository extends Repository {
         try {
             const response = await client.get(`${this.url}/posts?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
             let data = response.data as any;
-            // console.log(data);
+            console.log(data);
             
             data.posts.forEach( (post: Post) => {
                 post.likes = (Math.floor(Math.random() * 31));
