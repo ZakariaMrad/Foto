@@ -16,15 +16,16 @@
                         <PostComponent v-if="complaint?.subject.post" :post="complaint?.subject.post" />
                         <p class="text-danger">{{ errorMessage }}</p>
                         <p class="text-success">{{ successMessage }}</p>
-                        <v-btn @click="deleteSubject" :loading="loading">Supprimer</v-btn>
+                        <v-btn class="ma-2" color="red-darken-3" @click="deleteSubject" :loading="loading">Supprimer</v-btn>
+                        <v-btn class="ma-2" color="green-darken-3" v-if="props.complaint?.status == 'Active'" @click="deleteSubjectAndArchive" :loading="loading">Supprimer puis archivé</v-btn>
                     </v-col>
                 </v-row>
             </v-card-text>
             <v-card-actions>
                 <v-btn class="mb-5 ms-5" color="red-darken-3" @click="closeDialog()">Quitter</v-btn>
-                <v-btn v-if="status == 'Active'" class="mb-5 ms-5" color="green-darken-3"
+                <v-btn v-if="props.complaint?.status == 'Active'" class="mb-5 ms-5" color="green-darken-3"
                     @click="archiveComplaint()">Archivé
-                    la plainte puis fermer</v-btn>
+                    la plainte puis quiter</v-btn>
                 <v-btn v-else class="mb-5 ms-5" color="green-darken-3" @click="activateComplaint()">Activé la plainte puis
                     quitter</v-btn>
             </v-card-actions>
@@ -41,8 +42,8 @@ import ComplaintRepository from '../../repositories/ComplaintRepository';
 
 
 const status = ref<string>('');
-const errorMessage = ref<string|undefined>(undefined);
-const successMessage = ref<string|undefined>(undefined);
+const errorMessage = ref<string | undefined>(undefined);
+const successMessage = ref<string | undefined>(undefined);
 const loading = ref<boolean>(false);
 
 const emit = defineEmits(['closeDialog'])
@@ -61,13 +62,28 @@ function closeDialog() {
 function getStatus() {
     status.value = props.complaint?.status == "archived" ? "Archivé" : "Active";
 }
-function archiveComplaint() {
-    console.log('archive complaint');
+async function archiveComplaint() {
+    let apiResult = await ComplaintRepository.archiveComplaint(props.complaint!.idComplaint);
+    if (!apiResult.success) {
+        errorMessage.value = apiResult.errors![0].message;
+        return
+    }
     closeDialog();
 }
-function activateComplaint() {
-    console.log('activate complaint');
+async function activateComplaint() {
+    let apiResult = await ComplaintRepository.activateComplaint(props.complaint!.idComplaint);
+    if (!apiResult.success) {
+        errorMessage.value = apiResult.errors![0].message;
+        return
+    }
     closeDialog();
+}
+async function deleteSubjectAndArchive() {
+    loading.value = true;
+    await deleteSubject();
+    await archiveComplaint();
+    loading.value = false;
+
 }
 
 async function deleteSubject() {
@@ -76,10 +92,10 @@ async function deleteSubject() {
     if (!apiResult.success) {
         errorMessage.value = apiResult.errors![0].message;
     } else {
-        successMessage.value = apiResult.data;    
+        successMessage.value = apiResult.data;
     }
     loading.value = false;
-    
+
 }
 
 </script>

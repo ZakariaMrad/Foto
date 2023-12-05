@@ -12,6 +12,7 @@ class ComplaintRepository extends Repository {
 
 
 
+
     public async createComplaint(idSubject: number, type: string, idRecipient: number) {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
@@ -65,6 +66,7 @@ class ComplaintRepository extends Repository {
             return { errors: error as [APIError], success: false };
         }
     }
+    
     public async getArchivedComplaints() {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
@@ -90,6 +92,44 @@ class ComplaintRepository extends Repository {
 
         try {
             const response = await client.delete(`${this.url}/complaint/${idComplant}/deleteSubject?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            let data = response.data as any;
+            console.log(data);
+            
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+                return { data: data.message, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            return { errors: error as [APIError], success: false };
+        }
+    }
+    public async archiveComplaint(idComplant: number) {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+
+        try {
+            const response = await client.post(`${this.url}/complaint/${idComplant}/archive`,Body.json({"jwtToken": jwt.data.jwtToken}), { responseType: ResponseType.JSON });
+            let data = response.data as any;
+            console.log(data);
+            
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+                return { data: data.message, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            return { errors: error as [APIError], success: false };
+        }
+    }
+    public async activateComplaint(idComplant: number) {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+
+        try {
+            const response = await client.post(`${this.url}/complaint/${idComplant}/activate`,Body.json({"jwtToken": jwt.data.jwtToken}), { responseType: ResponseType.JSON });
             let data = response.data as any;
             console.log(data);
             

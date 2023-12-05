@@ -139,7 +139,6 @@ class ComplaintController extends AbstractController
         $post = $complaint->getSubject()->getPost();
         if ($post) {
             $post->setIsDeleted(true); // Update the isDeleted property
-            dd($post);
             $this->em->persist($post);
         }
         
