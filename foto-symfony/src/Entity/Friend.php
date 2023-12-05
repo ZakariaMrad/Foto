@@ -15,12 +15,12 @@ class Friend
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'friends', mappedBy:'idUser')]
-    private Collection $user;
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'friends', mappedBy: 'idUser')]
+    private Collection $users;
 
     public function __construct()
     {
-        $this->user = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -31,15 +31,15 @@ class Friend
     /**
      * @return Collection<int, User>
      */
-    public function getUser(): Collection
+    public function getUsers(): Collection
     {
-        return $this->user;
+        return $this->users;
     }
 
     public function addUser(User $user): static
     {
-        if (!$this->user->contains($user)) {
-            $this->user->add($user);
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
         }
 
         return $this;
@@ -47,7 +47,7 @@ class Friend
 
     public function removeUser(User $user): static
     {
-        $this->user->removeElement($user);
+        $this->users->removeElement($user);
 
         return $this;
     }

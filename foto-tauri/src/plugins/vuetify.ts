@@ -8,6 +8,9 @@ import { createVuetify } from 'vuetify'
 
 const vuetify = createVuetify({
   ssr: true,
+  theme: {
+    defaultTheme: 'dark'
+  }
 })
 
 export default vuetify

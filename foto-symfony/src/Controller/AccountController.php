@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+
 class AccountController extends AbstractController
 {
     private $em = null;
@@ -184,17 +185,14 @@ class AccountController extends AbstractController
     #[Route('/account/follow/{id}', name: 'app_follow_other_user', methods: ['POST'])]
     public function follow($id, Request $request): JsonResponse
     {
-        $friend = new Friend();
-
-        // dd($this);
-        $idFriend = $this->em->getRepository(User::class)->findOneBy(['idUser' => $id]);
-        if (!$idFriend) {
+        $friend = $this->em->getRepository(User::class)->findOneBy(['idUser' => $id]);
+        if (!$friend) {
             return $this->json([
                 'error' => ['Erreur: Compte non trouvé.'],
             ], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        
+
 
         //TODO : add friend to user friend list
         $data = json_decode($request->getContent(), true);
@@ -206,10 +204,11 @@ class AccountController extends AbstractController
         }
 
         $user = $this->em->getRepository(User::class)->findOneBy(['email' => $this->jwtHandler->decodedJWTToken['email']]);
-        $friend = $idFriend;
-        $user->addFriend($id);
-        // $user->addFriend($idFriend);
-        $this->em->persist($friend); // Persist user to the database
+
+        $newFriend = new Friend(); 
+
+        $user->addFriend($newFriend->addUser($friend));
+        $this->em->persist($user); // Persist user to the database
         $this->em->flush(); // Save changes
 
 
@@ -222,7 +221,7 @@ class AccountController extends AbstractController
     {
         return $this->em->getRepository(Friend::class)->findOneBy(['id' => $idFriend]);
     }
-    
+
 
     #[Route('/account/modify', name: 'app_account_modify', methods: ['POST'])]
     public function modifyAccount(Request $request): JsonResponse

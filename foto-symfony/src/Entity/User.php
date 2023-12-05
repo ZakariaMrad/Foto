@@ -109,7 +109,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?UserBlock $block = null;
 
-    #[ORM\ManyToMany(targetEntity: Friend::class, mappedBy: 'user')]
+    #[ORM\ManyToMany(targetEntity: Friend::class, mappedBy: 'users')]
     private Collection $friends;
 
 
