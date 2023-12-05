@@ -154,6 +154,8 @@ class AccountController extends AbstractController
             )
         );
         $user->setCreationDate(new \DateTime());
+        $user->setIsAdmin(false);
+        $user->setIsDeleted(false);
 
         $this->em->persist($user); // Persist user to the database
         $this->em->flush(); // Save changes
@@ -185,16 +187,6 @@ class AccountController extends AbstractController
     #[Route('/account/follow/{id}', name: 'app_follow_other_user', methods: ['POST'])]
     public function follow($id, Request $request): JsonResponse
     {
-        $friend = $this->em->getRepository(User::class)->findOneBy(['idUser' => $id]);
-        if (!$friend) {
-            return $this->json([
-                'error' => ['Erreur: Compte non trouvé.'],
-            ], JsonResponse::HTTP_NOT_FOUND);
-        }
-
-
-
-        //TODO : add friend to user friend list
         $data = json_decode($request->getContent(), true);
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
         if (!$hasSucceded) {
@@ -203,11 +195,21 @@ class AccountController extends AbstractController
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
+        $friend = $this->em->getRepository(User::class)->findOneBy(['idUser' => $id]);
+        if (!$friend) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
         $user = $this->em->getRepository(User::class)->findOneBy(['email' => $this->jwtHandler->decodedJWTToken['email']]);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
 
-        $newFriend = new Friend(); 
-
-        $user->addFriend($newFriend);
+        $user->addFriend($friend);
         $this->em->persist($user); // Persist user to the database
         $this->em->flush(); // Save changes
 
@@ -216,10 +218,6 @@ class AccountController extends AbstractController
             'user' => $user->getAll(),
             'jwtToken' => $newJWT
         ], JsonResponse::HTTP_OK);
-    }
-    private function getFriendById(int $idFriend): ?Friend
-    {
-        return $this->em->getRepository(Friend::class)->findOneBy(['id' => $idFriend]);
     }
 
 

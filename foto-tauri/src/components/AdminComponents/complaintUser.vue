@@ -3,6 +3,7 @@
         <v-card-title>{{ role }}</v-card-title>
         <v-card-text>
             <p>({{ account?.name }} - {{ account?.email }})</p>
+            <p>Inscrit depuis {{ formatDate(account?.creationDate.date) }}</p>
         </v-card-text>
         <v-card-actions>
             <v-btn color="red-darken-3" @click="blockUser()">Bloquer l'utilisateur</v-btn>
@@ -25,7 +26,12 @@ defineProps({
 function blockUser() {
     activate.value = true;
 }
-
+function formatDate(date: string | undefined) {
+    if (!date) return '';
+    const formattedDate = new Date(date).toLocaleDateString("fr-CA") + " à " + new Date(date).toLocaleTimeString("fr-CA") ;
+    // const formattedDate = new Date(date).toLocaleDateString("fr-CA");
+    return formattedDate;
+}
 </script>
 
 <style scoped></style>

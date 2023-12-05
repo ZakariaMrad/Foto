@@ -109,8 +109,19 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?UserBlock $block = null;
 
-    #[ORM\ManyToMany(targetEntity: Friend::class, mappedBy: 'users')]
+
+    #[ORM\Column]
+    private ?bool $isDeleted = null;
+
+    #[ORM\ManyToMany(targetEntity: self::class)]
+    #[ORM\JoinTable(
+        name: 'friends',
+        joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idFriend', referencedColumnName: 'idUser')]
+    )]
     private Collection $friends;
+
+
 
 
     public function __construct()
@@ -131,7 +142,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     public function getAll()
     {
-        // dd($this->friends);
+        
+
+        // dd($friends);
+        // $this->friends->map(fn (User $friend) => dump($friend->getFriend()))   ;
         return [
             'idAccount' => $this->idUser,
             'email' => $this->email,
@@ -143,7 +157,25 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             'birthDate' => $this->birthDate,
             'creationDate' => $this->creationDate,
             'fotos' => $this->fotos,
-            'friends' => $this->friends
+            'friends' => $this->getAllFriends(),
+        ];
+
+    }
+    private function getAllFriends()
+    {
+        $friendsArr = $this->friends->toArray();
+        return array_map(fn (User $friend) => $friend->getFriend(), $friendsArr);
+    }
+    private function getFriend()
+    {
+        return [
+            'idAccount' => $this->idUser,
+            'email' => $this->email,
+            'picturePath' => $this->picturePath,
+            'bio' => $this->bio,
+            'name' => $this->name,
+            'birthDate' => $this->birthDate,
+            'fotos' => $this->fotos,
         ];
     }
 
@@ -670,33 +702,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Friend>
-     */
-    public function getFriends(): Collection
-    {
-        return $this->friends;
-    }
-
-    public function addFriend(Friend $friend): static
-    {
-        if (!$this->friends->contains($friend)) {
-            $this->friends->add($friend);
-            $friend->addUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeFriend(Friend $friend): static
-    {
-        if ($this->friends->removeElement($friend)) {
-            $friend->removeUser($this);
-        }
-
-        return $this;
-    }
-
     public function isIsDeleted(): ?bool
     {
         return $this->isDeleted;
@@ -705,6 +710,30 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function setIsDeleted(bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFriends(): Collection
+    {
+        return $this->friends;
+    }
+
+    public function addFriend(self $friend): static
+    {
+        if (!$this->friends->contains($friend)) {
+            $this->friends->add($friend);
+        }
+
+        return $this;
+    }
+
+    public function removeFriend(self $friend): static
+    {
+        $this->friends->removeElement($friend);
 
         return $this;
     }
