@@ -14,16 +14,16 @@ class ComplaintSubject
     #[ORM\Column(name: 'idComplaintSubject')]
     private ?int $idComplaintSubject = null;
 
-    #[ORM\ManyToOne(cascade: ['persist'])]
-    #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost', nullable: true)]
+    #[ORM\ManyToOne(cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost', nullable: true, onDelete: 'CASCADE')]
     private ?Post $Post = null;
 
-    #[ORM\ManyToOne(cascade: ['persist'])]
-    #[ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum', nullable: true)]
+    #[ORM\ManyToOne(cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum', nullable: true, onDelete: 'CASCADE')]
     private ?Album $Album = null;
 
-    #[ORM\ManyToOne(cascade: ['persist'])]
-    #[ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto', nullable: true)]
+    #[ORM\ManyToOne(cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto', nullable: true, onDelete: 'CASCADE')]
     private ?Foto $Foto = null;
 
     public function getAll(){

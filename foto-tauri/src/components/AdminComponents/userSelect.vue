@@ -1,10 +1,10 @@
 <template>
-    <tr>
+    <tr @click="selectUser()" :class="isChoosen ? 'bg-grey' : 'bg-light'">
         <td>{{ props.account.name }}</td>
         <td>{{ props.account.email }}</td>
         <td style="text-align: center;">
             <v-btn :color="isChoosen ? 'red-darken-3' : 'green-darken-3'"
-                :icon="isChoosen ? 'mdi-minus' : 'mdi-plus'" variant="plain" @click="selectUser()" />
+                :icon="isChoosen ? 'mdi-minus' : 'mdi-plus'" variant="plain"  />
         </td>
     </tr>
 </template>

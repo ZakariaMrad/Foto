@@ -10,7 +10,8 @@
                 </tr>
             </thead>
             <tbody>
-                <UserSelect v-for="account in accounts" :account="account" :isChoosen=" account.idAccount == choosenAccount?.idAccount" @select-user="selectUser"/>
+                <UserSelect v-for="account in accounts" :account="account"
+                    :isChoosen="account.idAccount == choosenAccount?.idAccount" @select-user="selectUser" />
             </tbody>
         </v-table>
     </form>
@@ -28,12 +29,12 @@ const loading = ref<boolean>(false)
 const accounts = ref<Account[]>([])
 const choosenAccount = ref<Account | undefined>()
 
-const emit = defineEmits<{ 
-    (event: 'user', user: Account): void 
+const emit = defineEmits<{
+    (event: 'user', user: Account | undefined): void
 }>()
 
-onMounted(() => {    
-    submitFn();    
+onMounted(() => {
+    submitFn();
 })
 
 const { register, handleSubmit, formState } = useFormHandler({ validationMode: 'always' })
@@ -62,10 +63,12 @@ async function successFn(form: any) {
 function selectUser(user: Account) {
     if (choosenAccount.value?.idAccount == user.idAccount) {
         choosenAccount.value = undefined
-        return
-    }
-    choosenAccount.value = user
-    emit('user', user)
+
+    } else {
+
+        choosenAccount.value = user
+    }    
+    emit('user', choosenAccount.value)
 }
 
 </script>

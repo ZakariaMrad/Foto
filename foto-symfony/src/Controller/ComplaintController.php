@@ -58,7 +58,7 @@ class ComplaintController extends AbstractController
         $complaint->setSentDateTime(new \DateTime());
         $complaint->setSender($sender);
         $complaint->setRecipient($recipient);
-        $complaint->setStatus(Complaint::STATUS_NEW);
+        $complaint->setStatus(Complaint::STATUS_ACTIVE);
 
         $complaint = $this->setSubjectById($data['idSubject'], $data['subjectType'], $complaint);
         if ($complaint->getSubject()->isEmpty()) {
@@ -77,8 +77,9 @@ class ComplaintController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/complaint/{idComplaint}/read', name: 'app_complaint_read', methods: ['POST'])]
-    public function readComplait($idComplaint, Request $request): JsonResponse
+
+    #[Route('/complaint/{idComplaint}/archive', name: 'app_complaint_archive', methods: ['POST'])]
+    public function archiveComplaint($idComplaint, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
@@ -88,17 +89,17 @@ class ComplaintController extends AbstractController
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
         $complaint = $this->getComplaintById($idComplaint);
-        $complaint->setStatus(Complaint::STATUS_PROCESSING);
+        $complaint->setStatus(Complaint::STATUS_ARCHIVED);
         $this->em->persist($complaint);
         $this->em->flush();
 
         return $this->json([
             'jwtToken' => $newJWT,
-            'message' => 'Plainte lue avec succès.'
+            'message' => 'Plainte archivé avec succès.'
         ], JsonResponse::HTTP_OK);
     }
-    #[Route('/complaint/{idComplaint}/process', name: 'app_complaint_process', methods: ['POST'])]
-    public function processComplait($idComplaint, Request $request): JsonResponse
+    #[Route('/complaint/{idComplaint}/activate', name: 'app_complaint_activate', methods: ['POST'])]
+    public function activateComplaint($idComplaint, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
@@ -108,18 +109,18 @@ class ComplaintController extends AbstractController
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
         $complaint = $this->getComplaintById($idComplaint);
-        $complaint->setStatus(Complaint::STATUS_PROCESSED);
+        $complaint->setStatus(Complaint::STATUS_ACTIVE);
         $this->em->persist($complaint);
         $this->em->flush();
 
         return $this->json([
             'jwtToken' => $newJWT,
-            'message' => 'Plainte lue avec succès.'
+            'message' => 'Plainte activé avec succès.'
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/complaint/{idComplaint}', name: 'app_complaint_delete', methods: ['DELETE'])]
-    public function deleteComplaint($idComplaint, Request $request): JsonResponse
+    #[Route('/complaint/{idComplaint}/deleteSubject', name: 'app_complaint_delete', methods: ['DELETE'])]
+    public function deleteComplaintSubject($idComplaint, Request $request): JsonResponse
     {
         $data["jwtToken"] = $request->query->get('jwtToken');
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
@@ -135,9 +136,20 @@ class ComplaintController extends AbstractController
                 'error' => ['Erreur: Le report n\'existe pas.'],
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
-
-        $this->em->remove($complaint);
-        $this->em->flush();
+        $post = $complaint->getSubject()->getPost();
+        if ($post) {
+            $post->setIsDeleted(true); // Update the isDeleted property
+            $this->em->persist($post);
+        }
+        
+        $album = $complaint->getSubject()->getAlbum();
+        if ($album) {
+            $album->setIsDeleted(true); // Update the isDeleted property
+            $this->em->persist($album);
+        }
+        
+        $this->em->persist($complaint);
+        $this->em->flush(); 
 
         return $this->json([
             'jwtToken' => $newJWT,
@@ -145,8 +157,8 @@ class ComplaintController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/complaints', name: 'app_complaints_get', methods: ['GET'])]
-    public function getFotos(Request $request): JsonResponse
+    #[Route('/complaints/active', name: 'app_complaints_active_get', methods: ['GET'])]
+    public function getActiveComplaints(Request $request): JsonResponse
     {
         $data["jwtToken"] = $request->query->get('jwtToken');
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
@@ -156,7 +168,35 @@ class ComplaintController extends AbstractController
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        $complaints = $this->em->getRepository(Complaint::class)->findAll();
+        $complaints = $this->getComplaintByStatus(Complaint::STATUS_ACTIVE);
+
+        //order the post by the inversed datetime (new post at the start of the array)
+        usort($complaints, function (Complaint $a, Complaint $b) {
+            return $b->getSentDateTime() <=> $a->getSentDateTime();
+        });
+        $complaintsObj = array_map(function (Complaint $complaint) {
+            return $complaint->getAll();
+        }, $complaints);
+
+
+        return  $this->json([
+            'jwtToken' => $newJWT,
+            'complaints' => $complaintsObj
+        ], JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/complaints/archived', name: 'app_complaints_archived_get', methods: ['GET'])]
+    public function getArchivedComplaints(Request $request): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $complaints = $this->getComplaintByStatus(Complaint::STATUS_ARCHIVED);
 
         //order the post by the inversed datetime (new post at the start of the array)
         usort($complaints, function (Complaint $a, Complaint $b) {
@@ -196,8 +236,13 @@ class ComplaintController extends AbstractController
         }
         return $complaint->setSubject($subject);
     }
-    private function getComplaintById($idComplaint){
+    private function getComplaintById($idComplaint)
+    {
         return $this->em->getRepository(Complaint::class)->findOneBy(['idComplaint' => $idComplaint]);
+    }
+    private function getComplaintByStatus($status)
+    {
+        return $this->em->getRepository(Complaint::class)->findBy(['status' => $status]);
     }
 
     // private function setCommentSubject(ComplaintSubject $subject, $idSubject): ComplaintSubject{

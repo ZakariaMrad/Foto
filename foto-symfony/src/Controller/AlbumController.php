@@ -68,6 +68,7 @@ class AlbumController extends AbstractController
         }
         $album->setGrid($grid);
         $album->setIsPublic(true);
+        $album->setIsDeleted(false);
         
         $this->em->persist($album);
         $this->em->flush();

@@ -79,6 +79,9 @@ class Album
     #[ORM\Column(type: Types::ARRAY, nullable: true)]
     private ?array $grid = null;
 
+    #[ORM\Column]
+    private ?bool $isDeleted = null;
+
     public function __construct()
     {
         $this->fotos = new ArrayCollection();
@@ -329,6 +332,18 @@ class Album
     public function setGrid(?array $grid): static
     {
         $this->grid = $grid;
+
+        return $this;
+    }
+
+    public function isIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): static
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }

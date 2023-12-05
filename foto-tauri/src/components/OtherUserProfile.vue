@@ -16,7 +16,7 @@
                         <p class="font-italic">{{ account?.email }}</p>
                     </v-col>
                     <v-col cols="6" class="text-lg-right">
-                        <v-btn>Follow</v-btn>
+                        <v-btn @click="btnSuivreProfil(account)">Suivre</v-btn>
                     </v-col>
                 </v-row>
                 <v-row cols="12" class="pa-3 font-weight-bold">
@@ -58,9 +58,11 @@
                             <v-row>
                                 <v-col v-for="post in posts" cols="12" md="4">
                                     <v-img @click="openPostModal(post.idPost)"
+
                                         v-if="post.owner.idAccount == account?.idAccount"
                                         :src="`${post.foto.path}`" 
                                         :style="{filter: 'saturate(' + post.foto.saturation +'%) contrast(' + post.foto.contrast +'%) brightness(' + post.foto.exposition +'%)'}"
+
                                         aspect-ratio="2"></v-img>
                                 </v-col>
                             </v-row>
@@ -73,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import PostRepository from '../repositories/PostRepository';
 import Post from '../models/Post';
 import Account from '../models/Account';
@@ -82,19 +84,29 @@ import AccountRepository from '../repositories/AccountRepository';
 import { useRoute } from 'vue-router';
 
 
-const { eventBusEmit } = EventsBus();
+const { eventBusEmit, bus } = EventsBus();
 
 
 const idAccount = ref<string>();
 
 const posts = ref<Post[]>([])
 const account = ref<Account>()
+const connectedAccount = ref<Account>()
+
+// const friendList = connectedAccount.value?.friends;
+
+const props = defineProps<{
+    account: Account
+}>()
+
+
+
 
 onMounted(async () => {
     const param = useRoute().params.idAccount;
-    console.log("route: " + useRoute());
+    // console.log("route: " + useRoute());
     idAccount.value = param.toString();
-    console.log("le test", idAccount.value);
+    // console.log("le test", idAccount.value);
 
     if (!idAccount) {
         console.log(account.value);
@@ -105,7 +117,7 @@ onMounted(async () => {
     if (!apiResponse.success) return;
     account.value = apiResponse.data;
 
-    console.log("ID ACCOUNT: " + idAccount.value);
+    // console.log("ID ACCOUNT: " + idAccount.value);
 
 
     let apiPostResponse = await PostRepository.getPosts();
@@ -119,8 +131,56 @@ onMounted(async () => {
     });
 })
 
-function openPostModal(idPost : number) {
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
+    if (!account)
+        return;
+
+    connectedAccount.value = account[0];
+})
+
+
+function openPostModal(idPost: number) {
     eventBusEmit(Events.OPEN_POST_MODAL, idPost)
+}
+
+async function btnSuivreProfil(friendAccount: Account) {
+    console.log(friendAccount);
+    if (!idAccount)
+        return;
+
+    // console.log(connectedAccount.value?.friends);
+    // var test = connectedAccount.value?.friends(idAccount)
+
+    // friendList?.push(idAccount)
+
+    // friendList?.values.friends.push(idAccount)
+
+    // const friendList = props.account.friends.push(idAccount);
+
+    // if(account.value?.friends === undefined) {
+    //     const friendList = account.value?.friends.push(idAccount)
+    //     console.log(friendList);
+    // } else {
+    //     const friendList = account.value?.friends.push(idAccount)
+    //     console.log(friendList);
+    // }
+
+    // const friendList = connectedAccount.value?.friends.push(idAccount)
+    // console.log(friendList);
+
+
+    let apiResponse = await AccountRepository.follow(friendAccount);
+    console.log(apiResponse);
+    
+    if (!apiResponse.success) return;
+    account.value = apiResponse.data;
+    console.log(account.value.friends);
+    
+
+    // console.log(connectedAccount.value);
+
+
+
 }
 
 </script>

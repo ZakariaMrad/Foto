@@ -4,7 +4,9 @@ import { JWTToken } from "../models/JWTToken";
 import AccountDatastore from "./datastore/AccountDatastore";
 
 export class Repository {
-    protected url = 'http://localhost:8000';
+    // protected url = 'https://foto.1839783.techinfo-cstj.ca';
+    protected url = 'http://127.0.0.1:8000';
+
     protected getAPIError(errors: any): APIError[] {
         let keys = Object.keys(errors);
         let errorsArray: APIError[] = [];
@@ -17,12 +19,12 @@ export class Repository {
     protected async handleJWT(data: JWTToken) {
         let jwtToken = new JWTToken();
         jwtToken.jwtToken = data.jwtToken;
-        await AccountDatastore.setJWTToken(jwtToken);        
+        await AccountDatastore.setJWTToken(jwtToken);
     }
-    
+
     protected async getJWTToken(): Promise<APIResult<JWTToken>> {
         try {
-            let jwtToken = await AccountDatastore.getJWTToken();     
+            let jwtToken = await AccountDatastore.getJWTToken();
             if (!jwtToken) return { errors: [new APIError('JWT', 'Token not found.')], success: false };
             return { data: jwtToken, success: true };
         } catch (error) {
