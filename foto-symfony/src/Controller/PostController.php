@@ -68,6 +68,8 @@ class PostController extends AbstractController
             $post->setAlbum($album);
         }
 
+        $post->setIsDeleted(false);
+
 
 
         $post->setCreationDate(new \DateTime());
@@ -93,7 +95,7 @@ class PostController extends AbstractController
         //     ], JsonResponse::HTTP_UNAUTHORIZED);
         // }
 
-        $posts = $this->em->getRepository(Post::class)->findAll();
+        $posts = $this->getPosts();
 
         //order the post by the inversed datetime (new post at the start of the array)
         usort($posts, function ($a, $b) {
@@ -141,5 +143,9 @@ class PostController extends AbstractController
     private function getAlbumById(int $idAlbum): ?Album
     {
         return $this->em->getRepository(Album::class)->findOneBy(['idAlbum' => $idAlbum]);
+    }
+    private function getPosts(): array
+    {
+        return $this->em->getRepository(Post::class)->findBy(['isDeleted' => false]);
     }
 }

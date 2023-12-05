@@ -77,7 +77,7 @@ class ComplaintController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    
+
     #[Route('/complaint/{idComplaint}/archive', name: 'app_complaint_archive', methods: ['POST'])]
     public function archiveComplaint($idComplaint, Request $request): JsonResponse
     {
@@ -119,8 +119,8 @@ class ComplaintController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/complaint/{idComplaint}', name: 'app_complaint_delete', methods: ['DELETE'])]
-    public function deleteComplaint($idComplaint, Request $request): JsonResponse
+    #[Route('/complaint/{idComplaint}/deleteSubject', name: 'app_complaint_delete', methods: ['DELETE'])]
+    public function deleteComplaintSubject($idComplaint, Request $request): JsonResponse
     {
         $data["jwtToken"] = $request->query->get('jwtToken');
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
@@ -136,9 +136,20 @@ class ComplaintController extends AbstractController
                 'error' => ['Erreur: Le report n\'existe pas.'],
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
-
-        $this->em->remove($complaint);
-        $this->em->flush();
+        $post = $complaint->getSubject()->getPost();
+        if ($post) {
+            $post->setIsDeleted(true); // Update the isDeleted property
+            $this->em->persist($post);
+        }
+        
+        $album = $complaint->getSubject()->getAlbum();
+        if ($album) {
+            $album->setIsDeleted(true); // Update the isDeleted property
+            $this->em->persist($album);
+        }
+        
+        $this->em->persist($complaint);
+        $this->em->flush(); 
 
         return $this->json([
             'jwtToken' => $newJWT,
@@ -225,10 +236,12 @@ class ComplaintController extends AbstractController
         }
         return $complaint->setSubject($subject);
     }
-    private function getComplaintById($idComplaint){
+    private function getComplaintById($idComplaint)
+    {
         return $this->em->getRepository(Complaint::class)->findOneBy(['idComplaint' => $idComplaint]);
     }
-    private function getComplaintByStatus($status){
+    private function getComplaintByStatus($status)
+    {
         return $this->em->getRepository(Complaint::class)->findBy(['status' => $status]);
     }
 

@@ -10,7 +10,7 @@
             </tr>
         </thead>
         <tbody>
-            <ComplaintListItem v-for="complaint in complaints" :complaint="complaint"/>
+            <ComplaintListItem v-for="complaint in complaints" :complaint="complaint" @reload="reload"/>
         </tbody>
     </v-table>
 </template>
@@ -20,6 +20,13 @@ import Complaint from '../../models/Complaint';
 import ComplaintListItem from './complaintListItem.vue';
 
 defineProps<{ complaints: Complaint[] | undefined }>()
+const emit = defineEmits<{
+    (event: 'reload'): void
+}>()
+
+function reload(){
+    emit('reload');
+}
 
 
 

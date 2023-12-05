@@ -7,7 +7,7 @@
         <th style="text-align: center;">
             <v-btn color="green-darken-3" @click="openModalComplaint" >Ouvrir</v-btn>
         </th>
-        <ComplaitModal :complaint="complaint" :activate="activate" @closeDialog="activate=false"/>
+        <ComplaitModal :complaint="complaint" :activate="activate" @closeDialog="reload" />
     </tr>
 </template>
 
@@ -20,7 +20,7 @@ import ComplaitModal from './complaintModal.vue';
 defineProps({
     complaint: Complaint
 })
-
+const emit = defineEmits(['reload'])
 const activate = ref(false);
 
 function openModalComplaint() {
@@ -33,6 +33,10 @@ function getType(subject: ComplaintSubject | undefined) {
     if (subject.post !== undefined) return 'Post';
     if (subject.foto !== undefined) return 'Foto';
     return '';
+}
+function reload(){
+    activate.value = false;
+    emit('reload');
 }
 
 function formatDate(date: string | undefined) {

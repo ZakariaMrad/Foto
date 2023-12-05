@@ -696,4 +696,16 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
         return $this;
     }
+
+    public function isIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): static
+    {
+        $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
 }

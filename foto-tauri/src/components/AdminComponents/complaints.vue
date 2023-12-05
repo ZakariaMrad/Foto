@@ -3,8 +3,8 @@
         <v-row>
             <v-col>
                 <h4 v-if="archived">Liste de plaintes archivés</h4>
-                <h4 v-else>Liste de plaintes</h4>
-                <ComplaintList :complaints="complaints"/>
+                <h4 v-else>Liste de plaintes actives</h4>
+                <ComplaintList :complaints="complaints" @reload="reload"/>
 
                 <v-btn v-if="archived" class="mt-1" color="blue" @click="toggleComplaints">
                     Afficher les plaintes actives
@@ -53,6 +53,15 @@ async function toggleComplaints() {
     }
     loading.value=false;
     
+}
+async function reload() {
+    loading.value=true
+    if (archived.value) {
+        await getArchivedComplaints();
+    } else {
+        await getComplaints();
+    }
+    loading.value=false;
 }
 
 </script>
