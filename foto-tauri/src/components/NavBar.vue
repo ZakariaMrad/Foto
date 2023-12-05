@@ -13,7 +13,7 @@
                     </template>
 
                     <v-list>
-                        <v-list-item v-for="link in links" :prepend-icon="link.icon" :key="link.text" @click="links.click">
+                        <v-list-item v-for="link in links" :prepend-icon="link.icon" :key="link.text" @click="link.click">
                             <v-list-item-title>{{ link.text }}</v-list-item-title>
                         </v-list-item>
                     </v-list>

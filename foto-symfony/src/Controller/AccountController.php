@@ -207,7 +207,7 @@ class AccountController extends AbstractController
 
         $newFriend = new Friend(); 
 
-        $user->addFriend($newFriend->addUser($friend));
+        $user->addFriend($newFriend);
         $this->em->persist($user); // Persist user to the database
         $this->em->flush(); // Save changes
 
