@@ -15,15 +15,23 @@ class Comment
     private ?int $idComment = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments', cascade: ['persist'])]
-    #[ORM\JoinColumn(name: 'idComment', referencedColumnName: 'idUser')]
+    #[ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost')]
-    private ?post $post = null;
+    private ?Post $post = null;
 
     #[ORM\Column(length: 1024)]
     private ?string $text = null;
+
+    public function getAll(){
+        return [
+            "idComment" => $this->idComment,
+            "user" => $this->user->getAll(),
+            "text" => $this->text,
+        ];
+    }
 
     public function getIdComment(): ?int
     {

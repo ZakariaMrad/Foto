@@ -1,24 +1,23 @@
 <template>
     <div>
+        <h4>Liste des utilisateurs non-bloqués</h4>
         <form @submit.prevent="submitFn">
             <v-row>
                 <v-col>
-                    <v-row>
+                    <PickUser class="mh-5" @user="chooseUser"></PickUser>
+                    <v-row class="mt-3" v-if="selectedAccount">
                         <v-col cols="10">
-                            <v-text-field label="Raison du blockage" required v-bind="register('reason')"
+                            <v-text-field :label="`Raison du blockage de  ${selectedAccount.name}`" required v-bind="register('reason')"
                                 :loading="loading" />
                             <p class="text-danger">{{ errorMessage }} </p>
                             <p class="text-success">{{ successMessage }} </p>
                         </v-col>
                         <v-col cols=2>
                             <v-btn type="submit" :loading="loading" class="text-white ma-1" color="green-darken-3"
-                                text="Suivant" />
-                            <v-btn class="text-white ma-1" color="red-darken-3"
-                                text="Annuler" @click="emit('done')"/>
+                                text="Bloquer" />
+                            <v-btn class="text-white ma-1" color="red-darken-3" text="Annuler" @click="emit('done')" />
                         </v-col>
-
                     </v-row>
-                    <PickUser @user="chooseUser"></PickUser>
                 </v-col>
             </v-row>
         </form>
@@ -46,6 +45,7 @@ const accounts = ref<Account[]>([])
 const loading = ref<boolean>(false)
 const errorMessage = ref<string | undefined>("");
 const successMessage = ref<string | undefined>("");
+const selectedAccount = ref<Account | undefined>(undefined);
 
 onMounted(async () => {
     let apiResult = await AccountRepository.searchUser(' ')
@@ -54,8 +54,12 @@ onMounted(async () => {
     accounts.value = apiResult.data;
 })
 
-function chooseUser(account: Account) {
+function chooseUser(account: Account|undefined) {
     unregister('user');
+    selectedAccount.value = account;
+    console.log(selectedAccount.value);
+    
+    if (!account) return;
     register('user', { defaultValue: account, required: true });
 }
 const successFn = async (form: any) => {
@@ -66,7 +70,7 @@ const successFn = async (form: any) => {
         return;
     }
     console.log(form, form.reason);
-    
+
 
     let apiResult = await UserBlockRepository.blockUser(form.reason, form.user.idAccount);
     if (!apiResult.success) {

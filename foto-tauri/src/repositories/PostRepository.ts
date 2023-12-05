@@ -45,13 +45,32 @@ class PostRepository extends Repository {
             data.posts.forEach( (post: Post) => {
                 post.likes = (Math.floor(Math.random() * 31));
                 post.isLiked = false;
-                post.comments = (Math.floor(Math.random() * 31));
             });
 
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
 
                 return { data: data.posts as Post[], success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            return { errors: error as [APIError], success: false };
+        }
+    }
+
+    public async getPostById(idPost: number): Promise<APIResult<Post>> {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+
+        try {
+            const response = await client.get(`${this.url}/posts/${idPost}?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            let data = response.data as any;
+            
+            if (response.status === 200) {
+                this.handleJWT(response.data as JWTToken);
+
+                return { data: data.post as Post, success: true };
             }
             // If there is an unexpected response or error status code, return an Error object
             return { errors: this.getAPIError(response.data), success: false };

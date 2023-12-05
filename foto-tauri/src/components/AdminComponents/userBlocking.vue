@@ -3,10 +3,10 @@
     <div v-else>
         <v-row>
             <v-col>
-
+                <h4>Liste d'utilisateurs bloqués</h4>
                 <BlockedUserList  />
 
-                <v-btn class="mt-1" color="blue" @click="toggleBlocking">Bloquer un utilisateur</v-btn>
+                <v-btn class="mt-1" color="blue" @click="toggleBlocking">Tous les utilisateurs</v-btn>
             </v-col>
         </v-row>
     </div>

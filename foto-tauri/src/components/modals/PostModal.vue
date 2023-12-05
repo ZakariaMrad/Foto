@@ -7,7 +7,9 @@
                         <h4>{{ post.description }}</h4>
                         <h5>Publiée le {{ post.creationDate.date }}</h5>
                         <hr>
-                        <img class="w-100" :src="`${post.foto.path}`" alt="">
+                        <img class="w-100" :src="`${post.foto.path}`" alt=""
+                        :style="{filter: 'saturate(' + post.foto.saturation +'%) contrast(' + post.foto.contrast +'%) brightness(' + post.foto.exposition +'%)'}"
+                            >
                         <v-card-actions>
                             <v-spacer></v-spacer>
 
@@ -15,7 +17,7 @@
                             <v-btn size="small" :color="post?.isLiked ? 'red' : 'surface-variant'" variant="text"
                                 icon="mdi-heart" @click="toggleLike()"></v-btn>
 
-                            <v-list class="ml-2">{{ post.comments }}</v-list>
+                            <v-list class="ml-2">{{ post.comments.length }}</v-list>
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-comment"></v-btn>
 
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-share-variant"></v-btn>
