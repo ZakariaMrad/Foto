@@ -1,7 +1,7 @@
 <template>
     <div class="d-flex align-center flex-column mt-3">
-        <h1 class="text-h2 text-bold">Ma liste d'amis(es)</h1>
-        <h3 class="text-bold"> Vous avez 10 amis(es)</h3>
+        <h1 class="text-h2 text-bold">Personnes suivi(s/es)</h1>
+        <h3 class="text-bold"> Vous suivez 10 personnes</h3>
     </div>
     <v-card class="mx-auto ma-10" width="75%" height="100%">
         <v-card-text>

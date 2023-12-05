@@ -85,13 +85,13 @@ class PostController extends AbstractController
     #[Route('/posts', name: 'app_post_get', methods: ['GET'])]
     public function getFotos(Request $request): JsonResponse
     {
-        $data["jwtToken"] = $request->query->get('jwtToken');
-        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
-        if (!$hasSucceded) {
-            return $this->json([
-                'error' => $this->jwtHandler->error,
-            ], JsonResponse::HTTP_UNAUTHORIZED);
-        }
+        // $data["jwtToken"] = $request->query->get('jwtToken');
+        // [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        // if (!$hasSucceded) {
+        //     return $this->json([
+        //         'error' => $this->jwtHandler->error,
+        //     ], JsonResponse::HTTP_UNAUTHORIZED);
+        // }
 
         $posts = $this->em->getRepository(Post::class)->findAll();
 
@@ -105,7 +105,7 @@ class PostController extends AbstractController
 
 
         return $this->json([
-            'jwtToken' => $newJWT,
+            // 'jwtToken' => $newJWT,
             'posts' => $posts
         ], JsonResponse::HTTP_OK);
     }

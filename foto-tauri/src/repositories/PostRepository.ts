@@ -34,11 +34,12 @@ class PostRepository extends Repository {
     }
 
     public async getPosts(): Promise<APIResult<Post[]>> {
-        let jwt = await this.getJWTToken();
-        if (!jwt.success) return { errors: jwt.errors, success: false };
+        // let jwt = await this.getJWTToken();
+        // if (!jwt.success) return { errors: jwt.errors, success: false };
+        //?Was In URl ?jwtToken=${jwt.data.jwtToken}
 
         try {
-            const response = await client.get(`${this.url}/posts?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
+            const response = await client.get(`${this.url}/posts`, { responseType: ResponseType.JSON });
             let data = response.data as any;
             // console.log(data);
             
@@ -48,7 +49,7 @@ class PostRepository extends Repository {
             });
 
             if (response.status === 200) {
-                this.handleJWT(response.data as JWTToken);
+                // this.handleJWT(response.data as JWTToken);
 
                 return { data: data.posts as Post[], success: true };
             }
