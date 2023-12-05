@@ -13,8 +13,7 @@
                     </template>
 
                     <v-list>
-                        <v-list-item v-for="link in links" :prepend-icon="link.icon" :key="link.text" router
-                            :to="link.route">
+                        <v-list-item v-for="link in links" :prepend-icon="link.icon" :key="link.text" @click="link.click">
                             <v-list-item-title>{{ link.text }}</v-list-item-title>
                         </v-list-item>
                     </v-list>
@@ -28,19 +27,27 @@
 import { ref, watch } from 'vue';
 import { Events, EventsBus } from '../core/EventBus';
 import Account  from '../models/Account';
+import { useTheme } from 'vuetify'
 const { bus } = EventsBus();
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefined) => {
     if (!value) return;
 })
 
-const links = ref<{ icon: string, text: string, route: string }[]>(
+const links = ref<{ icon: string, text: string, click: any}[]>(
     [
-        { icon: 'mdi-theme-light-dark', text: 'Mode sombre', route: '' },
-        { icon: 'mdi-cog-outline', text: 'Paramètres', route: '' },
-        { icon: 'mdi-card-account-phone-outline', text: 'Nous contacter', route: '' },
+        { icon: 'mdi-theme-light-dark', text: 'Mode sombre', click: toggleTheme },
+        { icon: 'mdi-cog-outline', text: 'Paramètres', click: undefined},
+        { icon: 'mdi-card-account-phone-outline', text: 'Nous contacter', click: undefined},
     ]
 )
+
+
+const theme = useTheme()
+
+function toggleTheme () {
+  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
+}
 
 
 

@@ -5,6 +5,7 @@
                 <div v-for="post in posts">
                     <div v-if="post.idPost == props.idPost">
                         <h4>{{ post.description }}</h4>
+                        <h5>Publiée le {{ post.creationDate.date }}</h5>
                         <hr>
                         <img class="w-100" :src="`${post.foto.path}`" alt=""
                         :style="{filter: 'saturate(' + post.foto.saturation +'%) contrast(' + post.foto.contrast +'%) brightness(' + post.foto.exposition +'%)'}"
@@ -22,7 +23,6 @@
                             <v-btn size="small" color="surface-variant" variant="text" icon="mdi-share-variant"></v-btn>
                         </v-card-actions>
                     </div>
-
                 </div>
                 <v-card-actions>
                     <v-spacer />

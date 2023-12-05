@@ -13,5 +13,8 @@ export default class Post extends JWTToken implements APIResponse{
     album:Album = new Album();
     likes: number = (Math.floor(Math.random() * 31));
     isLiked: boolean = false;
+
+    isPublic: boolean = false;
+
     comments: Comment[] = [];
 }

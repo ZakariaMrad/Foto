@@ -89,18 +89,18 @@ let choosenId: number | undefined = undefined
 onMounted(async () => {
     //We need to do the the get at the same time
     await Promise.all([getFotos(), getAlbums()])
-    console.log(fotos.value, albums.value);
+    // console.log(fotos.value, albums.value);
 
 })
 async function getFotos() {
     let apiResponse = await FotoRepository.getFotos()
-    console.log(apiResponse);
+    // console.log(apiResponse);
     if (!apiResponse.success) return
     fotos.value = apiResponse.data
 }
 async function getAlbums() {
     let apiResponse = await AlbumRepository.getAlbums()
-    console.log(apiResponse);
+    // console.log(apiResponse);
     if (!apiResponse.success) return
     albums.value = apiResponse.data
 }

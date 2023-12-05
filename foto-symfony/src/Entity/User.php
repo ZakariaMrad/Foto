@@ -67,8 +67,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Like::class, cascade: ['persist'])]
     private Collection $likes;
 
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class, cascade: ['persist'])]
     private Collection $comments;
+
 
     #[ORM\ManyToMany(targetEntity: Chat::class, mappedBy: 'users', cascade: ['persist'])]
     #[ORM\JoinTable(
@@ -105,8 +107,11 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     private Collection $receivedComplaints;
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-
     private ?UserBlock $block = null;
+
+    #[ORM\ManyToMany(targetEntity: Friend::class, mappedBy: 'users')]
+    private Collection $friends;
+
 
     public function __construct()
     {
@@ -121,13 +126,14 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->spectatedAlbums = new ArrayCollection();
         $this->sentComplaints = new ArrayCollection();
         $this->receivedComplaints = new ArrayCollection();
-
+        $this->friends = new ArrayCollection();
     }
 
     public function getAll()
     {
+        // dd($this->friends);
         return [
-            'idAccount'=> $this->idUser,
+            'idAccount' => $this->idUser,
             'email' => $this->email,
             'roles' => $this->roles,
             'picturePath' => $this->picturePath,
@@ -136,8 +142,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             'name' => $this->name,
             'birthDate' => $this->birthDate,
             'creationDate' => $this->creationDate,
-            'fotos' => $this->fotos
-
+            'fotos' => $this->fotos,
+            'friends' => $this->friends
         ];
     }
 
@@ -145,13 +151,14 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function getOneById()
     {
         return [
-            'idAccount'=> $this->idUser,
+            'idAccount' => $this->idUser,
             'email' => $this->email,
             'picturePath' => $this->picturePath,
             'bio' => $this->bio,
             'name' => $this->name,
             'birthDate' => $this->birthDate,
-            'fotos' => $this->fotos
+            'fotos' => $this->fotos,
+            'friends' => $this->friends
         ];
     }
 
@@ -447,6 +454,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this;
     }
 
+
     /**
      * @return Collection<int, Chat>
      */
@@ -563,14 +571,14 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         }
         return $this;
     }
- public function removeSpectatedAlbum(Album $spectatedAlbum): static
-                {
-                   if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
-                     $spectatedAlbum->removeSpectator($this);
-                 }
-               return $this;
-             }
-    
+    public function removeSpectatedAlbum(Album $spectatedAlbum): static
+    {
+        if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
+            $spectatedAlbum->removeSpectator($this);
+        }
+        return $this;
+    }
+
     /**
      * @return Collection<int, Complaint>
      */
@@ -584,14 +592,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         if (!$this->sentComplaints->contains($sentComplaint)) {
             $this->sentComplaints->add($sentComplaint);
             $sentComplaint->setSender($this);
-
         }
 
         return $this;
     }
 
 
-    
+
 
     public function removeSentComplaint(Complaint $sentComplaint): static
     {
@@ -659,6 +666,33 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         }
 
         $this->block = $block;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Friend>
+     */
+    public function getFriends(): Collection
+    {
+        return $this->friends;
+    }
+
+    public function addFriend(Friend $friend): static
+    {
+        if (!$this->friends->contains($friend)) {
+            $this->friends->add($friend);
+            $friend->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFriend(Friend $friend): static
+    {
+        if ($this->friends->removeElement($friend)) {
+            $friend->removeUser($this);
+        }
 
         return $this;
     }
