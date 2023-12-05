@@ -1,7 +1,7 @@
 <template>
     <tr>
-        <th>{{ complaint?.sender.name }}</th>
-        <th>{{ complaint?.recipient.name }}</th>
+        <th>{{ complaint?.sender.name }} - {{ complaint?.sender.email }}</th>
+        <th>{{ complaint?.recipient.name }} - {{ complaint?.recipient.email }}</th>
         <th>{{ getType(complaint?.subject) }}</th>
         <th>{{ formatDate(complaint?.sentDateTime.date) }}</th>
         <th style="text-align: center;">

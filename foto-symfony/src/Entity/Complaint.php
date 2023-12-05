@@ -35,8 +35,8 @@ class Complaint
     #[ORM\Column(length: 1024)]
     private ?String $status = '';
 
-    const STATUS_ACTIVE = 'Actif';
-    const STATUS_ARCHIVED = 'Archivé';
+    const STATUS_ACTIVE = 'Active';
+    const STATUS_ARCHIVED = 'Archived';
 
     public function getAll(){
         return [

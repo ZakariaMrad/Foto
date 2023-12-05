@@ -19,8 +19,7 @@
 import Complaint from '../../models/Complaint';
 import ComplaintListItem from './complaintListItem.vue';
 
-const emit = defineEmits(['reloadComplaints']);
-const props = defineProps<{ complaints: Complaint, isChoosen: boolean }>()
+defineProps<{ complaints: Complaint[] | undefined }>()
 
 
 
