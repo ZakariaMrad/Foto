@@ -5,12 +5,26 @@
                 <v-container>
                     <v-row>
                         <v-col cols="9">
-                            <v-img
+                            <!--<v-img
                             max-height="600"
                             :src="editedPicture?.base64"
                             :style="{filter: 'saturate(' + saturation +'%) contrast(' + contrast +'%) brightness(' + exposition +'%)'}">
                         
-                        </v-img>
+                        </v-img>-->
+                        <VuePictureCropper
+                            :img="editedPicture?.base64"
+                            :style="{filter: 'saturate(' + saturation +'%) contrast(' + contrast +'%) brightness(' + exposition +'%)', maxHeigh: '600px'}"
+                            :options="{
+                                viewMode: 1,
+                                dragMode: 'crop',
+                            }"
+                            :box-style="{
+                                height: '100%',
+                                width: '100%'
+                            }"
+                            @ready="cropper_ready()"
+                            />
+
                         </v-col>
                         <v-col cols="3">
                             <div class="text-caption">Exposition</div>
@@ -27,7 +41,7 @@
                 </v-container>
                 <div class="d-flex justify-space-between">
                     <v-btn class="btn btn-danger" @click="closeDialog()" color="red-darken-3">Annuler</v-btn>
-                    <v-btn class="btn" @click="resetSliders()">Retour à l'original</v-btn>
+                    <v-btn class="btn" @click="returnToOriginal()">Retour à l'original</v-btn>
                     <v-btn class="btn btn-success" @click="save()" color="green-darken-3">Sauvegarder modifications</v-btn>
                 </div>
             </v-card-text>
@@ -39,6 +53,7 @@
 import { ref } from 'vue';
 import EditedPicture from '../../models/EditedPicture';
 import { watch } from 'vue';
+import VuePictureCropper, { cropper } from 'vue-picture-cropper';
 
 const max = ref(200);
 const min = ref(0);
@@ -77,6 +92,15 @@ function resetSliders() {
     exposition.value = defaultValue;
     contrast.value = defaultValue;
     saturation.value = defaultValue;
+    if(!cropper) return;
+    cropper.clear();
+}
+
+function returnToOriginal() {
+    if (!props.editedPicture)
+        return;
+    resetSliders();
+    props.editedPicture.base64 = props.editedPicture.originalBase64;
 }
 
 function save() {
@@ -87,11 +111,22 @@ function save() {
     props.editedPicture.saturation = saturation.value;
     props.editedPicture.name = name.value;
     props.editedPicture.description = description.value;
+    if(!cropper) return;
+    props.editedPicture.base64 = cropper.getDataURL();
     
     closeDialog();
+}
+
+function cropper_ready() {
+    if(!cropper) return;
+    cropper.clear();
 }
 
 </script>
 
 <style scoped>
+.vue--picture-cropper__wrap {
+    max-height: 600px;
+    width: auto;
+}
 </style>

@@ -2,10 +2,10 @@ import Account from "./Account";
 import ComplaintSubject from "./ComplaintSubject";
 
 
-export default class Complain {
+export default class Complaint {
     idComplaint: Number = 0;
     subject: ComplaintSubject = new ComplaintSubject();
-    sentDateTime: Date = new Date();
+    sentDateTime = {date: ""};
     readDateTime: Date | undefined = undefined;
     status: string = '';
     sender: Account = new Account();

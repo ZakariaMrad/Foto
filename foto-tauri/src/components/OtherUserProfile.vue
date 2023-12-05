@@ -58,7 +58,11 @@
                             <v-row>
                                 <v-col v-for="post in posts" cols="12" md="4">
                                     <v-img @click="openPostModal(post.idPost)"
-                                        v-if="post.owner.idAccount == account?.idAccount" :src="`${post.foto.path}`"
+
+                                        v-if="post.owner.idAccount == account?.idAccount"
+                                        :src="`${post.foto.path}`" 
+                                        :style="{filter: 'saturate(' + post.foto.saturation +'%) contrast(' + post.foto.contrast +'%) brightness(' + post.foto.exposition +'%)'}"
+
                                         aspect-ratio="2"></v-img>
                                 </v-col>
                             </v-row>

@@ -7,7 +7,6 @@ export class Repository {
     // protected url = 'https://foto.1839783.techinfo-cstj.ca';
     protected url = 'http://127.0.0.1:8000';
 
-
     protected getAPIError(errors: any): APIError[] {
         let keys = Object.keys(errors);
         let errorsArray: APIError[] = [];

@@ -12,7 +12,9 @@
                         <v-window-item value="0">
                             <v-carousel hide-delimiters height="100%" v-if="album.fotos?.length !== 0">
                                 <v-carousel-item v-for="(foto, i) in album.fotos" :key="i - 1">
-                                    <v-img :src="foto.path" aspect-ratio="3"></v-img>
+                                    <v-img :src="foto.path" aspect-ratio="3"
+                                    :style="{filter: 'saturate(' + foto.saturation +'%) contrast(' + foto.contrast +'%) brightness(' + foto.exposition +'%)'}"
+                            ></v-img>
                                 </v-carousel-item>
                             </v-carousel>
                         </v-window-item>

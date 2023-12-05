@@ -69,7 +69,9 @@ function readFiles() {
     files.value.forEach((file, index) => {
         const reader = new FileReader();
         reader.onloadend = function() {
-            pictures.value[index] = new EditedPicture(file.name, (reader.result as string));
+            const fotoName = (file.name.substring(0, file.name.lastIndexOf('.')) || file.name);
+            pictures.value[index] = new EditedPicture(fotoName, (reader.result as string));
+            
         }
         if (file) {
             reader.readAsDataURL(file);
@@ -97,7 +99,7 @@ function openEditModal(index: number) {
     eventBusEmit(Events.OPEN_EDIT_MODAL, pictures.value[index]);
 }
 
-function uploadFotos() {
+async function uploadFotos() {
     //TODO: Webworker
     
     pictures.value.forEach(async (picture) => {
@@ -105,11 +107,16 @@ function uploadFotos() {
         foto.name = picture.name;
         foto.description = picture.description;
         foto.base64image = picture.base64;
+        foto.original64image = picture.originalBase64;
+        foto.saturation = picture.saturation;
+        foto.exposition = picture.exposition;
+        foto.contrast = picture.contrast;
 
         let response = await FotoRepository.uploadFotos(foto);
         
         if (response.success) {
             removeAllFiles();
+            console.log("test");
             router.push({ name: 'profil', query: { tab: 'fotos' }});
         }
     })
