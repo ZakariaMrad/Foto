@@ -68,8 +68,6 @@ class PostController extends AbstractController
             $post->setAlbum($album);
         }
 
-
-
         $post->setCreationDate(new \DateTime());
         $post->setOwner($user);
 

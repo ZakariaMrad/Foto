@@ -12,7 +12,7 @@
                         <v-card-actions>
                             <v-spacer></v-spacer>
 
-                            <v-list>{{ post.likes }}</v-list>
+                            <v-list>{{ post.likes.length }}</v-list>
                             <v-btn size="small" :color="post?.isLiked ? 'red' : 'surface-variant'" variant="text"
                                 icon="mdi-heart" @click="toggleLike()"></v-btn>
 
@@ -64,16 +64,6 @@ function closeDialog() {
 }
 
 function toggleLike() {
-    if (!props.post)
-        return;
-
-    if (props.post.isLiked) {
-        props.post.isLiked = false;
-        props.post.likes--;
-    } else {
-        props.post.isLiked = true;
-        props.post.likes++;
-    }
 }
 </script>
 

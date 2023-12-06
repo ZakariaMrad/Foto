@@ -26,7 +26,7 @@ class LikeController extends AbstractController
         $this->jwtHandler = new JWTHandler($jwtEncoder);
     }
 
-    #[Route('/like', name: 'app_like_create', methods: ['POST'])]
+    #[Route('/likes', name: 'app_like_create', methods: ['POST'])]
     public function createLike(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -38,16 +38,11 @@ class LikeController extends AbstractController
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        unset($data['idLike']);
+        
         $like = new Like();
-        $form = $this->createForm(LikeFormType::class, $like);
-        $formHandler = new FormHandler($form);
-        if (!$formHandler->handle($data)) {
-            return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST);
-        }
-
         $postId = $data['post']['idPost'];
         $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+
         if (!$user) {
             return $this->json([
                 'error' => ['Erreur: Compte non trouvé.'],
@@ -60,7 +55,6 @@ class LikeController extends AbstractController
                 'error' => ['Erreur: Post non trouvé.'],
             ], JsonResponse::HTTP_NOT_FOUND);
         }
-
 
         $user->addLike($like);
 
@@ -76,10 +70,10 @@ class LikeController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/like/{idLike}', name: 'app_like_delete', methods: ['DELETE'])]
+    #[Route('/likes/{idLike}', name: 'app_like_delete', methods: ['DELETE'])]
     public function removeLike(Request $request ,$idLike): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data["jwtToken"] = $request->query->get('jwtToken');
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
 
         if (!$hasSucceded) {
@@ -102,6 +96,53 @@ class LikeController extends AbstractController
         return $this->json([
             'jwtToken' => $newJWT,
             'message' => 'Like retiré avec succès',
+        ], JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/likes', name: 'app_like_get', methods: ['GET'])]
+    public function getLikeByUserPost(Request $request): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $idUser = $request->query->get('idUser');
+        $idPost = $request->query->get('idPost');
+        if (!$idUser || !$idPost)
+            return $this->json([
+                'error' => ['Erreur: Like non trouvé. AUCUN PARAM'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+
+        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $post = $this->getPostById($idPost);
+        if (!$post) {
+            return $this->json([
+                'error' => ['Erreur: Post non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+        
+        $like = $this->em->getRepository(Like::class)->findOneBy(['user' => $user, 'post' => $post]);
+        if (!$like) {
+            return $this->json([
+                'error' => ['Erreur: Like non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $like = $like->getAll();
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'like' => $like,
         ], JsonResponse::HTTP_OK);
     }
 

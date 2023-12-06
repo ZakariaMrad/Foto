@@ -2,6 +2,8 @@ import { APIResponse } from "../core/API/APIResponse";
 import Account from "./Account";
 import Album from "./Album";
 import Foto from "./Foto";
+import Like from "./Like";
+import Comment from "./Comment";
 import { JWTToken } from "./JWTToken";
 
 export default class Post extends JWTToken implements APIResponse{
@@ -11,7 +13,7 @@ export default class Post extends JWTToken implements APIResponse{
     creationDate: Date = new Date();
     foto:Foto = new Foto();
     album:Album = new Album();
-    likes: number = (Math.floor(Math.random() * 31));
+    likes: Like[] = [];
     isLiked: boolean = false;
     comments: Comment[] = [];
 }

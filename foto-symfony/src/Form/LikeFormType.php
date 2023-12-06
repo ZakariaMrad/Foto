@@ -19,13 +19,11 @@ class LikeFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('user', EntityType::class, [
-                'class' => User::class,
+            ->add('idUser', NumberType::class, [
                 'required' => true,
                 'mapped' => false
             ])
-            ->add('post', EntityType::class, [
-                'class' => Post::class,
+            ->add('idPost', NumberType::class, [
                 'required' => true,
                 'mapped' => false
             ])
@@ -38,7 +36,7 @@ class LikeFormType extends AbstractType
             'data_class' => Like::class,
             'constraints' => [
                 new UniqueEntity([
-                    'fields' => ['user', 'post'],
+                    'fields' => ['idUser', 'idPost'],
                     'message' => 'Like déjà envoyé'
                 ])
             ]
