@@ -5,6 +5,7 @@ import { APIResult } from "../core/API/APIResult";
 import { JWTToken } from "../models/JWTToken";
 import { APIError } from "../core/API/APIError";
 import AccountRepository from "./AccountRepository";
+import Account from "../models/Account";
 
 
 const client = await getClient();
@@ -40,8 +41,8 @@ class PostRepository extends Repository {
         //?Was In URl ?jwtToken=${jwt.data.jwtToken}
 
         let result = await AccountRepository.getAccount(); 
-        if (!result.success) return  { errors: [], success: false };
-        const account = result.data;
+        let connectedAccount: Account | undefined = undefined;
+        if (result.success) connectedAccount = result.data;
         try {
             const response = await client.get(`${this.url}/posts`, { responseType: ResponseType.JSON });
             let data = response.data as any;
@@ -50,8 +51,10 @@ class PostRepository extends Repository {
             data.posts.forEach( (post: Post) => {
                 post.isLiked = false;
                 post.likes.forEach(like => {
-                    if (like.user.idAccount === account.idAccount)
+                    if (connectedAccount) {
+                        if (like.user.idAccount === connectedAccount.idAccount)
                         post.isLiked = true;
+                    }
                 })
             });
 

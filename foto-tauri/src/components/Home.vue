@@ -45,10 +45,12 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), async () => {
 
 async function getPosts() {
     let apiResponse = await PostRepository.getPosts();
-    if (!apiResponse.success) return;
+    if (!apiResponse.success) {
+        console.log(apiResponse.errors);
+        return;
+    };
     posts.value = apiResponse.data;
     console.log(' post', posts.value);
-    
 }
 
 
