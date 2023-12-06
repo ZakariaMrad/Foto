@@ -13,7 +13,7 @@
                         <v-card-actions>
                             <v-spacer></v-spacer>
 
-                            <v-list>{{ post.likes.length }}</v-list>
+                            <v-list>{{ likes }}</v-list>
                             <v-btn size="small" :color="post?.isLiked ? 'red' : 'surface-variant'" variant="text"
                                 icon="mdi-heart" @click="toggleLike()"></v-btn>
 
@@ -38,9 +38,13 @@
 import { ref, onMounted } from 'vue';
 import Post from '../../models/Post';
 import PostRepository from '../../repositories/PostRepository';
+import Like from '../../models/Like';
+import AccountRepository from '../../repositories/AccountRepository';
+import LikeRepository from '../../repositories/LikeRepository';
 
 const emit = defineEmits(['closeDialog'])
 const posts = ref<Post[]>([])
+const likes = ref<number>(0);
 
 
 const props = defineProps({
@@ -55,6 +59,8 @@ onMounted(async () => {
     let apiPostResponse = await PostRepository.getPosts();
     if (!apiPostResponse.success) return;
     posts.value = apiPostResponse.data;
+    if (!props.post) return;
+    likes.value = props.post?.likes.length;
 
 })
 
@@ -63,7 +69,42 @@ function closeDialog() {
     emit('closeDialog');
 }
 
-function toggleLike() {
+async function toggleLike() {
+    if (!props.post) return;
+    if (!props.post.isLiked) {
+        let result = await AccountRepository.getAccount(); 
+        if (!result.success) return;
+        const account = result.data;
+
+        const like =  new Like();
+        like.post = props.post;
+        like.user = account;
+        let apiResult = await LikeRepository.uploadLike(like);
+        if (!apiResult.success) {
+            console.log("LIKE HAS FAILED");
+            return
+        }
+        props.post.isLiked = true;
+        likes.value++;
+    } else if (props.post.isLiked) {
+        console.log("DELETE LIKE");
+        let result = await AccountRepository.getAccount(); 
+        if (!result.success) return;
+        const account = result.data;
+
+        const likeResult = await LikeRepository.getLike(account.idAccount, props.post.idPost);
+        if (!likeResult.success) return;
+        const like = likeResult.data?.idLike;
+        if (!like) return;
+
+        const deleteResult = await LikeRepository.deleteLike(like);
+        if (!deleteResult.success) {
+            console.log("DELETE LIKE HAS FAILED");
+            return
+        }
+        props.post.isLiked = false;
+        likes.value--;
+    }
 }
 </script>
 
