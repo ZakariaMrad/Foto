@@ -14,6 +14,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
+import { useTheme } from 'vuetify'
 import { EventsBus, Events } from './core/EventBus';
 import LoginRegister from './components/modals/LoginRegister.vue';
 import AccountRepository from './repositories/AccountRepository';
@@ -26,12 +27,27 @@ import Admin from './components/modals/Admin.vue';
 import router from './router';
 import EditedPicture from './models/EditedPicture';
 import PostModal from './components/modals/PostModal.vue';
-
 import DeleteFollow from './components/modals/DeleteFollow.vue';
-
 import Comments from './components/modals/Comments.vue';
-
 import {v1} from 'uuid'; 
+import ThemeRepository from './repositories/ThemeRepository';
+
+const theme = useTheme()
+
+onMounted(async () => {
+  theme.global.name.value = 'dark';
+
+  let apiResponse = await ThemeRepository.getTheme();
+  if (!apiResponse.success) return;
+  theme.global.name.value = apiResponse.data;
+  AccountRepository.startConnectionFlow(async () => {
+      let apiResponse = await AccountRepository.getAccount();
+      if (!apiResponse.success) return;
+      console.log('connected account', apiResponse.data);
+      
+
+  }, 5*60*1000); // replace 1000 with the desired interval in milliseconds
+})
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);

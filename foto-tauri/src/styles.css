@@ -8,4 +8,5 @@ body {
     -moz-user-select: none; /* for Firefox */
     -ms-user-select: none; /* for Microsoft Edge */
     user-select: none; /* for other browsers */
+    background-color: #121212;
   }
