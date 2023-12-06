@@ -39,11 +39,7 @@ class Foto
     #[ORM\Column(name:'isNSFW')]
     private ?bool $isNSFW = null;
 
-    // #[ORM\JoinTable(
-    //     name: 'albumFotos',
-    //     joinColumns: [new ORM\JoinColumn(name: 'idFoto', referencedColumnName: 'idFoto')],
-    //     inverseJoinColumns: [new ORM\JoinColumn(name: 'idAlbum', referencedColumnName: 'idAlbum')]
-    // )]
+
     #[ORM\JoinTable(name:'albumFotos')]
     #[ORM\JoinColumn(name:'idFoto',referencedColumnName:'idFoto')]
     #[ORM\InverseJoinColumn(name:'idAlbum',referencedColumnName:'idAlbum')]
@@ -57,6 +53,15 @@ class Foto
     #[ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')]
     private ?User $user = null;
 
+    #[ORM\Column]
+    private ?int $exposition = null;
+
+    #[ORM\Column]
+    private ?int $contrast = null;
+
+    #[ORM\Column]
+    private ?int $saturation = null;
+
     public function __construct()
     {
         $this->albums = new ArrayCollection();
@@ -69,9 +74,13 @@ class Foto
             'name' => $this->name,
             'description' => $this->description,
             'path' => $this->path,
+            'originalPath' => $this->originalPath,
             'modificationDate' => $this->modificationDate,
             'uploadDate' => $this->uploadDate,
             'isNSFW' => $this->isNSFW,
+            'exposition' => $this->exposition,
+            'saturation' => $this->saturation,
+            'contrast' => $this->contrast
         ];
     }
 
@@ -79,7 +88,6 @@ class Foto
     {
         return $this->idFoto;
     }
-
 
     public function getName(): ?string
     {
@@ -230,6 +238,42 @@ class Foto
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getExposition(): ?int
+    {
+        return $this->exposition;
+    }
+
+    public function setExposition(int $exposition): static
+    {
+        $this->exposition = $exposition;
+
+        return $this;
+    }
+
+    public function getContrast(): ?int
+    {
+        return $this->contrast;
+    }
+
+    public function setContrast(int $contrast): static
+    {
+        $this->contrast = $contrast;
+
+        return $this;
+    }
+
+    public function getSaturation(): ?int
+    {
+        return $this->saturation;
+    }
+
+    public function setSaturation(int $saturation): static
+    {
+        $this->saturation = $saturation;
 
         return $this;
     }

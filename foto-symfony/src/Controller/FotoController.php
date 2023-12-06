@@ -40,6 +40,7 @@ class FotoController extends AbstractController
         unset($data['description']);
         unset($data['idFoto']);
         unset($data['path']);
+        unset($data['originalPath']);
 
         $foto = new Foto();
         $form = $this->createForm(CreateFotoFormType::class, $foto);
@@ -68,6 +69,18 @@ class FotoController extends AbstractController
         $success = file_put_contents($path, $fotoImage);
 
         $foto->setPath($_ENV['BASE_URL']."/img/foto/".$newFilename);
+
+        $original64String = $data['original64image'];
+        list($type, $original64String) = explode(';', $original64String);
+        list(, $original64String)      = explode(',', $original64String);
+        $originalFotoImage = base64_decode($original64String);
+
+        $safeFilename = $slugger->slug($data['name']);
+        $newFilename = $safeFilename . "-" . uniqid() . "." . explode('/', $type)[1];
+        $path = $this->getParameter('foto_image_directory') . "/" . $newFilename;
+        $success = file_put_contents($path, $originalFotoImage);
+
+        $foto->setOriginalPath($_ENV['BASE_URL']."/img/foto/".$newFilename);
         
         $this->em->persist($foto);
         $this->em->flush();
@@ -136,7 +149,7 @@ class FotoController extends AbstractController
             $foto = $this->em->getRepository(Foto::class)->findOneBy(['idFoto' => $idFoto]);
             if (!$foto) {
                 return $this->json([
-                    'error' => ['Erreur: Foto avec id '. $idFoto.' non trouvée.'],
+                    'error' => ['Erreur: Foto avec id '. $idFoto.' non trouvé.'],
                 ], JsonResponse::HTTP_NOT_FOUND);
             }
             $fotos[] = $foto;

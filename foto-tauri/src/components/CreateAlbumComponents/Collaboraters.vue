@@ -4,7 +4,7 @@
             <form @submit.prevent="submitFn">
 
                 <v-card-text>
-                    <SelectAccountSpectateCollab :isPublic="props.album.isPublic!"
+                    <SelectAccountSpectateCollab :isPublic="props.album.isPublic!" :disabled="props.disabled"
                         @collaboraters="(collaboraters) => addCollaboraters(collaboraters)"
                         @spectators="(spectators) => addSpectators(spectators)" />
                 </v-card-text>
@@ -26,7 +26,7 @@ import { useFormHandler } from 'vue-form-handler'
 import Account from '../../models/Account';
 import SelectAccountSpectateCollab from './SelectAccountSpectateCollab.vue';
 
-const props = defineProps<{ album: Partial<Album> }>()
+const props = defineProps<{ album: Partial<Album>, disabled: boolean }>()
 
 const { register, handleSubmit, formState, unregister } = useFormHandler({
     validationMode: 'always',
@@ -58,7 +58,7 @@ const emit = defineEmits<{ (event: 'nextStep', album: Partial<Album>): void, (ev
 onMounted(async () => {
     register('collaboraters', { defaultValue: [] })
     register('spectators', { defaultValue: [] })
-    console.log(props.album.isPublic);
+    console.log('ispublic',props.album);
     
 })
 

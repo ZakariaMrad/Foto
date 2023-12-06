@@ -50,6 +50,9 @@ class Post
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
+    #[ORM\Column]
+    private ?bool $isDeleted = null;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
@@ -62,7 +65,14 @@ class Post
             "owner" => $this->owner->getAll(),
             "description" => $this->description,
             "creationDate" => $this->creationDate,
-            "foto" => $this->foto->getAll(),
+            "foto" => $this->foto ? $this->foto->getAll() : null,
+            "album" => $this->album ? $this->album->getAll() : null,
+            "comments" => array_map(function ($comment) {
+                return $comment->getAll();
+            }, $this->comments->toArray()),
+            "likes" => array_map(function ($like) {
+                return $like->getAll();
+            }, $this->likes->toArray())
         ];
     }
 
@@ -223,6 +233,18 @@ class Post
     public function setTitle(string $title): static
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function isIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): static
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }

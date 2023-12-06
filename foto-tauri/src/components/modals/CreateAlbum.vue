@@ -3,6 +3,8 @@
         <v-card>
             <v-card-text>
                 <h3 class="text-center" md="12">Créer un album</h3>
+                <p class="text-danger">{{ errorMessage }}</p>
+                <p class="text-success">{{ successMessage }}</p>
                 <v-responsive :aspect-ratio="3 / 1">
                     <v-card height="99%">
                         <v-tabs v-model="tab"  color="deep-purple-accent-4" fixed-tabs>
@@ -19,28 +21,28 @@
                         <v-card-text>
                             <v-window v-model="tab">
                                 <v-window-item value="0">
-                                    <Information :album="albumInProgress" @next-step="(album) => infoToFotos(album)"
+                                    <Information :key="v1()" :album="albumInProgress" @next-step="(album) => infoToFotos(album)"
                                         @close-dialog="closeDialog()" />
                                 </v-window-item>
 
                                 <v-window-item value="1">
-                                    <PickFotos :key="fotosKey" :album="albumInProgress"
+                                    <PickFotos :key="v1()" :album="albumInProgress"
                                         @next-step="(album) => fotoToDisplay(album)" @close-dialog="closeDialog()"
                                         @back="fotosToInfo()" />
                                 </v-window-item>
 
                                 <v-window-item value="2">
-                                    <Display :key="displayKey" :album="albumInProgress"
+                                    <Display :key="v1()" :album="albumInProgress"
                                         @next-step="(album) => displayToCollaboraters(album)" @close-dialog="closeDialog()"
                                         @back="displayToFotos()" />
                                 </v-window-item>
-                                <v-window-item value="3">
-                                    <Collaboraters :key="collaboratersKey" :album="albumInProgress"
+                                <v-window-item value="3" :disabled="collabDisabled">
+                                    <Collaboraters :key="v1()" :album="albumInProgress" :disabled="false"
                                         @next-step="(album) => collaboratersToFinalization(album)"
                                         @close-dialog="closeDialog()" @back="collaboratersToDisplay()" />
                                 </v-window-item>
                                 <v-window-item value="4">
-                                    <Finalization :key="finalizationKey" :album="(albumInProgress)"
+                                    <Finalization :key="v1()" :album="(albumInProgress)"
                                         @next-step="(album) => finalization(album)" @close-dialog="closeDialog()"
                                         @back="finalizationToCollaboraters()" />
                                 </v-window-item>
@@ -54,13 +56,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import {  ref } from 'vue';
 import Information from '../CreateAlbumComponents/Information.vue';
 import Album from '../../models/Album';
 import PickFotos from '../CreateAlbumComponents/PickFotos.vue';
 import Display from '../CreateAlbumComponents/Display.vue';
 import Collaboraters from '../CreateAlbumComponents/Collaboraters.vue';
 import Finalization from '../CreateAlbumComponents/Finalization.vue';
+import { EventsBus, Events } from '../../core/EventBus';
+import {v1} from 'uuid';
+
+//@ts-ignore
+import delay from 'delay';
+import AlbumRepository from '../../repositories/AlbumRepository';
+
+const { eventBusEmit } = EventsBus();
 
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
@@ -72,8 +82,12 @@ const fotosKey = ref<number>(0);
 const displayKey = ref<number>(0);
 const collaboratersKey = ref<number>(0);
 const finalizationKey = ref<number>(0);
+const collabDisabled = ref<boolean>(false);
+    const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 
 const disabledTabs = ref<{ infos: boolean, fotos: boolean, display: boolean, collaboraters: boolean, finalization: boolean }>({ infos:false, fotos: true, display: true, collaboraters: true, finalization: true });
+
 
 function infoToFotos(album: Partial<Album>) {
     tab.value = 1;
@@ -85,65 +99,76 @@ function infoToFotos(album: Partial<Album>) {
     
 }
 function fotosToInfo() {
-    tab.value = 0;
     disabledTabs.value.infos = false;
     disabledTabs.value.fotos = true;
-    fotosKey.value++;
     console.log(disabledTabs.value);
+    fotosKey.value++;
+    tab.value = 0;
 }
 
 function fotoToDisplay(album: Partial<Album>) {
-    tab.value = 2;
     disabledTabs.value.display = false;
     disabledTabs.value.fotos = true;
     console.log(album);
     albumInProgress.value = album;
+    tab.value = 2;
 }
 function displayToFotos() {
-    tab.value = 1;
     disabledTabs.value.display = true;
     disabledTabs.value.fotos = false;
+    fotosKey.value++;
     displayKey.value++;
+    tab.value = 1;
 }
 function displayToCollaboraters(album: Partial<Album>) {
-    tab.value = 3;
     disabledTabs.value.collaboraters = false;
     disabledTabs.value.display = true;
     console.log(album);
     albumInProgress.value = album;
+    tab.value = 3;
 }
 function collaboratersToDisplay() {
-    tab.value = 2;
     disabledTabs.value.collaboraters = true;
     disabledTabs.value.display = false;
+    displayKey.value++;
     collaboratersKey.value++;
+    tab.value = 2;
 }
 function collaboratersToFinalization(album: Partial<Album>) {
-    tab.value = 4;
     disabledTabs.value.finalization = false;
     disabledTabs.value.collaboraters = true;
     console.log(album);
     albumInProgress.value = album;
+    tab.value = 4;
 }
 function finalizationToCollaboraters() {
-    tab.value = 3;
     disabledTabs.value.finalization = true;
     disabledTabs.value.collaboraters = false;
+    collaboratersKey.value++;
     finalizationKey.value++;
+    tab.value = 3;
 }
 
-function finalization(album: Partial<Album>) {
+async function finalization(album: Partial<Album>) {
+    albumInProgress.value = album;
+    let apiResult = await AlbumRepository.createAlbum(album as Album);
+    if (!apiResult.success) {
+        errorMessage.value = apiResult.errors![0].message;
+        return
+    }
+    //@ts-ignore
+    successMessage.value = apiResult.data!.message;
+    await delay(2000);
     tab.value = 0;
     disabledTabs.value = { infos:true,fotos: true, display: true, collaboraters: true, finalization: true };
-    console.log(album);
-    albumInProgress.value = album;
-
+    eventBusEmit(Events.RELOAD_ALBUMS)
     emit('closeDialog');
 }
 function closeDialog() {
     albumInProgress.value = {};
     disabledTabs.value = { infos:true,fotos: true, display: true, collaboraters: true, finalization: true };
     tab.value = 0;
+
     emit('closeDialog');
 }
 

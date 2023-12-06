@@ -7,6 +7,14 @@ export default class Foto extends JWTToken implements APIResponse{
     description: string = '';
     path?: string = '';
     base64image?: string = '';
+    original64image?: string = '';
+    originalPath?: string = '';
     isNSFW: boolean = false;
+
+    saturation: number = 0;
+    exposition: number = 0;
+    contrast: number = 0;
+
+    uploadDate? = {date: ""};
     declare message?: string | undefined;
 }

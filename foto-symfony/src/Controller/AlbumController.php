@@ -27,17 +27,8 @@ class AlbumController extends AbstractController
         $this->em = $doctrine->getManager();
         $this->jwtHandler = new JWTHandler($jwtEncoder);
     }
-    #[Route('/album', name: 'app_get_album', methods: ['GET'])]
-    public function getAlbum(): JsonResponse
-    {
-        $album = $this->getAlbumById(3);
-        // dd($album);
-        return $this->json([
-            'album' => $album->getAll(),
-            'message' => 'Album créé avec succès.'
-        ], JsonResponse::HTTP_OK);
-    }
 
+    
     #[Route('/album', name: 'app_create_album', methods: ['POST'])]
     public function index(Request $request, ValidatorInterface $validator): JsonResponse
     {
@@ -56,6 +47,7 @@ class AlbumController extends AbstractController
         unset($data['spectators']);
         $grid = $data['grid'] ?? null;
         unset($data['grid']);
+        unset($data['isPublic']);
 
         $album = new Album();
         $form = $this->createForm(CreateAlbumFormType::class, $album);
@@ -75,14 +67,136 @@ class AlbumController extends AbstractController
             $album->addSpectator($this->getUserById($spectator['idAccount']));
         }
         $album->setGrid($grid);
+        $album->setIsPublic(true);
+        $album->setIsDeleted(false);
         
         $this->em->persist($album);
         $this->em->flush();
-        dd($album);
-
         return $this->json([
             'jwtToken' => $newJWT,
             'message' => 'Album créé avec succès.'
+        ], JsonResponse::HTTP_OK);
+    }
+    #[Route('/modifyalbum/{idAlbum}', name: 'app_modify_album', methods: ['POST'])]
+    public function modAlbum($idAlbum,Request $request, ValidatorInterface $validator): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+        $fotos = $data['fotos'];
+        unset($data['fotos']);
+        $collaborators = $data['collaborators'];
+        unset($data['collaborators']);
+        unset($data['collaboraters']);
+        $spectators = $data['spectators'];
+        unset($data['spectators']);
+        $grid = $data['grid'] ?? null;
+        unset($data['grid']);
+        unset($data['isPublic']);
+        unset($data['idAlbum']);
+        $creationDate = $data['creationDate'];
+        unset($data['creationDate']);
+
+        $owner = $data['owner'];
+        unset($data['owner']);
+        // return $this->json([
+        //     'error' => [$creationDate],
+        // ], JsonResponse::HTTP_UNAUTHORIZED);
+        $album = new Album();
+        $form = $this->createForm(CreateAlbumFormType::class, $album);
+        $formHandler = new FormHandler($form);
+        if (!$formHandler->handle($data)) {
+            return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
+        }
+        $album->setCreationDate(new \DateTime($creationDate["date"]));
+        $album->setOwner($this->getUserById($owner["idAccount"]));
+        foreach ($fotos as $foto) {
+            $album->addFoto($this->getFotoById($foto['idFoto']));
+        }
+        foreach ($collaborators as $collaborator) {
+            $album->addCollaborator($this->getUserById($collaborator['idAccount']));
+        }
+        foreach ($spectators as $spectator) {
+            $album->addSpectator($this->getUserById($spectator['idAccount']));
+        }
+        $album->setGrid($grid);
+        $album->setIsPublic(true);
+        $album->setIsDeleted(false);    
+        $this->em->remove($this->getAlbumById($idAlbum));
+        $this->em->flush();
+        $album->setIdAlbum($idAlbum);
+        $this->em->persist($album);
+        $this->em->flush();
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'message' => 'Album modifié avec succès.'
+        ], JsonResponse::HTTP_OK);
+    }
+    #[Route('/albums', name: 'app_album_get_all', methods: ['GET'])]
+    public function getAlbums(Request $request): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+        $albums = $user->getOwnedAlbums();
+        $albumArray = array_map(function (Album $album) {
+            return $album->getAll();
+        }, $albums->toArray());
+
+        $collaboratedAlbums = $user->getCollaboretedAlbums();
+        foreach ($collaboratedAlbums as $album) {
+            $albumArray[] = $album->getAll();
+        }
+        $spectatedAlbums = $user->getSpectatedAlbums();
+        foreach ($spectatedAlbums as $album) {
+            $albumArray[] = $album->getAll();
+        }
+
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'albums' => $albumArray,
+        ], JsonResponse::HTTP_OK);
+    }
+    #[Route('/album/{idAlbum}', name: 'app_album_delete', methods: ['DELETE'])]
+    public function deleteComplaint($idAlbum, Request $request): JsonResponse
+    {
+        $data["jwtToken"] = $request->query->get('jwtToken');
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $album = $this->em->getRepository(Album::class)->findOneBy(['idAlbum' => $idAlbum]);
+        if (!$album) {
+            return $this->json([
+                'error' => ['Erreur: L\'album n\'existe pas.'],
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $this->em->remove($album);
+        $this->em->flush();
+
+        return $this->json([
+            'jwtToken' => $newJWT,
+            'message' => 'Album supprimé avec succès.'
         ], JsonResponse::HTTP_OK);
     }
     private function getUserById(int $idUser): ?User

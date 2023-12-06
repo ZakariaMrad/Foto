@@ -4,7 +4,7 @@
             <v-col cols="2">
                 <v-sheet class="pa-2 ma-2">
                     <v-avatar size="150">
-                        <v-img src="https://randomuser.me/api/portraits/women/85.jpg" alt="Sandra Adams"></v-img>
+                        <v-img :src="connectedAccount?.picturePath" alt="Sandra Adams"></v-img>
                     </v-avatar>
                 </v-sheet>
             </v-col>
@@ -16,11 +16,15 @@
                     </v-col>
                     <v-col cols="6" class="text-lg-right">
 
+
                         <v-menu open-on-hover>
                             <template v-slot:activator="{ props }">
                                 <v-btn color="primary" icon="mdi-dots-horizontal" v-bind="props">
                                 </v-btn>
-                                <v-btn class="ms-2" color="red-darken-3" v-if="isAdmin" @click="openAdminPage()">Admin</v-btn>
+
+                                <v-btn class="ms-2" color="red-darken-3" v-if="isAdmin"
+                                    @click="openAdminPage()">Admin</v-btn>
+
                             </template>
 
                             <v-list>
@@ -30,22 +34,23 @@
                                 </v-list-item>
                             </v-list>
                         </v-menu>
+
                     </v-col>
                 </v-row>
                 <v-row cols="12" class="pa-3 font-weight-bold">
                     <v-col cols="4">
                         <p>
-                            120 Publications
+                            {{ posts.filter((post: Post) => post.owner.idAccount == connectedAccount?.idAccount).length }} Publications
                         </p>
                     </v-col>
                     <v-col cols="4">
                         <p>
-                            752 Suiveurs
+                            0 Suiveurs
                         </p>
                     </v-col>
                     <v-col cols="4">
                         <p>
-                            1,5K Suivis
+                            {{ connectedAccount?.friends.length }} Suivis
                         </p>
                     </v-col>
                 </v-row>
@@ -61,20 +66,44 @@
         </v-row>
         <v-row justify="center">
             <v-col cols="10">
-                <v-tabs color="deep-purple-accent-4" align-tabs="center">
-                    <v-tab :value="1">Photos</v-tab>
-                    <v-tab :value="2">Albums</v-tab>
+                <v-tabs color="deep-purple-accent-4" align-tabs="center" v-model="tab">
+                    <v-tab value="posts">Publications</v-tab>
+                    <v-tab value="albums">Albums</v-tab>
+                    <v-tab value="fotos">Portefolio</v-tab>
                 </v-tabs>
-                <v-window>
-                    <v-window-item v-for="n in 3" :key="n" :value="n">
+                <v-window v-model="tab">
+                    <v-window-item key="1" value="posts">
                         <v-container fluid>
                             <v-row>
-                                <v-col v-for="i in 34" :key="i" cols="12" md="4">
-                                    <v-img :src="`https://picsum.photos/500/300?image=${i * n * 5 + 10}`"
-                                        :lazy-src="`https://picsum.photos/10/6?image=${i * n * 5 + 10}`"
-                                        aspect-ratio="2"></v-img>
+                                <v-col v-for="post in posts" cols="12" md="4">
+                                    <v-img @click="openPostModal(post.idPost)"
+                                        v-if="post.owner.idAccount == connectedAccount?.idAccount"
+                                        :src="`${post.foto.path}`" aspect-ratio="2"
+                                        :style="{ filter: 'saturate(' + post.foto.saturation + '%) contrast(' + post.foto.contrast + '%) brightness(' + post.foto.exposition + '%)' }"></v-img>
                                 </v-col>
                             </v-row>
+                        </v-container>
+                    </v-window-item>
+
+                    <v-window-item key="2" value="albums">
+                        <v-container fluid class="mt-3">
+                            <v-row justify="center">
+                                <v-btn prepend-icon="mdi-plus-box" @click="createAlbum">
+                                    Créer un album
+                                </v-btn>
+                            </v-row>
+                            <AlbumList />
+                        </v-container>
+                    </v-window-item>
+
+                    <v-window-item key="3" value="fotos">
+                        <v-container fluid class="mt-3">
+                            <v-row justify="center">
+                                <v-btn prepend-icon="mdi-plus-box" @click="createPost">
+                                    Créer une publication
+                                </v-btn>
+                            </v-row>
+                            <AssetLister :items="fotos" title="" />
                         </v-container>
                     </v-window-item>
                 </v-window>
@@ -88,17 +117,49 @@ import { watch, ref, onMounted } from 'vue';
 import { EventsBus, Events } from '../core/EventBus';
 import Account from '../models/Account';
 import AccountRepository from '../repositories/AccountRepository';
+import Post from '../models/Post';
+import PostRepository from '../repositories/PostRepository';
+import FotoRepository from '../repositories/FotoRepository';
+import Foto from '../models/Foto';
+import AssetLister from './AssetLister.vue';
+import { useRoute } from 'vue-router';
+import AlbumList from './AlbumList.vue';
 
 const { eventBusEmit, bus } = EventsBus();
 
 const connectedAccount = ref<Account>()
+const posts = ref<Post[]>([])
 const isAdmin = ref<boolean>(false)
+const fotos = ref<Foto[]>([]);
+const tab = ref<string>();
 
 onMounted(async () => {
+    const query = useRoute().query;
+    console.log(query);
+    if (query.tab) {
+        console.log(query.tab);
+        if (query.tab === "fotos")
+            tab.value = query.tab;
+    }
+
     let apiResponse = await AccountRepository.isAdmin()
-    if (!apiResponse.success) return;
-    isAdmin.value = apiResponse.data
-})
+    console.log(apiResponse);
+    if (apiResponse.success)
+        isAdmin.value = apiResponse.data
+
+    let apiPostResponse = await PostRepository.getPosts();
+    if (apiPostResponse.success) {
+        posts.value = apiPostResponse.data;
+        posts.value = posts.value.filter((post: Post) => {
+            if (post.foto)
+                return post;
+            else
+                return;
+        });
+    }
+
+    await Promise.all([getFotos()]);
+});
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
     if (!account)
@@ -106,6 +167,11 @@ watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undef
 
     connectedAccount.value = account[0];
 })
+
+// watch(() => tab.value, (value) => {
+//     console.log("TEST TAB = " + value);
+// })
+
 
 const profileLinks = ref<{ icon: string, text: string, click: any }[]>(
     [
@@ -123,4 +189,27 @@ async function openAdminPage() {
 function openProfileModificationModal() {
     eventBusEmit(Events.OPEN_MODIFY_PROFILE_MODAL)
 }
+
+function openPostModal(idPost: number) {
+    eventBusEmit(Events.OPEN_POST_MODAL, idPost)
+}
+
+function createPost() {
+    eventBusEmit(Events.CREATE_POST)
+}
+function createAlbum() {
+    eventBusEmit(Events.CREATE_ALBUM)
+}
+
+async function getFotos() {
+    let apiResponse = await FotoRepository.getFotos()
+    if (!apiResponse.success) return
+    fotos.value = apiResponse.data
+}
 </script>
+
+<style scoped>
+img:hover {
+    cursor: pointer;
+}
+</style>

@@ -6,8 +6,9 @@
                 <v-row cols="12" class="pa-2">
                     <v-col cols="6">
                         <p class="ml-10">Choisir une photo de profile</p>
-                        <AssetPicker :itemSize="2" :items="fotos" :multiple="false"
-                            @items-selected="(items) => setItems(items)" label="Choisir une photo"></AssetPicker>
+                        <v-file-input label="Parcourir..." variant="solo" accept="image/png, image/jpeg, image/webp"
+                             chips prepend-icon="mdi-camera" v-model="files">
+                        </v-file-input>
                     </v-col>
                     <v-col cols="6">
                         <p>Ajouter une bio</p>
@@ -30,12 +31,9 @@
 import { ref, watch } from 'vue';
 import { APIError } from '../../core/API/APIError';
 import { useFormHandler } from 'vue-form-handler';
-import Foto from '../../models/Foto';
-import AssetPicker from '../AssetPicker.vue';
 import AccountRepository from '../../repositories/AccountRepository';
 import Account from '../../models/Account';
 import { Events, EventsBus } from '../../core/EventBus';
-import Album from '../../models/Album';
 
 
 
@@ -45,11 +43,10 @@ const loading = ref<boolean>(false)
 const errors = ref<APIError[]>([])
 const message = ref<string | undefined>('')
 const emit = defineEmits(['closeDialog'])
-const fotos = ref<Foto[]>([])
 const { eventBusEmit, bus } = EventsBus();
+const files = ref<File[]>([]);
 
 
-let choosenFotoId: number | undefined = undefined
 let account: Account | undefined;
 
 
@@ -58,7 +55,7 @@ const { register, handleSubmit, formState } = useFormHandler({
 })
 
 watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (value: Account[] | undefined) => {
-    console.log(value);
+    // console.log(value);
 
     if (!value) {
         account = undefined;
@@ -71,12 +68,13 @@ const props = defineProps({
     activate: Boolean
 })
 
-
-function setItems(items: (Foto | Album)[]) {
-    console.log(items);
-    if (!('idFoto' in items[0])) return;
-    choosenFotoId = items[0].idFoto
-    console.log(choosenFotoId);
+function fileToBase64(file : File) : Promise<string | ArrayBuffer | null> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 async function successFn(form: Partial<Account>) {
@@ -88,9 +86,11 @@ async function successFn(form: Partial<Account>) {
 
     console.log(completedAccount);
 
+    const base64 = await fileToBase64(files.value[0]);
+    if(!base64) return;
+    let apiResult = await AccountRepository.updateAccount(completedAccount as Account, base64)
+    console.log(apiResult);
 
-
-    let apiResult = await AccountRepository.updateAccount(completedAccount as Account)
     loading.value = false
     errors.value = []
     message.value = ''

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Album;
 use App\Entity\Foto;
 use App\Entity\Post;
 use App\Entity\User;
@@ -49,17 +50,27 @@ class PostController extends AbstractController
                 'error' => ['Erreur: Compte non trouvé.'],
             ], JsonResponse::HTTP_NOT_FOUND);
         }
-
-        $foto = $this->getFotoById($data['id']);
-        if (!$foto) {
-            return $this->json([
-                'error' => ['Erreur: Foto non trouvée.'],
-            ], JsonResponse::HTTP_NOT_FOUND);
+        if ($data['isFoto'] == 'true') {
+            $foto = $this->getFotoById($data['id']);
+            if (!$foto) {
+                return $this->json([
+                    'error' => ['Erreur: Foto non trouvée.'],
+                ], JsonResponse::HTTP_NOT_FOUND);
+            }
+            $post->setFoto($foto);
+        } else {
+            $album = $this->getAlbumById($data['id']);
+            if (!$album) {
+                return $this->json([
+                    'error' => ['Erreur: Album non trouvé.'],
+                ], JsonResponse::HTTP_NOT_FOUND);
+            }
+            $post->setAlbum($album);
         }
 
+        $post->setIsDeleted(false);
         $post->setCreationDate(new \DateTime());
         $post->setOwner($user);
-        $post->setFoto($foto);
 
         $this->em->persist($post);
         $this->em->flush();
@@ -73,6 +84,34 @@ class PostController extends AbstractController
     #[Route('/posts', name: 'app_post_get', methods: ['GET'])]
     public function getFotos(Request $request): JsonResponse
     {
+        // $data["jwtToken"] = $request->query->get('jwtToken');
+        // [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        // if (!$hasSucceded) {
+        //     return $this->json([
+        //         'error' => $this->jwtHandler->error,
+        //     ], JsonResponse::HTTP_UNAUTHORIZED);
+        // }
+
+        $posts = $this->getPosts();
+
+        //order the post by the inversed datetime (new post at the start of the array)
+        usort($posts, function ($a, $b) {
+            return $b->getCreationDate() <=> $a->getCreationDate();
+        });
+        $posts = array_map(function ($post) {
+            return $post->getAll();
+        }, $posts);
+
+
+        return $this->json([
+            // 'jwtToken' => $newJWT,
+            'posts' => $posts
+        ], JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/posts/{idPost}', name: 'app_post_get_one', methods: ['GET'])]
+    public function getPostById(Request $request, $idPost): JsonResponse
+    {
         $data["jwtToken"] = $request->query->get('jwtToken');
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
         if (!$hasSucceded) {
@@ -81,22 +120,15 @@ class PostController extends AbstractController
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        $posts = $this->em->getRepository(Post::class)->findAll();
-
-        //order the post by the inversed datetime (new post at the start of the array)
-        usort($posts, function($a,$b){
-            return $b->getCreationDate() <=> $a->getCreationDate();
-        });
-        $posts = array_map(function($post){
-            return $post->getAll();
-        },$posts);
-        
+        $post = $this->em->getRepository(Post::class)->findOneBy(['idPost' => $idPost]);
+        $post = $post->getAll();
 
         return $this->json([
             'jwtToken' => $newJWT,
-            'posts' => $posts
+            'post' => $post
         ], JsonResponse::HTTP_OK);
     }
+
     private function getUserById(int $idUser): ?User
     {
         return $this->em->getRepository(User::class)->findOneBy(['idUser' => $idUser]);
@@ -104,5 +136,13 @@ class PostController extends AbstractController
     private function getFotoById(int $idFoto): ?Foto
     {
         return $this->em->getRepository(Foto::class)->findOneBy(['idFoto' => $idFoto]);
+    }
+    private function getAlbumById(int $idAlbum): ?Album
+    {
+        return $this->em->getRepository(Album::class)->findOneBy(['idAlbum' => $idAlbum]);
+    }
+    private function getPosts(): array
+    {
+        return $this->em->getRepository(Post::class)->findBy(['isDeleted' => false]);
     }
 }

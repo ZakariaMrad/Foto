@@ -13,7 +13,9 @@ class AccountDatastore {
         try {  
             delete jwtToken.message;
             await accountStore.set('jwt_token', jwtToken);
-            await accountStore.save();            
+            await accountStore.save();     
+            console.log('jwt token saved', jwtToken);
+                   
         } catch (error) {
             console.log(error);
         }
@@ -24,5 +26,7 @@ class AccountDatastore {
         if (!jwtToken) return undefined;
         return jwtToken;
     }
+
+
 }
 export default new AccountDatastore();

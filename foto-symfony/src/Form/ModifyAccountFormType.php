@@ -14,12 +14,13 @@ class ModifyAccountFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('picturePath', TextType::class, [
+            ->add('image', TextType::class, [
                 'constraints' => [
                     new Assert\NotBlank([
                         'message' => 'Photo de profil : Veuillez entrer une photo de profil.',
                     ])
                 ],
+                'mapped' => false
             ])
             ->add('bio', TextType::class, [
                 'constraints' => [

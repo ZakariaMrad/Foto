@@ -2,6 +2,7 @@
 
 namespace App\Jwt;
 
+use App\Entity\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 
@@ -54,5 +55,14 @@ class JWTHandler
             'idUser'=>$idUser
         ];
         return $this->jwtEncoder->encode($payload);
+    }
+    public function createAdminToken(User $user){
+        $payload = [
+            'email' => $user->getEmail(),
+            'exp' => (new \DateTime())->getTimestamp() + $_ENV['JWT_TTL'],
+            'isAdmin'=>true
+        ];
+        return $this->jwtEncoder->encode($payload);
+
     }
 }

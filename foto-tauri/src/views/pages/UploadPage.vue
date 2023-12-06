@@ -11,28 +11,30 @@
                         chips
                         prepend-icon="mdi-camera"
                         v-model="files"
-                        @update:model-value="printFiles">
+                        @update:model-value="readFiles">
             </v-file-input>
         </div>
 
         <v-container>
             <v-row justify="center">
                 <v-col cols="3" v-for="(file, index) in files">
-                    <v-card>
+                    <v-card v-if="pictures[index]">
                         <v-img
+                            class="imgToUpload"
                             height="300"
-                            :src="(imgSrc[index] as string)"
+                            :src="pictures[index]?.base64"
+                            :style="{filter: 'saturate(' + pictures[index]?.saturation +'%) contrast(' + pictures[index]?.contrast +'%) brightness(' + pictures[index]?.exposition +'%)'}"
                             cover
                             >
                             <v-toolbar
                                 color="rgba(0, 0, 0, 0)"
                             >
                                 <template v-slot:prepend>
-                                    <v-btn variant="tonal" icon="mdi-pencil" @click="openEditModal(index)"></v-btn>
+                                    <v-btn class="toolbar-btn" variant="tonal" icon="mdi-pencil" @click="openEditModal(index)"></v-btn>
                                 </template>
 
                                 <template v-slot:append>
-                                    <v-btn variant="tonal" icon="$close" @click="removeFromFiles(file)"></v-btn>
+                                    <v-btn class="toolbar-btn" variant="tonal" icon="$close" @click="removeFromFiles(file)"></v-btn>
                                 </template>
                             </v-toolbar>
                         </v-img>
@@ -45,7 +47,6 @@
                 Téléverser
             </v-btn>
         </div>
-        
     </DefaultLayout>
 </template>
 
@@ -55,61 +56,99 @@ import { ref } from 'vue';
 import {EventsBus, Events} from '../../core/EventBus';
 import FotoRepository from '../../repositories/FotoRepository';
 import Foto from '../../models/Foto';
+import EditedPicture from '../../models/EditedPicture';
+import router from '../../router';
+
+
 const {eventBusEmit} = EventsBus();
 
-const imgSrc = ref<Array<string | null | ArrayBuffer>>([]);
-const files = ref([]);
+const pictures = ref<Array<EditedPicture>>([]);
+const files = ref<File[]>([]);
 
-function printFiles() {
+function readFiles() {
     files.value.forEach((file, index) => {
         const reader = new FileReader();
         reader.onloadend = function() {
-            imgSrc.value[index] = reader.result;
+            const fotoName = (file.name.substring(0, file.name.lastIndexOf('.')) || file.name);
+            pictures.value[index] = new EditedPicture(fotoName, (reader.result as string));
+            
         }
         if (file) {
             reader.readAsDataURL(file);
         } else {
-            imgSrc.value[index] = "";
+            delete pictures.value[index];
         }
-    })
+    });
+    console.log(pictures.value);
 }
 
 function removeFromFiles(file: File)
 {
     const index = files.value.findIndex((f) => f === file);
     files.value = files.value.filter((f) => f !== file);
-    imgSrc.value = imgSrc.value.filter((_, imgIndex) => imgIndex !== index)
+    pictures.value = pictures.value.filter((_, picIndex) => picIndex !== index)
 }
 
 function removeAllFiles()
 {
     files.value = [];
-    imgSrc.value = [];
+    pictures.value = [];
 }
 
 function openEditModal(index: number) {
-    eventBusEmit(Events.OPEN_EDIT_MODAL, imgSrc.value[index]);
+    eventBusEmit(Events.OPEN_EDIT_MODAL, pictures.value[index]);
 }
 
-function uploadFotos() {
+async function uploadFotos() {
     //TODO: Webworker
-    imgSrc.value.forEach(async (imgSrc, index) => {
+    
+    pictures.value.forEach(async (picture) => {
         let foto = new Foto();
-        foto.name = "test" + index;
-        foto.base64image = imgSrc as string;
+        foto.name = picture.name;
+        foto.description = picture.description;
+        foto.base64image = picture.base64;
+        foto.original64image = picture.originalBase64;
+        foto.saturation = picture.saturation;
+        foto.exposition = picture.exposition;
+        foto.contrast = picture.contrast;
 
         let response = await FotoRepository.uploadFotos(foto);
-        console.log(response);
         
-        if (response.success)
+        if (response.success) {
             removeAllFiles();
+            console.log("test");
+            router.push({ name: 'profil', query: { tab: 'fotos' }});
+        }
     })
+
     
 }
+
+/*
+function getBase64FromIndex(picture: EditedPicture, index: number) {
+    const images = document.getElementsByClassName("imgToUpload");
+    const imageToUpload = images[index].getElementsByTagName('img')[0]; 
+    var canvas = document.createElement('CANVAS') as HTMLCanvasElement;
+    canvas.height = imageToUpload.naturalHeight;
+    canvas.width = imageToUpload.naturalWidth;
+    var context = canvas.getContext('2d');
+    if (!context)
+        return;
+    //context.filter = `hue-rotate(-180deg) saturate(${picture.saturation}%) contrast(${picture.contrast}'%) brightness(${picture.exposition}%)`;
+    context.filter = window.getComputedStyle(images[index]).filter;
+    context.drawImage(imageToUpload, 1, 1);
+    console.log("Test de base64 = " + picture.base64 == canvas.toDataURL('image/jpeg'));
+    return canvas.toDataURL();
+
+}*/
 
 </script>
 
 <style scoped>
+
+.toolbar-btn {
+    mix-blend-mode: difference !important;
+}
 
 .image-input {
   margin-top: 100px;

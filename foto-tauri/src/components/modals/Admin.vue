@@ -13,20 +13,20 @@
                         <v-card-text>
                             <v-window v-model="tab">
                                 <v-window-item value="0">
-                                    <complaints/>
+                                    <complaints @reload-complaints="reload()"/>
                                 </v-window-item>
 
                                 <v-window-item value="1">
-                                    <userBlocking/>
+                                    <userBlocking :key="uuid"/>
                                 </v-window-item>
                             </v-window>
                         </v-card-text>
                     </v-card>
                 </v-responsive>
             </v-card-text>
-            <v-card-action>
+            <v-card-actions>
                 <v-btn class="mb-5 ms-5" color="red-darken-3" @click="closeDialog()">Quitter</v-btn>
-            </v-card-action>
+            </v-card-actions>
         </v-card>
     </v-dialog>
 </template>
@@ -35,6 +35,9 @@
 import { ref } from 'vue';
 import complaints from '../AdminComponents/complaints.vue';
 import userBlocking from '../AdminComponents/userBlocking.vue';
+import {v1} from 'uuid';
+
+const uuid = ref<string>(v1());
 
 const emit = defineEmits(['closeDialog'])
 const props = defineProps({
@@ -45,6 +48,9 @@ const tab = ref<number>(0);
 function closeDialog() {
     tab.value = 0;
     emit('closeDialog');
+}
+function reload() {
+    uuid.value = v1();
 }
 
 </script>

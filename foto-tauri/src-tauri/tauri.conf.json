@@ -7,8 +7,8 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "foto-tauri",
-    "version": "0.0.0"
+    "productName": "Foto",
+    "version": "1.0.0"
   },
   "tauri": {
     "allowlist": {

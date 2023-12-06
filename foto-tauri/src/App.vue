@@ -1,16 +1,20 @@
 <template>
   <RouterView />
-  <LoginRegister :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
-  <CreatePost :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
-  <Search :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
-  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" :img-src="editImgSrc"/>
-  <CreateAlbum :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
-  <ModifyProfile :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
-  <Admin :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
+  <PostModal :key="v1()" :idPost="idPost" :activate="activatePostModal" @close-dialog="closePostModal()"/>
+  <LoginRegister :key="v1()" :activate="activateLogin" @closeDialog="(val: boolean) => closeLoginRegisterDialog(val)" />
+  <CreatePost :key="v1()" :activate="activateCreatePost" @closeDialog="() => activateCreatePost = false" />
+  <Search :key="v1()" :activate="activateSearch" @closeDialog="() => closeSearchDialog()" />
+  <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" :editedPicture="editedPicture"/>
+  <CreateAlbum :key="v1()" :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
+  <ModifyProfile :key="v1()" :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
+  <DeleteFollow :key="v1()" :activate="activateUnfollowModal" @close-dialog="() => closeUnfollowModal()" />
+  <Admin :key="v1()" :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
+  <Comments :key="v1()" :activate="activateComments" @close-dialog="closeComments()" :idPost="postComments"/>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
+import { useTheme } from 'vuetify'
 import { EventsBus, Events } from './core/EventBus';
 import LoginRegister from './components/modals/LoginRegister.vue';
 import AccountRepository from './repositories/AccountRepository';
@@ -21,17 +25,59 @@ import CreateAlbum from './components/modals/CreateAlbum.vue';
 import ModifyProfile from './components/modals/ModifyProfile.vue'
 import Admin from './components/modals/Admin.vue';
 import router from './router';
+import EditedPicture from './models/EditedPicture';
+import PostModal from './components/modals/PostModal.vue';
+import DeleteFollow from './components/modals/DeleteFollow.vue';
+import Comments from './components/modals/Comments.vue';
+import {v1} from 'uuid'; 
+import Account from './models/Account';
+import ThemeRepository from './repositories/ThemeRepository';
+
+const theme = useTheme()
+
+onMounted(async () => {
+  theme.global.name.value = 'dark';
+
+  let apiResponse = await ThemeRepository.getTheme();
+  if (!apiResponse.success) return;
+  theme.global.name.value = apiResponse.data;
+  AccountRepository.startConnectionFlow(async () => {
+      let apiResponse = await AccountRepository.getAccount();
+      if (!apiResponse.success) return;
+      console.log('connected account', apiResponse.data);
+      
+
+  }, 5*60*1000); // replace 1000 with the desired interval in milliseconds
+})
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
 const activateCreateAlbum = ref<boolean>(false);
 const activateSearch = ref<boolean>(false);
 const activateEdit = ref<boolean>(false);
-const editImgSrc = ref<string>("");
+const editedPicture= ref<EditedPicture>();
 const activateModifyProfile = ref<boolean>(false);
 const activateAdmin = ref<boolean>(false);
+const activatePostModal = ref<boolean>(false);
+
+const activateUnfollowModal = ref<boolean>(false);
+
+const activateComments = ref<boolean>(false);
+
+const idPost = ref<number | undefined>();
+const idAccount = ref<number>();
+const postComments = ref<number>();
+const connectedAccount = ref<Account>();
 
 const { bus, eventBusEmit } = EventsBus();
+
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
+    if (!account)
+        return;
+
+    connectedAccount.value = account[0];
+})
+
 
 watch(() => bus.value.get(Events.LOGIN), () => {
   activateLogin.value = true;  
@@ -41,9 +87,15 @@ watch(() => bus.value.get(Events.LOGOUT), () => {
   Logout();
 })
 
+watch(() => bus.value.get(Events.OPEN_COMMENTS), (value: number[]) => {
+    activateComments.value = true;
+    postComments.value = value[0];
+})
+
 watch(() => bus.value.get(Events.CREATE_POST), () => {
   activateCreatePost.value = true;
 })
+
 watch(() => bus.value.get(Events.OPEN_SEARCH_MODAL), () => {
   activateSearch.value = true;
 })
@@ -52,6 +104,21 @@ watch(()=> bus.value.get(Events.CREATE_ALBUM), () => {
 })
 watch(()=> bus.value.get(Events.RELOAD_CONNECTED_ACCOUNT), () => {
   getAccount();
+})
+
+watch(() => bus.value.get(Events.OPEN_USER_PROFILE ), (value) => {
+  idAccount.value = value[0];
+  if (idAccount.value === connectedAccount.value?.idAccount){
+    router.push({name :'profil'});
+  } else {
+    // activateOthersProfile.value = true;
+    router.push({name :'otherUserProfile', params: {idAccount: idAccount.value}});
+  }
+})
+
+watch(() => bus.value.get(Events.OPEN_POST_MODAL), (value) => {
+  idPost.value = value[0];  
+  activatePostModal.value = true;
 })
 
 watch(() => bus.value.get(Events.OPEN_MODIFY_PROFILE_MODAL), () => {
@@ -63,9 +130,13 @@ watch(() => bus.value.get(Events.OPEN_ADMIN_PANEL), () => {
   activateAdmin.value = true;
 })
 
-watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: string[]) => {
+watch(() => bus.value.get(Events.OPEN_UNFOLLOW_MODAL), () => {
+  activateUnfollowModal.value = true;
+})
+
+watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: EditedPicture[]) => {
     activateEdit.value = true;
-    editImgSrc.value = value[0];
+    editedPicture.value = value[0];
 });
 
 onMounted(async () => {
@@ -85,6 +156,11 @@ function closeSearchDialog() {
 function closeModifyProfileDialog() {
   activateModifyProfile.value = false;
 }
+
+function closeComments() {
+    activateComments.value = false;
+}
+
 function closeAdminPanel() {
   activateAdmin.value = false;
 }
@@ -95,6 +171,14 @@ async function closeLoginRegisterDialog(val: boolean) {
   await getAccount();
 }
 
+function closePostModal(){
+  activatePostModal.value = false;
+}
+
+function closeUnfollowModal(){
+  activateUnfollowModal.value = false;
+}
+
 async function Logout() {
   AccountRepository.logout();
   eventBusEmit(Events.CONNECTED_ACCOUNT, undefined)
@@ -102,19 +186,16 @@ async function Logout() {
   router.push({ name: 'home' })
   console.log();
 }
-
 async function getAccount() {
   let apiResponse = await AccountRepository.getAccount();
-  console.log(apiResponse);
+  // console.log(apiResponse);
   
   if (!apiResponse.success) return;
   let account = apiResponse.data;
-  console.log(account);
+  // console.log(account);
   
   eventBusEmit(Events.CONNECTED_ACCOUNT, account)
 }
-
-
 </script>
 
 <style scoped></style>

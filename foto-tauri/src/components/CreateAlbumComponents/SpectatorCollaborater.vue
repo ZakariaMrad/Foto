@@ -3,14 +3,14 @@
         <td>{{ props.account.name }}</td>
         <td>{{ props.account.email }}</td>
         <td style="text-align: center;">
-            <v-btn v-if="props.isPublic" color="red-darken-3" icon="mdi-minus"
+            <v-btn v-if="props.isPublic || props.disabled" color="red-darken-3" icon="mdi-minus"
                 variant="plain"  :disabled="true" />
             <v-btn v-else :color="isSpectator ? 'red-darken-3' : 'green-darken-3'" :icon="isSpectator ? 'mdi-minus' : 'mdi-plus'"
                 variant="plain" @click="toggleSpectator()" :disabled="isCollaborater" />
         </td>
         <td style="text-align: center;">
             <v-btn :color="isCollaborater ? 'red-darken-3' : 'green-darken-3'"
-                :icon="isCollaborater ? 'mdi-minus' : 'mdi-plus'" variant="plain" @click="toggleCollaborater()" />
+                :icon="isCollaborater ? 'mdi-minus' : 'mdi-plus'" variant="plain" @click="toggleCollaborater()" :disabled="props.disabled" />
         </td>
     </tr>
 </template>
@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import Account from '../../models/Account';
-const props = defineProps<{ account: Account, isCollaborater: boolean, isSpectator: boolean, isPublic: boolean }>()
+const props = defineProps<{ account: Account, isCollaborater: boolean, isSpectator: boolean, isPublic: boolean, disabled:boolean }>()
 
 const isSpectator = ref(false)
 const isCollaborater = ref(false)

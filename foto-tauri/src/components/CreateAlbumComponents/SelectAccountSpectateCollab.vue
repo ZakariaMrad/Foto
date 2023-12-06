@@ -1,6 +1,6 @@
 <template>
     <form @submit.prevent="submitFn">
-        <v-text-field v-bind="register('search')" type="text" label="Recherche" :loading="loading" @input="submitFn" />
+        <v-text-field v-bind="register('search')" :disabled="props.disabled" type="text" label="Recherche" :loading="loading" @input="submitFn" />
         <v-table fixed-header height="50vh">
             <thead>
                 <tr>
@@ -11,7 +11,7 @@
                 </tr>
             </thead>
             <tbody>
-                <SpectatorCollaborater v-for="account in accounts" :isPublic="props.isPublic!" :account="account" :key="account.idAccount"
+                <SpectatorCollaborater :disabled="props.disabled" v-for="account in accounts" :isPublic="props.isPublic!" :account="account" :key="account.idAccount"
                 :isSpectator="isSpectator(account)" :isCollaborater="isCollaborater(account)"
                     @addCollaborater="(idAccount) => addCollaborater(idAccount)"
                     @removeCollaborater="(idAccount) => removeCollaborater(idAccount)"
@@ -29,11 +29,11 @@ import AccountRepository from '../../repositories/AccountRepository';
 import Account from '../../models/Account';
 import SpectatorCollaborater from './SpectatorCollaborater.vue';
 
-const props = defineProps<{ isPublic: boolean }>()
+const props = defineProps<{ isPublic: boolean, disabled:boolean }>()
 
 const loading = ref<boolean>(false)
 const accounts = ref<Account[]>([])
-const collaboraters = ref<Account[]>([])
+const collaborators = ref<Account[]>([])
 const spectators = ref<Account[]>([])
 
 const emit = defineEmits<{ 
@@ -51,7 +51,7 @@ const { register, handleSubmit, formState } = useFormHandler({ validationMode: '
 
 function submitFn() {
     try {
-        emit('collaboraters', collaboraters.value)
+        emit('collaboraters', collaborators.value)
         emit('spectators', spectators.value)
         handleSubmit(successFn)
     } catch {
@@ -70,6 +70,17 @@ async function successFn(form: any) {
     }
     if (!apiResult.data) return
     accounts.value = apiResult.data
+    //we need to get the connected account
+
+    const apiResultAccount = await AccountRepository.getAccount()
+    if (!apiResultAccount.success) {
+        console.log(apiResultAccount.errors);
+        return
+    }
+    if (!apiResultAccount.data) return
+    accounts.value = accounts.value.filter((ac) => ac.idAccount !== apiResultAccount.data!.idAccount)
+
+
     loading.value = false
 }
 
@@ -77,15 +88,15 @@ function isSpectator(account: Account) {
     return spectators.value.find((ac) => ac.idAccount === account.idAccount) !== undefined
 }
 function isCollaborater(account: Account) {
-    return collaboraters.value.find((ac) => ac.idAccount === account.idAccount) !== undefined
+    return collaborators.value.find((ac) => ac.idAccount === account.idAccount) !== undefined
 }
 
 function addCollaborater(account: Account) {
-    collaboraters.value.push(accounts.value.find((ac) => ac.idAccount === account.idAccount)!)
+    collaborators.value.push(accounts.value.find((ac) => ac.idAccount === account.idAccount)!)
     removeSpectator(account)
 }
 function removeCollaborater(account: Account) {
-    collaboraters.value = collaboraters.value.filter((ac) => ac.idAccount !== account.idAccount)
+    collaborators.value = collaborators.value.filter((ac) => ac.idAccount !== account.idAccount)
     removeSpectator(account)
 }
 
