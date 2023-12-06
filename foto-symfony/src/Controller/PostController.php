@@ -69,9 +69,6 @@ class PostController extends AbstractController
         }
 
         $post->setIsDeleted(false);
-
-
-
         $post->setCreationDate(new \DateTime());
         $post->setOwner($user);
 

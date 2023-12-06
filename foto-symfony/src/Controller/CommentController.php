@@ -59,6 +59,11 @@ class CommentController extends AbstractController
         }
         $post = $this->getPostById($postId);
         $comment-> setUser($user);
+        if (!$post) {
+            return $this->json([
+                'error' => ['Erreur: Post non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
 
         $user->addComment($comment);
 
