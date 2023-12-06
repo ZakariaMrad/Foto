@@ -15,5 +15,8 @@ export default class Post extends JWTToken implements APIResponse{
     album:Album = new Album();
     likes: Like[] = [];
     isLiked: boolean = false;
+
+    isPublic: boolean = false;
+
     comments: Comment[] = [];
 }

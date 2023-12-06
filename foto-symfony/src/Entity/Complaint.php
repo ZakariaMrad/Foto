@@ -35,10 +35,8 @@ class Complaint
     #[ORM\Column(length: 1024)]
     private ?String $status = '';
 
-    const STATUS_NEW = 'Nouveau';
-    const STATUS_READ = 'Vue';
-    const STATUS_PROCESSING = 'En traitement';
-    const STATUS_PROCESSED = 'Traité';
+    const STATUS_ACTIVE = 'Active';
+    const STATUS_ARCHIVED = 'Archived';
 
     public function getAll(){
         return [

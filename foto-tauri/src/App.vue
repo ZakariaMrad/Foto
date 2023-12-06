@@ -7,12 +7,14 @@
   <EditPicture :activate="activateEdit" @close-dialog="() => closeEditDialog()" :editedPicture="editedPicture"/>
   <CreateAlbum :key="v1()" :activate="activateCreateAlbum" @closeDialog="() => activateCreateAlbum = false" />
   <ModifyProfile :key="v1()" :activate="activateModifyProfile" @closeDialog="() => closeModifyProfileDialog()" />
+  <DeleteFollow :key="v1()" :activate="activateUnfollowModal" @close-dialog="() => closeUnfollowModal()" />
   <Admin :key="v1()" :activate="activateAdmin" @close-dialog="closeAdminPanel()"/>
   <Comments :key="v1()" :activate="activateComments" @close-dialog="closeComments()" :idPost="postComments"/>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
+import { useTheme } from 'vuetify'
 import { EventsBus, Events } from './core/EventBus';
 import LoginRegister from './components/modals/LoginRegister.vue';
 import AccountRepository from './repositories/AccountRepository';
@@ -25,8 +27,27 @@ import Admin from './components/modals/Admin.vue';
 import router from './router';
 import EditedPicture from './models/EditedPicture';
 import PostModal from './components/modals/PostModal.vue';
+import DeleteFollow from './components/modals/DeleteFollow.vue';
 import Comments from './components/modals/Comments.vue';
 import {v1} from 'uuid'; 
+import ThemeRepository from './repositories/ThemeRepository';
+
+const theme = useTheme()
+
+onMounted(async () => {
+  theme.global.name.value = 'dark';
+
+  let apiResponse = await ThemeRepository.getTheme();
+  if (!apiResponse.success) return;
+  theme.global.name.value = apiResponse.data;
+  AccountRepository.startConnectionFlow(async () => {
+      let apiResponse = await AccountRepository.getAccount();
+      if (!apiResponse.success) return;
+      console.log('connected account', apiResponse.data);
+      
+
+  }, 5*60*1000); // replace 1000 with the desired interval in milliseconds
+})
 
 const activateLogin = ref<boolean>(false);
 const activateCreatePost = ref<boolean>(false);
@@ -37,7 +58,11 @@ const editedPicture= ref<EditedPicture>();
 const activateModifyProfile = ref<boolean>(false);
 const activateAdmin = ref<boolean>(false);
 const activatePostModal = ref<boolean>(false);
+
+const activateUnfollowModal = ref<boolean>(false);
+
 const activateComments = ref<boolean>(false);
+
 const idPost = ref<number | undefined>();
 const idAccount = ref<number>();
 const postComments = ref<number>();
@@ -91,6 +116,10 @@ watch(() => bus.value.get(Events.OPEN_ADMIN_PANEL), () => {
   activateAdmin.value = true;
 })
 
+watch(() => bus.value.get(Events.OPEN_UNFOLLOW_MODAL), () => {
+  activateUnfollowModal.value = true;
+})
+
 watch(() => bus.value.get(Events.OPEN_EDIT_MODAL), (value: EditedPicture[]) => {
     activateEdit.value = true;
     editedPicture.value = value[0];
@@ -130,6 +159,10 @@ async function closeLoginRegisterDialog(val: boolean) {
 
 function closePostModal(){
   activatePostModal.value = false;
+}
+
+function closeUnfollowModal(){
+  activateUnfollowModal.value = false;
 }
 
 async function Logout() {

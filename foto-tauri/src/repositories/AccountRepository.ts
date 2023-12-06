@@ -23,7 +23,7 @@ class AccountRepository extends Repository {
     async isAdmin(): Promise<APIResult<boolean>> {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
-        let APIResponse= await this.getAccount();
+        let APIResponse = await this.getAccount();
         if (!APIResponse.success) return { errors: APIResponse.errors, success: false };
         let idAccount = APIResponse.data.idAccount;
         try {
@@ -117,10 +117,39 @@ class AccountRepository extends Repository {
         try {
             const response = await client.post(`${this.url}/account`, Body.json(jwt.data), { responseType: ResponseType.JSON });
             let data = response.data as any;
-            console.log(data);
+            // console.log(data);
 
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
+                if (!data.user?.friends)
+                    data.user.friends = []
+                return { data: data.user as Account, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            console.log(error);
+            return { errors: error as [APIError], success: false };
+        }
+    }
+
+
+    public async follow(friendUser: Account): Promise<APIResult<Account>> {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+        // console.log(friendUser.idAccount);
+        
+        try {
+            console.log('ca marche');
+
+            const response = await client.post(`${this.url}/account/follow/${friendUser.idAccount}`, Body.json(jwt.data), { responseType: ResponseType.JSON });
+            let data = response.data as any;
+            // console.log(data);
+
+            if (response.status === 200) {
+                // console.log("ca marche");
+                if (!data.user?.friends)
+                    data.user.friends = []
 
                 return { data: data.user as Account, success: true };
             }
@@ -141,10 +170,10 @@ class AccountRepository extends Repository {
         try {
             const response = await client.get(`${this.url}/account/find/${idUser}`, { responseType: ResponseType.JSON });
             let data = response.data as any;
-            console.log(data);
+            // console.log(data);
 
             if (response.status === 200) {
-                console.log("ca marche");
+                // console.log("ca marche");
                 return { data: data.user as Account, success: true };
             }
             // If there is an unexpected response or error status code, return an Error object

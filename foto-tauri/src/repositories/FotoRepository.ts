@@ -14,9 +14,10 @@ class FotoRepository extends Repository {
         foto.jwtToken = jwt.data.jwtToken;
         try {
             delete foto.uploadDate;
-            const response = await client.post(`${this.url}/foto`, Body.json(foto),{ responseType: ResponseType.JSON });
+            const response = await client.post(`${this.url}/foto`, Body.json(foto), { responseType: ResponseType.JSON });
+
             console.log(response.data);
-            
+
             if (response.status === 200) {
                 return { success: true };
             }
@@ -31,11 +32,11 @@ class FotoRepository extends Repository {
     public async getFotos(): Promise<APIResult<Foto[]>> {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
-        
-        try {                        
+
+        try {
             const response = await client.get(`${this.url}/fotos?jwtToken=${jwt.data.jwtToken}`, { responseType: ResponseType.JSON });
-            let data = response.data as any;      
-            
+            let data = response.data as any;
+
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
 
@@ -50,15 +51,15 @@ class FotoRepository extends Repository {
     public async getFotosById(idFotos: number[]): Promise<APIResult<Foto[]>> {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
-        
-        try {  
-                      
+
+        try {
+
             const response = await client.get(`${this.url}/fotosbyid?jwtToken=${jwt.data.jwtToken}&idFotos=[${idFotos.toString()}]`, { responseType: ResponseType.JSON });
-            let data = response.data as any;      
-            
+            let data = response.data as any;
+
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
-                console.log('foto by id',data.fotos);
+                console.log('foto by id', data.fotos);
 
                 return { data: data.fotos as Foto[], success: true };
             }

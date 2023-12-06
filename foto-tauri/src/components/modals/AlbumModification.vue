@@ -2,7 +2,7 @@
     <v-dialog width="90%" v-model="props.activate">
         <v-card>
             <v-card-text>
-                <h3 class="text-center" md="12">Créer un album</h3>
+                <h3 class="text-center" md="12">Modifier un album</h3>
                 <p class="text-danger">{{ errorMessage }}</p>
                 <p class="text-success">{{ successMessage }}</p>
                 <v-responsive :aspect-ratio="3 / 1">
@@ -148,7 +148,9 @@ function finalizationToCollaboraters() {
 async function finalization(album: Partial<Album>) {
     albumInProgress.value = album;
     let apiResult = await AlbumRepository.modifyAlbum(album as Album);
+    console.log(apiResult);
     if (!apiResult.success) {
+        
         errorMessage.value = apiResult.errors![0].message;
         return
     }

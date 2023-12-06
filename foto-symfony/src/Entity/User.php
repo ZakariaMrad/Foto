@@ -67,8 +67,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Like::class, cascade: ['persist'])]
     private Collection $likes;
 
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class, cascade: ['persist'])]
     private Collection $comments;
+
 
     #[ORM\ManyToMany(targetEntity: Chat::class, mappedBy: 'users', cascade: ['persist'])]
     #[ORM\JoinTable(
@@ -105,8 +107,24 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     private Collection $receivedComplaints;
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-
     private ?UserBlock $block = null;
+
+
+    #[ORM\Column]
+    private ?bool $isDeleted = null;
+    #[ORM\ManyToMany(targetEntity: self::class)]
+    #[ORM\JoinTable(
+        name: 'friends',
+        joinColumns: [new ORM\JoinColumn(name: 'idUser', referencedColumnName: 'idUser')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'idFriend', referencedColumnName: 'idUser')]
+    )]
+    private Collection $friends;
+
+    //
+
+
+
+
 
     public function __construct()
     {
@@ -121,13 +139,17 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->spectatedAlbums = new ArrayCollection();
         $this->sentComplaints = new ArrayCollection();
         $this->receivedComplaints = new ArrayCollection();
-
+        $this->friends = new ArrayCollection();
     }
 
     public function getAll()
     {
+
+
+        // dd($friends);
+        // $this->friends->map(fn (User $friend) => dump($friend->getFriend()))   ;
         return [
-            'idAccount'=> $this->idUser,
+            'idAccount' => $this->idUser,
             'email' => $this->email,
             'roles' => $this->roles,
             'picturePath' => $this->picturePath,
@@ -136,8 +158,25 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             'name' => $this->name,
             'birthDate' => $this->birthDate,
             'creationDate' => $this->creationDate,
-            'fotos' => $this->fotos
-
+            'fotos' => $this->fotos,
+            'friends' => $this->getAllFriends(),
+        ];
+    }
+    private function getAllFriends()
+    {
+        $friendsArr = $this->friends->toArray();
+        return array_map(fn (User $friend) => $friend->getFriend(), $friendsArr);
+    }
+    private function getFriend()
+    {
+        return [
+            'idAccount' => $this->idUser,
+            'email' => $this->email,
+            'picturePath' => $this->picturePath,
+            'bio' => $this->bio,
+            'name' => $this->name,
+            'birthDate' => $this->birthDate,
+            'fotos' => $this->fotos,
         ];
     }
 
@@ -145,13 +184,14 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function getOneById()
     {
         return [
-            'idAccount'=> $this->idUser,
+            'idAccount' => $this->idUser,
             'email' => $this->email,
             'picturePath' => $this->picturePath,
             'bio' => $this->bio,
             'name' => $this->name,
             'birthDate' => $this->birthDate,
-            'fotos' => $this->fotos
+            'fotos' => $this->fotos,
+            'friends' => $this->friends
         ];
     }
 
@@ -447,6 +487,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this;
     }
 
+
     /**
      * @return Collection<int, Chat>
      */
@@ -563,14 +604,14 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         }
         return $this;
     }
- public function removeSpectatedAlbum(Album $spectatedAlbum): static
-                {
-                   if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
-                     $spectatedAlbum->removeSpectator($this);
-                 }
-               return $this;
-             }
-    
+    public function removeSpectatedAlbum(Album $spectatedAlbum): static
+    {
+        if ($this->spectatedAlbums->removeElement($spectatedAlbum)) {
+            $spectatedAlbum->removeSpectator($this);
+        }
+        return $this;
+    }
+
     /**
      * @return Collection<int, Complaint>
      */
@@ -584,14 +625,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         if (!$this->sentComplaints->contains($sentComplaint)) {
             $this->sentComplaints->add($sentComplaint);
             $sentComplaint->setSender($this);
-
         }
 
         return $this;
     }
 
 
-    
+
 
     public function removeSentComplaint(Complaint $sentComplaint): static
     {
@@ -659,6 +699,42 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         }
 
         $this->block = $block;
+
+        return $this;
+    }
+
+    public function isIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): static
+    {
+        $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFriends(): Collection
+    {
+        return $this->friends;
+    }
+
+    public function addFriend(self $friend): static
+    {
+        if (!$this->friends->contains($friend)) {
+            $this->friends->add($friend);
+        }
+
+        return $this;
+    }
+
+    public function removeFriend(self $friend): static
+    {
+        $this->friends->removeElement($friend);
 
         return $this;
     }

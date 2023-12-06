@@ -68,6 +68,7 @@ class PostController extends AbstractController
             $post->setAlbum($album);
         }
 
+        $post->setIsDeleted(false);
         $post->setCreationDate(new \DateTime());
         $post->setOwner($user);
 
@@ -83,15 +84,15 @@ class PostController extends AbstractController
     #[Route('/posts', name: 'app_post_get', methods: ['GET'])]
     public function getFotos(Request $request): JsonResponse
     {
-        $data["jwtToken"] = $request->query->get('jwtToken');
-        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
-        if (!$hasSucceded) {
-            return $this->json([
-                'error' => $this->jwtHandler->error,
-            ], JsonResponse::HTTP_UNAUTHORIZED);
-        }
+        // $data["jwtToken"] = $request->query->get('jwtToken');
+        // [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        // if (!$hasSucceded) {
+        //     return $this->json([
+        //         'error' => $this->jwtHandler->error,
+        //     ], JsonResponse::HTTP_UNAUTHORIZED);
+        // }
 
-        $posts = $this->em->getRepository(Post::class)->findAll();
+        $posts = $this->getPosts();
 
         //order the post by the inversed datetime (new post at the start of the array)
         usort($posts, function ($a, $b) {
@@ -103,7 +104,7 @@ class PostController extends AbstractController
 
 
         return $this->json([
-            'jwtToken' => $newJWT,
+            // 'jwtToken' => $newJWT,
             'posts' => $posts
         ], JsonResponse::HTTP_OK);
     }
@@ -139,5 +140,9 @@ class PostController extends AbstractController
     private function getAlbumById(int $idAlbum): ?Album
     {
         return $this->em->getRepository(Album::class)->findOneBy(['idAlbum' => $idAlbum]);
+    }
+    private function getPosts(): array
+    {
+        return $this->em->getRepository(Post::class)->findBy(['isDeleted' => false]);
     }
 }

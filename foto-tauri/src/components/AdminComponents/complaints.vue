@@ -1,34 +1,17 @@
 <template>
     <div>
         <v-row>
-            <v-col cols="6">
-                <v-card variant="outlined">
-                    <v-card-title>
-                        Plaintes non reçus
-                    </v-card-title>
-                    <v-card-text>
-                        <v-list>
-                            <v-list-item v-for="complaint in complaints.filter((c) => c.status !== Constants.STATUS_PROCESSED)">
-                                <complaint :complaint="complaint" @relaodComplaints="reloadComplaints"/>
-                            </v-list-item>
-                        </v-list>
-                    </v-card-text>
-                </v-card>
+            <v-col>
+                <h4 v-if="archived">Liste de plaintes archivés</h4>
+                <h4 v-else>Liste de plaintes actives</h4>
+                <ComplaintList :complaints="complaints" @reload="reload"/>
 
-            </v-col>
-            <v-col cols="6">
-                <v-card variant="outlined">
-                    <v-card-title>
-                        Plaintes reçus
-                    </v-card-title>
-                    <v-card-text>
-                        <v-list>
-                            <v-list-item v-for="complaint in complaints.filter((c) => c.status === Constants.STATUS_PROCESSED)">
-                                <complaint :complaint="complaint" @relaodComplaints="reloadComplaints"/>
-                            </v-list-item>
-                        </v-list>
-                    </v-card-text>
-                </v-card>
+                <v-btn v-if="archived" class="mt-1" color="blue" @click="toggleComplaints">
+                    Afficher les plaintes actives
+                </v-btn>
+                <v-btn v-else class="mt-1" color="blue" @click="toggleComplaints" :loading="loading">
+                    Afficher les plaintes archivés
+                </v-btn>
             </v-col>
         </v-row>
     </div>
@@ -37,23 +20,49 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import Complaint from '../../models/Complaint';
-import complaint from './complaint.vue';
 import ComplaintRepository from '../../repositories/ComplaintRepository';
-import Constants from '../../core/Constants';
+import ComplaintList from './complaintList.vue';
 
-const emit = defineEmits(['reloadComplaints']);
 const complaints = ref<Complaint[]>([]);
+const archived = ref<boolean>(false);
+const loading = ref<boolean>(false);
+
 onMounted(async () => {
-    await reloadComplaints();
+    await getComplaints();
 })
 
-async function reloadComplaints() {
-    console.log('reload complaints');
-        let apiResponse = await ComplaintRepository.getComplaints();
-        if (!apiResponse.success || !apiResponse.data) return;
-        complaints.value = apiResponse.data as Complaint[];
-    emit('reloadComplaints');    
+async function getComplaints() {
+    let apiResponse = await ComplaintRepository.getActiveComplaints();
+    if (!apiResponse.success || !apiResponse.data) return;
+    complaints.value = apiResponse.data as Complaint[];
 }
+async function getArchivedComplaints() {
+    let apiResponse = await ComplaintRepository.getArchivedComplaints();
+    if (!apiResponse.success || !apiResponse.data) return;
+    complaints.value = apiResponse.data as Complaint[];
+}
+
+async function toggleComplaints() {
+    archived.value = !archived.value;
+    loading.value=true
+    if (archived.value) {
+        await getArchivedComplaints();
+    } else {
+        await getComplaints();
+    }
+    loading.value=false;
+    
+}
+async function reload() {
+    loading.value=true
+    if (archived.value) {
+        await getArchivedComplaints();
+    } else {
+        await getComplaints();
+    }
+    loading.value=false;
+}
+
 </script>
 
 <style scoped></style>

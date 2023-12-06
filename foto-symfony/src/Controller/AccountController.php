@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Foto;
+use App\Entity\Friend;
 use App\Entity\User;
 use App\Form\CreateFotoFormType;
 use App\Form\FormHandler;
@@ -42,24 +43,10 @@ class AccountController extends AbstractController
 
         $user = $this->em->getRepository(User::class)->findOneBy(['email' => $this->jwtHandler->decodedJWTToken['email']]);
 
+
         return $this->json([
             'user' => $user->getAll(),
             'jwtToken' => $newJWT
-        ], JsonResponse::HTTP_OK);
-    }
-
-    #[Route('/account/find/{id}', name: 'app_other_user_account', methods: ['GET'])]
-    public function getOtherUserAccount($id): JsonResponse
-    {
-        $user = $this->em->getRepository(User::class)->findOneBy(['idUser' => $id]);
-        if (!$user) {
-            return $this->json([
-                'error' => ['Erreur: Compte non trouvé.'],
-            ], JsonResponse::HTTP_NOT_FOUND);
-        }
-
-        return $this->json([
-            'user' => $user->getAll(),
         ], JsonResponse::HTTP_OK);
     }
 
@@ -88,7 +75,7 @@ class AccountController extends AbstractController
     }
 
     #[Route('/account/isAdmin/{idUser}', name: 'app_user_is_admin', methods: ['GET'])]
-    public function isAdmin($idUser,Request $request): JsonResponse
+    public function isAdmin($idUser, Request $request): JsonResponse
     {
         $data["jwtToken"] = $request->query->get('jwtToken');
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
@@ -135,9 +122,9 @@ class AccountController extends AbstractController
                 'error' => ['Courriel ou mot de passe incorrect.'],
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
-        if($user->getBlock()){
+        if ($user->getBlock()) {
             return $this->json([
-                'error' => ['Votre compte est bloqué, Raison: '.$user->getBlock()->getReason().'.'],
+                'error' => ['Votre compte est bloqué, Raison: ' . $user->getBlock()->getReason() . '.'],
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
         return $this->json([
@@ -167,6 +154,8 @@ class AccountController extends AbstractController
             )
         );
         $user->setCreationDate(new \DateTime());
+        $user->setIsAdmin(false);
+        $user->setIsDeleted(false);
 
         $this->em->persist($user); // Persist user to the database
         $this->em->flush(); // Save changes
@@ -179,6 +168,58 @@ class AccountController extends AbstractController
             'jwtToken' => $jwtToken
         ]);
     }
+
+    #[Route('/account/find/{id}', name: 'app_other_user_account', methods: ['GET'])]
+    public function getOtherUserAccount($id): JsonResponse
+    {
+        $user = $this->em->getRepository(User::class)->findOneBy(['idUser' => $id]);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        return $this->json([
+            'user' => $user->getAll(),
+        ], JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/account/follow/{id}', name: 'app_follow_other_user', methods: ['POST'])]
+    public function follow($id, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $friend = $this->em->getRepository(User::class)->findOneBy(['idUser' => $id]);
+        if (!$friend) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => $this->jwtHandler->decodedJWTToken['email']]);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $user->addFriend($friend);
+        $this->em->persist($user); // Persist user to the database
+        $this->em->flush(); // Save changes
+
+
+        return $this->json([
+            'user' => $user->getAll(),
+            'jwtToken' => $newJWT
+        ], JsonResponse::HTTP_OK);
+    }
+
 
     #[Route('/account/modify', name: 'app_account_modify', methods: ['POST'])]
     public function modifyAccount(Request $request): JsonResponse
@@ -229,4 +270,9 @@ class AccountController extends AbstractController
     {
         return $this->em->getRepository(User::class)->findOneBy(['idUser' => $idUser]);
     }
+
+    // private function getConnectedAccount(): ?User
+    // {
+    //     return $this->em->getRepository(User::class)->findBy();
+    // }
 }
