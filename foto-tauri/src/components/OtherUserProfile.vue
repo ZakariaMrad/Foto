@@ -16,7 +16,7 @@
                         <p class="font-italic">{{ account?.email }}</p>
                     </v-col>
                     <v-col cols="6" class="text-lg-right">
-                        <v-btn @click="btnSuivreProfil(account)">Suivre</v-btn>
+                        <v-btn @click="btnSuivreProfil(account!)">Suivre</v-btn>
                     </v-col>
                 </v-row>
                 <v-row cols="12" class="pa-3 font-weight-bold">
@@ -95,9 +95,6 @@ const connectedAccount = ref<Account>()
 
 // const friendList = connectedAccount.value?.friends;
 
-const props = defineProps<{
-    account: Account
-}>()
 
 
 

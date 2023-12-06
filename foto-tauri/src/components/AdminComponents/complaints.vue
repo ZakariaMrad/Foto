@@ -23,10 +23,9 @@ import Complaint from '../../models/Complaint';
 import ComplaintRepository from '../../repositories/ComplaintRepository';
 import ComplaintList from './complaintList.vue';
 
-const emit = defineEmits(['reloadComplaints']);
 const complaints = ref<Complaint[]>([]);
-const archived = ref<Boolean>(false);
-const loading = ref<Boolean>(false);
+const archived = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
 onMounted(async () => {
     await getComplaints();
