@@ -5,7 +5,7 @@
                 <v-sheet class="pa-2 ma-2">
 
                     <v-avatar size="150">
-                        <v-img src="https://randomuser.me/api/portraits/women/85.jpg" alt="Sandra Adams"></v-img>
+                        <v-img :src="account?.picturePath" alt="Sandra Adams"></v-img>
                     </v-avatar>
                 </v-sheet>
             </v-col>
@@ -22,7 +22,7 @@
                 <v-row cols="12" class="pa-3 font-weight-bold">
                     <v-col cols="4">
                         <p>
-                            120 Publications
+                            {{ posts.filter((post: Post) => post.owner.idAccount == account?.idAccount).length }} Publications
                         </p>
                     </v-col>
                     <v-col cols="4">
@@ -32,7 +32,7 @@
                     </v-col>
                     <v-col cols="4">
                         <p>
-                            1,5K Suivis
+                            {{ account?.friends.length }} Suivis
                         </p>
                     </v-col>
                 </v-row>
@@ -93,7 +93,6 @@ const posts = ref<Post[]>([])
 const account = ref<Account>()
 const connectedAccount = ref<Account>()
 
-// const friendList = connectedAccount.value?.friends;
 
 
 
@@ -101,9 +100,7 @@ const connectedAccount = ref<Account>()
 
 onMounted(async () => {
     const param = useRoute().params.idAccount;
-    // console.log("route: " + useRoute());
     idAccount.value = param.toString();
-    // console.log("le test", idAccount.value);
 
     if (!idAccount) {
         console.log(account.value);
@@ -145,39 +142,10 @@ async function btnSuivreProfil(friendAccount: Account) {
     if (!idAccount)
         return;
 
-    // console.log(connectedAccount.value?.friends);
-    // var test = connectedAccount.value?.friends(idAccount)
-
-    // friendList?.push(idAccount)
-
-    // friendList?.values.friends.push(idAccount)
-
-    // const friendList = props.account.friends.push(idAccount);
-
-    // if(account.value?.friends === undefined) {
-    //     const friendList = account.value?.friends.push(idAccount)
-    //     console.log(friendList);
-    // } else {
-    //     const friendList = account.value?.friends.push(idAccount)
-    //     console.log(friendList);
-    // }
-
-    // const friendList = connectedAccount.value?.friends.push(idAccount)
-    // console.log(friendList);
-
-
     let apiResponse = await AccountRepository.follow(friendAccount);
     console.log(apiResponse);
     
     if (!apiResponse.success) return;
-    account.value = apiResponse.data;
-    console.log(account.value.friends);
-    
-
-    // console.log(connectedAccount.value);
-
-
-
 }
 
 </script>

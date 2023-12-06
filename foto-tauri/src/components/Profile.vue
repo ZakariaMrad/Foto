@@ -4,7 +4,7 @@
             <v-col cols="2">
                 <v-sheet class="pa-2 ma-2">
                     <v-avatar size="150">
-                        <v-img src="https://randomuser.me/api/portraits/women/85.jpg" alt="Sandra Adams"></v-img>
+                        <v-img :src="connectedAccount?.picturePath" alt="Sandra Adams"></v-img>
                     </v-avatar>
                 </v-sheet>
             </v-col>
@@ -40,17 +40,17 @@
                 <v-row cols="12" class="pa-3 font-weight-bold">
                     <v-col cols="4">
                         <p>
-                            120 Publications
+                            {{ posts.filter((post: Post) => post.owner.idAccount == connectedAccount?.idAccount).length }} Publications
                         </p>
                     </v-col>
                     <v-col cols="4">
                         <p>
-                            752 Suiveurs
+                            0 Suiveurs
                         </p>
                     </v-col>
                     <v-col cols="4">
                         <p>
-                            1,5K Suivis
+                            {{ connectedAccount?.friends.length }} Suivis
                         </p>
                     </v-col>
                 </v-row>
@@ -79,8 +79,7 @@
                                     <v-img @click="openPostModal(post.idPost)"
                                         v-if="post.owner.idAccount == connectedAccount?.idAccount"
                                         :src="`${post.foto.path}`" aspect-ratio="2"
-                                        :style="{filter: 'saturate(' + post.foto.saturation +'%) contrast(' + post.foto.contrast +'%) brightness(' + post.foto.exposition +'%)'}"
-                            ></v-img>
+                                        :style="{ filter: 'saturate(' + post.foto.saturation + '%) contrast(' + post.foto.contrast + '%) brightness(' + post.foto.exposition + '%)' }"></v-img>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -93,7 +92,7 @@
                                     Créer un album
                                 </v-btn>
                             </v-row>
-                            <AlbumList/>
+                            <AlbumList />
                         </v-container>
                     </v-window-item>
 
@@ -104,7 +103,7 @@
                                     Créer une publication
                                 </v-btn>
                             </v-row>
-                            <AssetLister :items="fotos" title=""/>
+                            <AssetLister :items="fotos" title="" />
                         </v-container>
                     </v-window-item>
                 </v-window>
@@ -132,10 +131,9 @@ const connectedAccount = ref<Account>()
 const posts = ref<Post[]>([])
 const isAdmin = ref<boolean>(false)
 const fotos = ref<Foto[]>([]);
-
 const tab = ref<string>();
 
-onMounted( async () => {
+onMounted(async () => {
     const query = useRoute().query;
     console.log(query);
     if (query.tab) {
@@ -148,15 +146,15 @@ onMounted( async () => {
     console.log(apiResponse);
     if (apiResponse.success)
         isAdmin.value = apiResponse.data
-    
+
     let apiPostResponse = await PostRepository.getPosts();
     if (apiPostResponse.success) {
         posts.value = apiPostResponse.data;
         posts.value = posts.value.filter((post: Post) => {
-        if (post.foto)
-            return post;
-        else
-            return;
+            if (post.foto)
+                return post;
+            else
+                return;
         });
     }
 
@@ -192,7 +190,7 @@ function openProfileModificationModal() {
     eventBusEmit(Events.OPEN_MODIFY_PROFILE_MODAL)
 }
 
-function openPostModal(idPost : number) {
+function openPostModal(idPost: number) {
     eventBusEmit(Events.OPEN_POST_MODAL, idPost)
 }
 

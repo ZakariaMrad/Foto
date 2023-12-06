@@ -10,7 +10,7 @@ export default class Account extends JWTToken implements APIResponse {
     public bio: string = '';
     public birthDate= { date: "" };
     public creationDate = { date: "" };
-    public friends: number[] = [];
+    public friends: Account[] = [];
     declare public message?: string;
 
 
