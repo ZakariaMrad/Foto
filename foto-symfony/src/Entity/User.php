@@ -112,7 +112,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column]
     private ?bool $isDeleted = null;
-
     #[ORM\ManyToMany(targetEntity: self::class)]
     #[ORM\JoinTable(
         name: 'friends',
@@ -120,6 +119,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         inverseJoinColumns: [new ORM\JoinColumn(name: 'idFriend', referencedColumnName: 'idUser')]
     )]
     private Collection $friends;
+
+    //
+
 
 
 
@@ -142,7 +144,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     public function getAll()
     {
-        
+
 
         // dd($friends);
         // $this->friends->map(fn (User $friend) => dump($friend->getFriend()))   ;
@@ -159,7 +161,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             'fotos' => $this->fotos,
             'friends' => $this->getAllFriends(),
         ];
-
     }
     private function getAllFriends()
     {

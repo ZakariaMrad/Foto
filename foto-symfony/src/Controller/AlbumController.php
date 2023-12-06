@@ -125,7 +125,7 @@ class AlbumController extends AbstractController
         }
         $album->setGrid($grid);
         $album->setIsPublic(true);
-
+        $album->setIsDeleted(false);    
         $this->em->remove($this->getAlbumById($idAlbum));
         $this->em->flush();
         $album->setIdAlbum($idAlbum);

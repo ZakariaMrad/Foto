@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LikeRepository::class)]
 #[ORM\Table(name: '`likes`')]
+#[ORM\UniqueConstraint(name: 'like_unique_idx', fields: ['user', 'post'])]
 class Like
 {
     #[ORM\Id]
@@ -21,6 +22,13 @@ class Like
     #[ORM\ManyToOne(inversedBy: 'likes', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'idPost', referencedColumnName: 'idPost')]
     private ?Post $post = null;
+
+    public function getAll(){
+        return [
+            "idLike" => $this->idLike,
+            "user" => $this->user->getAll()
+        ];
+    }
 
     public function getIdLike(): ?int
     {

@@ -18,7 +18,7 @@
                         <v-card-actions>
                             <v-spacer></v-spacer>
 
-                            <v-list>{{ props.post?.likes }}</v-list>
+                            <v-list>{{ likes }}</v-list>
 
                             <v-btn size="small" :color="props.post?.isLiked ? 'red' : 'surface-variant'" variant="text"
                                 icon="mdi-heart" @click="toggleLike()"></v-btn>
@@ -62,7 +62,7 @@
                         <v-card-actions>
                             <v-spacer></v-spacer>
 
-                            <v-list>{{ props.post?.likes }}</v-list>
+                            <v-list>{{ likes }}</v-list>
 
                             <v-btn size="small" :color="props.post?.isLiked ? 'red' : 'surface-variant'" variant="text"
                                 icon="mdi-heart"></v-btn>
@@ -79,15 +79,22 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import Post from '../models/Post';
 import { EventsBus, Events } from '../core/EventBus';
 import ComplaintRepository from '../repositories/ComplaintRepository';
+import AccountRepository from '../repositories/AccountRepository';
+import Like from '../models/Like';
+import LikeRepository from '../repositories/LikeRepository';
 
 const { eventBusEmit } = EventsBus();
 
 const props = defineProps({
     post: Post
 })
+
+const likes = ref<number>(0);
+
 const getPath = (index: number) => {
     if (!props.post?.album) return;
     const id = props.post?.album.grid!.fotosPosition[index];
@@ -100,21 +107,51 @@ const getFoto = (index: number) => {
     return props.post?.album.fotos!.find(foto => foto.idFoto === id);
 }
 
+onMounted(() => {
+    if (!props.post) return;
+    likes.value = props.post?.likes.length;
+});
+
 function openUserProfile(idAccount: number) {
 
     eventBusEmit(Events.OPEN_USER_PROFILE, idAccount)
 }
 
-function toggleLike() {
-    if (!props.post)
-        return;
+async function toggleLike() {
+    if (!props.post) return;
+    if (!props.post.isLiked) {
+        let result = await AccountRepository.getAccount(); 
+        if (!result.success) return;
+        const account = result.data;
 
-    if (props.post.isLiked) {
-        props.post.isLiked = false;
-        props.post.likes--;
-    } else {
+        const like =  new Like();
+        like.post = props.post;
+        like.user = account;
+        let apiResult = await LikeRepository.uploadLike(like);
+        if (!apiResult.success) {
+            console.log("LIKE HAS FAILED");
+            return
+        }
         props.post.isLiked = true;
-        props.post.likes++;
+        likes.value++;
+    } else if (props.post.isLiked) {
+        console.log("DELETE LIKE");
+        let result = await AccountRepository.getAccount(); 
+        if (!result.success) return;
+        const account = result.data;
+
+        const likeResult = await LikeRepository.getLike(account.idAccount, props.post.idPost);
+        if (!likeResult.success) return;
+        const like = likeResult.data?.idLike;
+        if (!like) return;
+
+        const deleteResult = await LikeRepository.deleteLike(like);
+        if (!deleteResult.success) {
+            console.log("DELETE LIKE HAS FAILED");
+            return
+        }
+        props.post.isLiked = false;
+        likes.value--;
     }
 }
 

@@ -21,28 +21,28 @@
                         <v-card-text>
                             <v-window v-model="tab">
                                 <v-window-item value="0">
-                                    <Information :album="albumInProgress" @next-step="(album) => infoToFotos(album)"
+                                    <Information :key="v1()" :album="albumInProgress" @next-step="(album) => infoToFotos(album)"
                                         @close-dialog="closeDialog()" />
                                 </v-window-item>
 
                                 <v-window-item value="1">
-                                    <PickFotos :key="fotosKey" :album="albumInProgress"
+                                    <PickFotos :key="v1()" :album="albumInProgress"
                                         @next-step="(album) => fotoToDisplay(album)" @close-dialog="closeDialog()"
                                         @back="fotosToInfo()" />
                                 </v-window-item>
 
                                 <v-window-item value="2">
-                                    <Display :key="displayKey" :album="albumInProgress"
+                                    <Display :key="v1()" :album="albumInProgress"
                                         @next-step="(album) => displayToCollaboraters(album)" @close-dialog="closeDialog()"
                                         @back="displayToFotos()" />
                                 </v-window-item>
                                 <v-window-item value="3" :disabled="collabDisabled">
-                                    <Collaboraters :key="collaboratersKey" :album="albumInProgress" :disabled="false"
+                                    <Collaboraters :key="v1()" :album="albumInProgress" :disabled="false"
                                         @next-step="(album) => collaboratersToFinalization(album)"
                                         @close-dialog="closeDialog()" @back="collaboratersToDisplay()" />
                                 </v-window-item>
                                 <v-window-item value="4">
-                                    <Finalization :key="finalizationKey" :album="(albumInProgress)"
+                                    <Finalization :key="v1()" :album="(albumInProgress)"
                                         @next-step="(album) => finalization(album)" @close-dialog="closeDialog()"
                                         @back="finalizationToCollaboraters()" />
                                 </v-window-item>
@@ -64,6 +64,7 @@ import Display from '../CreateAlbumComponents/Display.vue';
 import Collaboraters from '../CreateAlbumComponents/Collaboraters.vue';
 import Finalization from '../CreateAlbumComponents/Finalization.vue';
 import { EventsBus, Events } from '../../core/EventBus';
+import {v1} from 'uuid';
 
 //@ts-ignore
 import delay from 'delay';
@@ -98,51 +99,54 @@ function infoToFotos(album: Partial<Album>) {
     
 }
 function fotosToInfo() {
-    tab.value = 0;
     disabledTabs.value.infos = false;
     disabledTabs.value.fotos = true;
-    fotosKey.value++;
     console.log(disabledTabs.value);
+    fotosKey.value++;
+    tab.value = 0;
 }
 
 function fotoToDisplay(album: Partial<Album>) {
-    tab.value = 2;
     disabledTabs.value.display = false;
     disabledTabs.value.fotos = true;
     console.log(album);
     albumInProgress.value = album;
+    tab.value = 2;
 }
 function displayToFotos() {
-    tab.value = 1;
     disabledTabs.value.display = true;
     disabledTabs.value.fotos = false;
+    fotosKey.value++;
     displayKey.value++;
+    tab.value = 1;
 }
 function displayToCollaboraters(album: Partial<Album>) {
-    tab.value = 3;
     disabledTabs.value.collaboraters = false;
     disabledTabs.value.display = true;
     console.log(album);
     albumInProgress.value = album;
+    tab.value = 3;
 }
 function collaboratersToDisplay() {
-    tab.value = 2;
     disabledTabs.value.collaboraters = true;
     disabledTabs.value.display = false;
+    displayKey.value++;
     collaboratersKey.value++;
+    tab.value = 2;
 }
 function collaboratersToFinalization(album: Partial<Album>) {
-    tab.value = 4;
     disabledTabs.value.finalization = false;
     disabledTabs.value.collaboraters = true;
     console.log(album);
     albumInProgress.value = album;
+    tab.value = 4;
 }
 function finalizationToCollaboraters() {
-    tab.value = 3;
     disabledTabs.value.finalization = true;
     disabledTabs.value.collaboraters = false;
+    collaboratersKey.value++;
     finalizationKey.value++;
+    tab.value = 3;
 }
 
 async function finalization(album: Partial<Album>) {
