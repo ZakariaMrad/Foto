@@ -1,7 +1,7 @@
 <template>
     <v-card class="mx-auto ma-10" max-width="1200px">
         <v-list>
-            <v-list-item prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" :title="props.post?.owner.name"
+            <v-list-item :prepend-avatar="props.post?.owner.picturePath" :title="props.post?.owner.name"
                 :subtitle="props.post?.owner.email" @click="openUserProfile(props.post?.owner.idAccount!)"></v-list-item>
             <v-list-item>
                 {{ props.post?.description }}
@@ -15,8 +15,6 @@
                         :style="{filter: 'saturate(' + props.post?.foto.saturation +'%) contrast(' + props.post?.foto.contrast +'%) brightness(' + props.post?.foto.exposition +'%)'}"
                             >
                         </v-img>
-                        <!-- <v-img v-else class="d-flex" cover :src="props.post?.album.fotos[0].path">
-                        </v-img> -->
                         <v-card-actions>
                             <v-spacer></v-spacer>
 

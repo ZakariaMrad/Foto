@@ -2,7 +2,7 @@
     <v-main>
         <v-navigation-drawer expand-on-hover rail permanent>
             <v-list v-if="account" density="compact">
-                <v-list-item prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" :title="account?.name"
+                <v-list-item :prepend-avatar="account?.picturePath" :title="account?.name"
                     :subtitle="account?.email" />
             </v-list>
             <v-list v-else density="compact">
@@ -14,9 +14,9 @@
             <v-list density="compact" nav>
                 <v-list-item prepend-icon="mdi-glasses" title="Rechercher" @click="openSearchModal" />
                 <v-list-item prepend-icon="mdi-home" title="Accueil public" :to="{ name: 'home' }"></v-list-item>
-                <v-list-item prepend-icon="mdi-star" title="Personne suivi" :to="{ name: 'home' }"></v-list-item>
+                <v-list-item prepend-icon="mdi-star" title="Personne suivi(s)" :to="{ name: 'home' }"></v-list-item>
                 <v-list-item v-if="account" prepend-icon="mdi-account" title="Mon profil" :to="{ name: 'profil' }"></v-list-item>
-                <v-list-item v-if="account" prepend-icon="mdi-account-heart" title="Mes amis" :to="{name: 'friendsList'}"/>
+                <v-list-item v-if="account" prepend-icon="mdi-account-heart" title="Mes suivi(s)" :to="{name: 'friendsList'}"/>
                 <v-list-item v-if="account" prepend-icon="mdi-upload" title="Téléverser" :to="{ name: 'upload' }"></v-list-item>
                 <v-list-item v-if="account" prepend-icon="mdi-logout-variant" title="Se déconnecter" @click="logout" />
             </v-list>

@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
+
 
 class AccountController extends AbstractController
 {
@@ -221,8 +223,45 @@ class AccountController extends AbstractController
     }
 
 
+    #[Route('/account/unfollow/{id}', name: 'app_unfollow_other_user', methods: ['POST'])]
+    public function unfollow($id, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
+        if (!$hasSucceded) {
+            return $this->json([
+                'error' => $this->jwtHandler->error,
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $friend = $this->em->getRepository(User::class)->findOneBy(['idUser' => $id]);
+        if (!$friend) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => $this->jwtHandler->decodedJWTToken['email']]);
+        if (!$user) {
+            return $this->json([
+                'error' => ['Erreur: Compte non trouvé.'],
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $user->removeFriend($friend);
+        $this->em->persist($user); // Persist user to the database
+        $this->em->flush(); // Save changes
+
+
+        return $this->json([
+            'user' => $user->getAll(),
+            'jwtToken' => $newJWT
+        ], JsonResponse::HTTP_OK);
+    }
+
+
     #[Route('/account/modify', name: 'app_account_modify', methods: ['POST'])]
-    public function modifyAccount(Request $request): JsonResponse
+    public function modifyAccount(Request $request, SluggerInterface $slugger): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         [$hasSucceded, $data, $newJWT] = $this->jwtHandler->handle($data);
@@ -234,26 +273,41 @@ class AccountController extends AbstractController
 
         $user = $this->getUserById($this->jwtHandler->decodedJWTToken['idUser']);
 
-        if ($data['email'] != $this->jwtHandler->decodedJWTToken['email']) {
+        if (!$user) {
             return $this->json([
                 'message' => 'Impossible de modifier le compte.'
             ], JsonResponse::HTTP_OK);
         }
 
         $formValues = [
-            'bio' => $data['bio'],
-            'picturePath' => $data['picturePath'],
+            'bio' => $data['bio']??$user->getBio(),
+            'image' => $data['image']
         ];
+
+        if(isset($data['image'])){
+            unset($data['picturePath']);
+        }
 
         $form = $this->createForm(ModifyAccountFormType::class);
         $formHandler = new FormHandler($form);
+
+        $original64String = $data['image'];
+        list($type, $original64String) = explode(';', $original64String);
+        list(, $original64String)      = explode(',', $original64String);
+        $originalFotoImage = base64_decode($original64String);
+
+        $newFilename = uniqid() . "." . explode('/', $type)[1];
+        $path = $this->getParameter('user_foto_image_directory') . "/" . $newFilename;
+        $success = file_put_contents($path, $originalFotoImage);
+
+        $user->setPicturePath($_ENV['BASE_URL']."/img/userPicture/".$newFilename);
 
         if (!$formHandler->handle($formValues)) {
             return $this->json($formHandler->errors, JsonResponse::HTTP_BAD_REQUEST); // Return a JSON error response with a 400 status code
         }
 
         $user->setBio($data['bio']);
-        $user->setPicturePath($data['picturePath']);
+        // $user->setPicturePath($data['picturePath']);
         $this->em->persist($user); // Persist user to the database
         $this->em->flush(); // Save changes
         // Generate a JWT token

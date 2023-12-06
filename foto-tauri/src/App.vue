@@ -30,6 +30,7 @@ import PostModal from './components/modals/PostModal.vue';
 import DeleteFollow from './components/modals/DeleteFollow.vue';
 import Comments from './components/modals/Comments.vue';
 import {v1} from 'uuid'; 
+import Account from './models/Account';
 import ThemeRepository from './repositories/ThemeRepository';
 
 const theme = useTheme()
@@ -66,8 +67,17 @@ const activateComments = ref<boolean>(false);
 const idPost = ref<number | undefined>();
 const idAccount = ref<number>();
 const postComments = ref<number>();
+const connectedAccount = ref<Account>();
 
 const { bus, eventBusEmit } = EventsBus();
+
+watch(() => bus.value.get(Events.CONNECTED_ACCOUNT), (account: Account[] | undefined) => {
+    if (!account)
+        return;
+
+    connectedAccount.value = account[0];
+})
+
 
 watch(() => bus.value.get(Events.LOGIN), () => {
   activateLogin.value = true;  
@@ -98,8 +108,12 @@ watch(()=> bus.value.get(Events.RELOAD_CONNECTED_ACCOUNT), () => {
 
 watch(() => bus.value.get(Events.OPEN_USER_PROFILE ), (value) => {
   idAccount.value = value[0];
-  // activateOthersProfile.value = true;
-  router.push({name :'otherUserProfile', params: {idAccount: idAccount.value}});
+  if (idAccount.value === connectedAccount.value?.idAccount){
+    router.push({name :'profil'});
+  } else {
+    // activateOthersProfile.value = true;
+    router.push({name :'otherUserProfile', params: {idAccount: idAccount.value}});
+  }
 })
 
 watch(() => bus.value.get(Events.OPEN_POST_MODAL), (value) => {

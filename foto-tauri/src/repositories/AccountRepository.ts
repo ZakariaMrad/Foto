@@ -162,6 +162,34 @@ class AccountRepository extends Repository {
     }
 
 
+    public async unfollow(friendUser: Account): Promise<APIResult<Account>> {
+        let jwt = await this.getJWTToken();
+        if (!jwt.success) return { errors: jwt.errors, success: false };
+        // console.log(friendUser.idAccount);
+        
+        try {
+            console.log('ca marche');
+
+            const response = await client.post(`${this.url}/account/unfollow/${friendUser.idAccount}`, Body.json(jwt.data), { responseType: ResponseType.JSON });
+            let data = response.data as any;
+            // console.log(data);
+
+            if (response.status === 200) {
+                // console.log("ca marche");
+                if (!data.user?.friends)
+                    data.user.friends = []
+
+                return { data: data.user as Account, success: true };
+            }
+            // If there is an unexpected response or error status code, return an Error object
+            return { errors: this.getAPIError(response.data), success: false };
+        } catch (error) {
+            console.log(error);
+            return { errors: error as [APIError], success: false };
+        }
+    }
+
+
 
     public async getOtherUserAccount(idUser: number): Promise<APIResult<Account>> {
         let jwt = await this.getJWTToken();
@@ -185,15 +213,15 @@ class AccountRepository extends Repository {
     }
 
 
-    public async updateAccount(personnalInfo: Account): Promise<APIResult<Account>> {
+    public async updateAccount(personnalInfo: Account, picture: string | ArrayBuffer): Promise<APIResult<Account>> {
         let jwt = await this.getJWTToken();
         if (!jwt.success) return { errors: jwt.errors, success: false };
         personnalInfo.jwtToken = jwt.data.jwtToken;
         try {
-            const response = await client.post(`${this.url}/account/modify`, Body.json(personnalInfo));
+            const response = await client.post(`${this.url}/account/modify`, Body.json({...personnalInfo, "image": picture}));
             let data = response.data as any;
 
-            // console.log(data);
+            console.log(data);
 
             if (response.status === 200) {
                 this.handleJWT(response.data as JWTToken);
